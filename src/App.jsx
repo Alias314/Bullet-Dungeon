@@ -1,6 +1,7 @@
 import { Canvas, events, useFrame } from '@react-three/fiber'
 import { useEffect, useRef, useState } from 'react';
 
+// will seperate to different component later
 function Player() {
   const meshRef = useRef();
   const [keyPressed, setKeyPressed] = useState({
