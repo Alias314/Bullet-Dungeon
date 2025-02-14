@@ -1,5 +1,5 @@
-# 3D-Game
-idk what game to make for now exactly so ill just rename the repo after knowing.
+# Bullet Dungeon
+Basically Soul Knight (mobile game) but 3D. 
 
 ## Technologies Used:
 1. React
