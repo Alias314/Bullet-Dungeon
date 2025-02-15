@@ -1,29 +1,41 @@
 import { useRef, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
+import { RigidBody } from "@react-three/rapier"
 
-export default function Player() {
-    const meshRef = useRef();
+export default function Player({ playerRef }) {
     const [keyPressed, setKeyPressed] = useState({
         w: false,
         a: false,
         s: false,
         d: false,
     });
-    const speedMultiplier = 0.04;
-
+    const speedMultiplier = 5;
+    
     useFrame(() => {
+        if (!playerRef.current) {
+            return;
+        }
+
+        const velocity = {
+            x: 0,
+            y: 0,
+            z: 0,
+        };
+
         if (keyPressed["a"]) {
-            meshRef.current.position.x -= speedMultiplier;
+            velocity.x = -speedMultiplier;
         }
         if (keyPressed["d"]) {
-            meshRef.current.position.x += speedMultiplier;
+            velocity.x = speedMultiplier;
         }
         if (keyPressed["w"]) {
-            meshRef.current.position.z -= speedMultiplier;
+            velocity.z = -speedMultiplier;
         }
         if (keyPressed["s"]) {
-            meshRef.current.position.z += speedMultiplier;
+            velocity.z = speedMultiplier;
         }
+
+        playerRef.current.setLinvel(velocity, true);
     });
 
     useEffect(() => {
@@ -55,9 +67,18 @@ export default function Player() {
     }, []);
 
     return (
-        <mesh ref={meshRef}>
-            <boxGeometry />
-            <meshStandardMaterial color="red" />
-        </mesh>
+        <RigidBody 
+            ref={playerRef}
+            position={[2, 1, 2]}
+            colliders='cuboid'
+            type='dynamic'
+            gravityScale={0}
+            lockRotations
+        >
+            <mesh>
+                <boxGeometry />
+                <meshStandardMaterial color="red" />
+            </mesh>
+        </RigidBody>
     );
 }
