@@ -64,15 +64,10 @@ export default function Scene() {
 
     return (
         <div className="w-full h-full">
-            <div>
-                {mouse}
-            </div>
-            <Canvas
-
-                camera={{ position: [0, 15, 10] }}
-            >
+            <Canvas camera={{ position: [0, 15, 10] }}>
                 <ambientLight />
                 <directionalLight />
+                <gridHelper args={[100, 100]} />
                 
                 <Suspense>
                     <Physics
