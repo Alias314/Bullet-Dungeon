@@ -1,8 +1,16 @@
 import { useRef, useState, useEffect } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { RigidBody } from "@react-three/rapier"
+import { Raycaster, Vector3 } from "three";
+import { Plane } from "three";
 
-export default function Player({ playerRef }) {
+export default function Player({ 
+    playerRef, 
+    mouse 
+}) {
+    const raycaster = useRef(new Raycaster());
+    const plane = new Plane(new Vector3(0, 1, 0), 0);
+    const { camera } = useThree();
     const [keyPressed, setKeyPressed] = useState({
         w: false,
         a: false,
@@ -12,30 +20,30 @@ export default function Player({ playerRef }) {
     const speedMultiplier = 5;
     
     useFrame(() => {
-        if (!playerRef.current) {
-            return;
-        }
+        if (playerRef.current) {
+            const velocity = {
+                x: 0,
+                y: 0,
+                z: 0,
+            };
+    
+            if (keyPressed["a"]) {
+                velocity.x = -speedMultiplier;
+            }
+            if (keyPressed["d"]) {
+                velocity.x = speedMultiplier;
+            }
+            if (keyPressed["w"]) {
+                velocity.z = -speedMultiplier;
+            }
+            if (keyPressed["s"]) {
+                velocity.z = speedMultiplier;
+            }
+    
+            playerRef.current.setLinvel(velocity, true);
 
-        const velocity = {
-            x: 0,
-            y: 0,
-            z: 0,
-        };
-
-        if (keyPressed["a"]) {
-            velocity.x = -speedMultiplier;
+            playerRef.current.rotation.x = mouse[0];
         }
-        if (keyPressed["d"]) {
-            velocity.x = speedMultiplier;
-        }
-        if (keyPressed["w"]) {
-            velocity.z = -speedMultiplier;
-        }
-        if (keyPressed["s"]) {
-            velocity.z = speedMultiplier;
-        }
-
-        playerRef.current.setLinvel(velocity, true);
     });
 
     useEffect(() => {

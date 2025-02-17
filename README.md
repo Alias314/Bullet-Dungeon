@@ -6,3 +6,10 @@ Basically Soul Knight (mobile game) but 3D.
 2. Tailwind
 3. React Three Fiber (To add 3D models)
 4. React Three Rapier (To add 3D physics)
+
+## Installation
+1. clone repo
+2. npm install
+3. npm run dev
+4. ???
+5. profit
