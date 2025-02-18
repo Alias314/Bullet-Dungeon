@@ -48,19 +48,20 @@ export default function Player({ playerRef, mouse }) {
 
     useEffect(() => {
         const handleKeyDown = (e) => {
+        
         if (e.repeat) return;
-        setKeyPressed((prev) => ({ ...prev, [e.key]: true }));
+            setKeyPressed((prev) => ({ ...prev, [e.key]: true }));
         };
 
         const handleKeyUp = (e) => {
-        setKeyPressed((prev) => ({ ...prev, [e.key]: false }));
+            setKeyPressed((prev) => ({ ...prev, [e.key]: false }));
         };
 
         window.addEventListener("keydown", handleKeyDown);
         window.addEventListener("keyup", handleKeyUp);
         return () => {
-        window.removeEventListener("keydown", handleKeyDown);
-        window.removeEventListener("keyup", handleKeyUp);
+            window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("keyup", handleKeyUp);
         };
     }, []);
 
