@@ -3,7 +3,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { RigidBody } from "@react-three/rapier";
 import { Raycaster, Vector3, Plane, Quaternion } from "three";
 
-export default function Player({ playerRef, mouse }) {
+export default function Player({ playerRef, mouse, setPlayerDirection }) {
     const meshRef = useRef();
     const raycaster = useRef(new Raycaster());
     const plane = new Plane(new Vector3(0, 1, 0), 0);
@@ -34,14 +34,14 @@ export default function Player({ playerRef, mouse }) {
             const intersectionPoint = new Vector3();
             if (raycaster.current.ray.intersectPlane(plane, intersectionPoint)) {
                 const playerPos = playerRef.current.translation();
-                const direction = new Vector3()
-                .subVectors(intersectionPoint, playerPos)
-                .normalize();
+                const direction = new Vector3().subVectors(intersectionPoint, playerPos).normalize();
 
                 const angle = Math.atan2(direction.x, direction.z);
                 const quaternion = new Quaternion();
                 quaternion.setFromAxisAngle(new Vector3(0, 1, 0), angle);
                 playerRef.current.setRotation(quaternion);
+
+                setPlayerDirection(direction);
             }
         }
     });

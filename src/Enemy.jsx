@@ -8,10 +8,10 @@ export default function Enemy({ playerRef, position, enemyState }) {
     const enemyRef = useRef();
     const speed = 2;
     const distanceToWander = 100;
-    const [positionToWander, setPositionToWander] = useState()
+    const [positionToWander, setPositionToWander] = useState(null)
 
     useFrame(() => {
-        if (playerRef.current && enemyRef.current) {
+        if (playerRef.current && enemyRef.current && positionToWander) {
             const playerPos = playerRef.current.translation();
             const enemyPos = enemyRef.current.translation();
             let velocity;
@@ -43,7 +43,7 @@ export default function Enemy({ playerRef, position, enemyState }) {
     
             const interval = setInterval(() => {
                 setTime(time => time + 1);
-            }, 1000);
+            }, Math.random() * 1000);
     
             return () => clearInterval(interval);
         }

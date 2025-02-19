@@ -2,13 +2,14 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { emptyRoom, xObstacleRoom } from "./RoomLayout";
-import { Vector2 } from "three";
+import { Vector2, Vector3 } from "three";
 import Player from "./Player";
 import Obstacle from "./Obstacle";
 import Wall from "./Wall";
 import Floor from "./Floor";
 import Enemy from "./Enemy";
 import React from 'react';
+import Bullet from "./Bullet";
 
 function CameraController({ playerRef }) {
     useFrame(({ camera }) => {
@@ -33,9 +34,11 @@ const getRandomPosition = () => {
 }
 
 export default function Scene() {
-    const playerRef = useRef();
     const [mouse, setMouse] = useState(new Vector2());
     const [enemyState, setEnemyState] = useState('wander');
+    const [bullets, setBullets] = useState([]);
+    const [playerDirection, setPlayerDirection] = useState(null);
+    const playerRef = useRef();
     const roomSize = 15;
     const amountEnemy = 100;
     let room = [<Floor key='floor' />];
@@ -109,9 +112,42 @@ export default function Scene() {
             );
         };
 
-        window.addEventListener("pointermove", handlePointerMove);
-        return () => window.removeEventListener("pointermove", handlePointerMove);
-    }, []);
+        const handlePointerClick = () => {
+            if (playerRef.current && playerDirection) {
+                const bulletSpeed = 50;
+                const playerPos = playerRef.current.translation();
+                const bulletSpawnPosition = [
+                    playerPos.x,
+                    1.5,
+                    playerPos.z,
+                ];
+                const velocity = {
+                    x: playerDirection.x * bulletSpeed,
+                    y: playerDirection.y * bulletSpeed,
+                    z: playerDirection.z * bulletSpeed,
+                }
+
+                setBullets((prevBullets) => [
+                    ...prevBullets,
+                    <Bullet
+                        key={Math.random()}
+                        position={bulletSpawnPosition}
+                        velocity={velocity}
+                    />
+                ]);
+
+                console.log(bullets);
+            }
+        };
+
+        window.addEventListener('pointermove', handlePointerMove);
+        window.addEventListener('pointerdown', handlePointerClick);
+        
+        return () => {
+            window.removeEventListener('pointermove', handlePointerMove)
+            window.removeEventListener('pointerdown', handlePointerClick)
+        };
+    }, [bullets, playerDirection]);
 
     return (
         <div className="w-full h-full relative">
@@ -129,12 +165,15 @@ export default function Scene() {
                         <Player 
                             playerRef={playerRef}
                             mouse={mouse}
+                            setPlayerDirection={setPlayerDirection}
                         />
                         {room}
                         {enemySpawn}
+                        {bullets}
                     </Physics>
                 </Suspense>
             </Canvas>
+
             <div className="absolute left-[35%] flex bottom-4 gap-5">
                 <button
                     className="h-14 pl-4 pr-4 bg-orange-400 font-semibold text-white text-3xl border-orange-900 border-2 rounded-2xl cursor-pointer"

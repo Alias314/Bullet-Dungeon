@@ -45,10 +45,12 @@ export function stalk(playerPos, enemyPos, speed) {
     if (playerPos.z < enemyPos.z) velocity.z = -speed;
     if (playerPos.z > enemyPos.z) velocity.z = speed;
 
-    if (playerPos.x < enemyPos.x && absoluteDistanceX < distanceToStalk) velocity.x = speed;
-    if (playerPos.x > enemyPos.x && absoluteDistanceX < distanceToStalk) velocity.x = -speed;
-    if (playerPos.z < enemyPos.z && absoluteDistanceZ < distanceToStalk) velocity.z = speed;
-    if (playerPos.z > enemyPos.z && absoluteDistanceZ < distanceToStalk) velocity.z = -speed;
+    if (absoluteDistanceX < distanceToStalk && absoluteDistanceZ < distanceToStalk) {
+        if (playerPos.x < enemyPos.x) velocity.x = speed;
+        if (playerPos.x > enemyPos.x) velocity.x = -speed;
+        if (playerPos.z < enemyPos.z) velocity.z = speed;
+        if (playerPos.z > enemyPos.z) velocity.z = -speed;
+    }
 
     return velocity;
 }
