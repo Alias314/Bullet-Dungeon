@@ -3,7 +3,7 @@ import { RigidBody } from "@react-three/rapier";
 import { useEffect, useRef, useState } from "react";
 import { rush, stalk, wander } from "./EnemyBehavior";
 
-export default function Enemy({ playerRef, position }) {
+export default function Enemy({ playerRef, position, enemyState }) {
     const [time, setTime] = useState(0);
     const enemyRef = useRef();
     const speed = 2;
@@ -14,10 +14,17 @@ export default function Enemy({ playerRef, position }) {
         if (playerRef.current && enemyRef.current) {
             const playerPos = playerRef.current.translation();
             const enemyPos = enemyRef.current.translation();
-            
-            // const velocity = rush(playerPos, enemyPos, speed);
-            const velocity = wander(positionToWander, enemyPos, speed);
-            // const velocity = stalk(playerPos, enemyPos, speed);
+            let velocity;
+
+            if (enemyState === 'rush') {
+                velocity = rush(playerPos, enemyPos, speed);
+            }
+            else if (enemyState === 'wander') {
+                velocity = wander(positionToWander, enemyPos, speed);
+            }
+            else if (enemyState === 'stalk') {
+                velocity = stalk(playerPos, enemyPos, speed);
+            }
 
             enemyRef.current.setLinvel(velocity, true);
         }

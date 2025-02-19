@@ -35,11 +35,11 @@ const getRandomPosition = () => {
 export default function Scene() {
     const playerRef = useRef();
     const [mouse, setMouse] = useState(new Vector2());
+    const [enemyState, setEnemyState] = useState('wander');
     const roomSize = 15;
     const amountEnemy = 100;
     let room = [<Floor key='floor' />];
     let enemySpawn = [];
-
     
     const [enemyPositions] = useState(() => {
         const positions = [];
@@ -57,6 +57,7 @@ export default function Scene() {
                 key={i}
                 playerRef={playerRef}
                 position={enemyPositions[i]}
+                enemyState={enemyState}
             />
         )
     }
@@ -86,6 +87,18 @@ export default function Scene() {
         }
     }
 
+    const setEnemyRush = () => {
+        setEnemyState('rush');
+    }
+
+    const setEnemyWander = () => {
+        setEnemyState('wander');
+    }
+
+    const setEnemyStalk = () => {
+        setEnemyState('stalk');
+    }
+
     useEffect(() => {
         const handlePointerMove = (e) => {
             setMouse(
@@ -101,7 +114,7 @@ export default function Scene() {
     }, []);
 
     return (
-        <div className="w-full h-full">
+        <div className="w-full h-full relative">
             <Canvas camera={{ position: [0, 15, 10] }}>
                 <ambientLight />
                 <directionalLight />
@@ -122,6 +135,26 @@ export default function Scene() {
                     </Physics>
                 </Suspense>
             </Canvas>
+            <div className="absolute left-[35%] flex bottom-4 gap-5">
+                <button
+                    className="h-14 pl-4 pr-4 bg-orange-400 font-semibold text-white text-3xl border-orange-900 border-2 rounded-2xl cursor-pointer"
+                    onClick={setEnemyRush}
+                >
+                    Rush
+                </button>
+                <button
+                    className="h-14 pl-4 pr-4 bg-orange-400 font-semibold text-white text-3xl border-orange-900 border-2 rounded-2xl cursor-pointer"
+                    onClick={setEnemyWander}
+                >
+                    Wander
+                </button>
+                <button
+                    className="h-14 pl-4 pr-4 bg-orange-400 font-semibold text-white text-3xl border-orange-900 border-2 rounded-2xl cursor-pointer"
+                    onClick={setEnemyStalk}
+                >
+                    Stalk
+                </button>
+            </div>
         </div>
     );
 }
