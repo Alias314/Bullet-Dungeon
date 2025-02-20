@@ -28,6 +28,23 @@ export default function Player({ playerRef, mouse, setPlayerDirection }) {
             if (keyPressed["d"]) velocity.x = speedMultiplier;
             if (keyPressed["w"]) velocity.z = -speedMultiplier;
             if (keyPressed["s"]) velocity.z = speedMultiplier;
+            
+            if (keyPressed['a'] && keyPressed['w']) {
+                velocity.x = -(speedMultiplier / 2);
+                velocity.z = -(speedMultiplier / 2);
+            }
+            if (keyPressed['a'] && keyPressed['s']) {
+                velocity.x = -(speedMultiplier / 2);
+                velocity.z = speedMultiplier / 2;
+            }
+            if (keyPressed['w'] && keyPressed['d']) {
+                velocity.x = speedMultiplier / 2;
+                velocity.z = -(speedMultiplier / 2);
+            }
+            if (keyPressed['s'] && keyPressed['d']) {
+                velocity.x = speedMultiplier / 2;
+                velocity.z = speedMultiplier / 2;
+            }
             playerRef.current.setLinvel(velocity, true);
 
             raycaster.current.setFromCamera(mouse, camera);
@@ -68,7 +85,8 @@ export default function Player({ playerRef, mouse, setPlayerDirection }) {
     return (
         <RigidBody 
             ref={playerRef}
-            position={[2, 1, 2]}
+            name='Player'
+            position={[2, 1, 15]}
             colliders='cuboid'
             type='dynamic'
             gravityScale={0}

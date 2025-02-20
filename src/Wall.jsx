@@ -10,7 +10,12 @@ export default function Wall({ position }) {
     texture.generateMipmaps = false;
 
     return (
-        <RigidBody type="fixed" colliders="cuboid" position={position}>
+        <RigidBody
+            name='Wall' 
+            type='fixed' 
+            colliders='cuboid' 
+            position={position}
+        >
             <mesh>
                 <boxGeometry args={[1, 1, 1]} />
                 <meshStandardMaterial map={texture} />

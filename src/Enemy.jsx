@@ -3,7 +3,7 @@ import { RigidBody } from "@react-three/rapier";
 import { useEffect, useRef, useState } from "react";
 import { rush, stalk, wander } from "./EnemyBehavior";
 
-export default function Enemy({ playerRef, position, enemyState }) {
+export default function Enemy({ id, playerRef, position, enemyState }) {
     const [time, setTime] = useState(0);
     const enemyRef = useRef();
     const speed = 2;
@@ -52,6 +52,7 @@ export default function Enemy({ playerRef, position, enemyState }) {
     return (
         <RigidBody
             ref={enemyRef}
+            name={`Enemy-${id}`}
             position={position}
             colliders='cuboid'
             type='dynamic'

@@ -2,7 +2,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { emptyRoom, xObstacleRoom } from "./RoomLayout";
-import { Vector2, Vector3 } from "three";
+import { Vector2 } from "three";
 import Player from "./Player";
 import Obstacle from "./Obstacle";
 import Wall from "./Wall";
@@ -10,6 +10,7 @@ import Floor from "./Floor";
 import Enemy from "./Enemy";
 import React from 'react';
 import Bullet from "./Bullet";
+import { HealthBar, ManaBar } from "./Game";
 
 function CameraController({ playerRef }) {
     useFrame(({ camera }) => {
@@ -35,44 +36,35 @@ const getRandomPosition = () => {
 
 export default function Scene() {
     const [mouse, setMouse] = useState(new Vector2());
-    const [enemyState, setEnemyState] = useState('wander');
+    const [enemyState, setEnemyState] = useState('stalk');
     const [bullets, setBullets] = useState([]);
     const [playerDirection, setPlayerDirection] = useState(null);
+    const [enemies, setEnemies] = useState(() => {
+        const enemyList = [];
+        const amountEnemy = 100;
+
+        for (let i = 0; i < amountEnemy; i++) {
+            enemyList.push({
+                id: i,
+                position: getRandomPosition(),
+            });
+        }
+
+        return enemyList;
+    });
     const playerRef = useRef();
     const roomSize = 15;
     const amountEnemy = 100;
     let room = [<Floor key='floor' />];
-    let enemySpawn = [];
-    
-    const [enemyPositions] = useState(() => {
-        const positions = [];
-
-        for (let i = 0; i < amountEnemy; i++) {
-            positions.push(getRandomPosition());
-        }
-
-        return positions;
-    });
-    
-    for (let i = 0; i < amountEnemy; i++) {
-        enemySpawn.push(
-            <Enemy
-                key={i}
-                playerRef={playerRef}
-                position={enemyPositions[i]}
-                enemyState={enemyState}
-            />
-        )
-    }
 
     for (let i = 0; i < roomSize; i++) {
         for (let j = 0; j < roomSize; j++) {
             if (xObstacleRoom[i][j] === 1) {
                 room.push(
                     <Obstacle
-                        key={`obstacle-${i}-${j}`}
+                    key={`obstacle-${i}-${j}`}
                         position={[i - 5, 1, j - 5]} 
-                    />
+                        />
                 )
             }
             else if (xObstacleRoom[i][j] === 2) {
@@ -88,6 +80,26 @@ export default function Scene() {
                 )
             }
         }
+    }
+    
+    const handleRemoveBullet = (bulletId) => {
+        setBullets((prev) => prev.filter(bullet => bullet.id !== bulletId));
+    };
+    
+    const handleRemoveEnemy = (enemyId) => {
+        setEnemies((prev) => prev.filter(enemy => enemy.id !== enemyId));
+    };
+
+    const handleBulletCollision = (manifold, target, other, bulletId) => {
+        if (other.rigidBodyObject &&
+            other.rigidBodyObject.name &&
+            other.rigidBodyObject.name.startsWith('Enemy-')
+        ) {
+            const enemyId = parseInt(other.rigidBodyObject.name.split('-')[1]);
+            handleRemoveEnemy(enemyId);
+        }
+
+        handleRemoveBullet(bulletId);
     }
 
     const setEnemyRush = () => {
@@ -114,11 +126,11 @@ export default function Scene() {
 
         const handlePointerClick = () => {
             if (playerRef.current && playerDirection) {
-                const bulletSpeed = 50;
+                const bulletSpeed = 40;
                 const playerPos = playerRef.current.translation();
                 const bulletSpawnPosition = [
                     playerPos.x,
-                    1.5,
+                    2,
                     playerPos.z,
                 ];
                 const velocity = {
@@ -129,14 +141,12 @@ export default function Scene() {
 
                 setBullets((prevBullets) => [
                     ...prevBullets,
-                    <Bullet
-                        key={Math.random()}
-                        position={bulletSpawnPosition}
-                        velocity={velocity}
-                    />
+                    {
+                        id: Math.random(),
+                        position: bulletSpawnPosition,
+                        velocity: velocity
+                    }
                 ]);
-
-                console.log(bullets);
             }
         };
 
@@ -151,6 +161,7 @@ export default function Scene() {
 
     return (
         <div className="w-full h-full relative">
+
             <Canvas camera={{ position: [0, 15, 10] }}>
                 <ambientLight />
                 <directionalLight />
@@ -167,28 +178,47 @@ export default function Scene() {
                             mouse={mouse}
                             setPlayerDirection={setPlayerDirection}
                         />
+
                         {room}
-                        {enemySpawn}
-                        {bullets}
+
+                        {enemies.map(enemy => (
+                            <Enemy 
+                                key={enemy.id}
+                                id={enemy.id}
+                                playerRef={playerRef}
+                                position={enemy.position}
+                                enemyState={enemyState}
+                            />
+                        ))}
+                        
+                        {bullets.map((bullet) => (
+                            <Bullet 
+                                key={bullet.id}
+                                id={bullet.id}
+                                position={bullet.position}
+                                velocity={bullet.velocity}
+                                handleBulletCollision={handleBulletCollision}
+                            />
+                        ))};
                     </Physics>
                 </Suspense>
             </Canvas>
-
+            
             <div className="absolute left-[35%] flex bottom-4 gap-5">
                 <button
-                    className="h-14 pl-4 pr-4 bg-orange-400 font-semibold text-white text-3xl border-orange-900 border-2 rounded-2xl cursor-pointer"
+                    className={`h-14 pl-4 pr-4 font-semibold text-white text-3xl border-orange-900 border-2 rounded-2xl cursor-pointer ${(enemyState === 'rush') ? 'bg-orange-600' : 'bg-orange-400'}`}
                     onClick={setEnemyRush}
                 >
                     Rush
                 </button>
                 <button
-                    className="h-14 pl-4 pr-4 bg-orange-400 font-semibold text-white text-3xl border-orange-900 border-2 rounded-2xl cursor-pointer"
+                    className={`h-14 pl-4 pr-4 font-semibold text-white text-3xl border-orange-900 border-2 rounded-2xl cursor-pointer ${(enemyState === 'wander') ? 'bg-orange-600' : 'bg-orange-400'}`}
                     onClick={setEnemyWander}
                 >
                     Wander
                 </button>
                 <button
-                    className="h-14 pl-4 pr-4 bg-orange-400 font-semibold text-white text-3xl border-orange-900 border-2 rounded-2xl cursor-pointer"
+                    className={`h-14 pl-4 pr-4 font-semibold text-white text-3xl border-orange-900 border-2 rounded-2xl cursor-pointer ${(enemyState === 'stalk') ? 'bg-orange-600' : 'bg-orange-400'}`}
                     onClick={setEnemyStalk}
                 >
                     Stalk

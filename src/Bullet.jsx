@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { RigidBody } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
 
-export default function Bullet({ position, velocity }) {
+export default function Bullet({ id, position, velocity, handleBulletCollision }) {
     const bulletRef = useRef();
 
     useFrame(() => {
@@ -12,9 +12,13 @@ export default function Bullet({ position, velocity }) {
     return (
         <RigidBody
             ref={bulletRef}
+            name='Bullet'
             colliders='ball'
             type='dynamic'
             gravityScale={0}
+            onCollisionEnter={({ manifold, target, other }) => {
+                handleBulletCollision(manifold, target, other, id);
+            }}
         >
             <mesh position={position}>
                 <sphereGeometry args={[0.3, 4, 4]} />

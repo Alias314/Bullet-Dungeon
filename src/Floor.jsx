@@ -3,6 +3,7 @@ import { RigidBody } from "@react-three/rapier";
 export default function Floor() {    
     return (
         <RigidBody
+            name='Floor'
             colliders='cuboid'
             gravityScale={0}
             type='fixed'
