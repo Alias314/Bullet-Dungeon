@@ -18,34 +18,17 @@ export default function Player({ playerRef, mouse, setPlayerDirection }) {
 
     useFrame(() => {
         if (playerRef.current) {
-            const velocity = {
-                x: 0, 
-                y: 0, 
-                z: 0 
-            };
-
-            if (keyPressed["a"]) velocity.x = -speedMultiplier;
-            if (keyPressed["d"]) velocity.x = speedMultiplier;
-            if (keyPressed["w"]) velocity.z = -speedMultiplier;
-            if (keyPressed["s"]) velocity.z = speedMultiplier;
+            const input = new Vector3(
+                (keyPressed["d"] ? 1 : 0) + (keyPressed["a"] ? -1 : 0),
+                0,
+                (keyPressed["s"] ? 1 : 0) + (keyPressed["w"] ? -1 : 0)
+            );
             
-            if (keyPressed['a'] && keyPressed['w']) {
-                velocity.x = -(speedMultiplier / 2);
-                velocity.z = -(speedMultiplier / 2);
+            if (input.length() > 0) {
+                input.normalize().multiplyScalar(speedMultiplier);
             }
-            if (keyPressed['a'] && keyPressed['s']) {
-                velocity.x = -(speedMultiplier / 2);
-                velocity.z = speedMultiplier / 2;
-            }
-            if (keyPressed['w'] && keyPressed['d']) {
-                velocity.x = speedMultiplier / 2;
-                velocity.z = -(speedMultiplier / 2);
-            }
-            if (keyPressed['s'] && keyPressed['d']) {
-                velocity.x = speedMultiplier / 2;
-                velocity.z = speedMultiplier / 2;
-            }
-            playerRef.current.setLinvel(velocity, true);
+
+            playerRef.current.setLinvel({ x: input.x, y: 0, z: input.z }, true);
 
             raycaster.current.setFromCamera(mouse, camera);
             const intersectionPoint = new Vector3();
@@ -84,18 +67,18 @@ export default function Player({ playerRef, mouse, setPlayerDirection }) {
 
     return (
         <RigidBody 
-            ref={playerRef}
-            name='Player'
-            position={[2, 1, 15]}
-            colliders='cuboid'
-            type='dynamic'
-            gravityScale={0}
-            lockRotations
+        ref={playerRef}
+        name="Player"
+        position={[0, 1, 0]}
+        colliders="cuboid"
+        type="dynamic"
+        gravityScale={0}
+        lockRotations
         >
-            <mesh ref={meshRef}>
-                <boxGeometry />
-                <meshStandardMaterial color="red" />
-            </mesh>
+        <mesh ref={meshRef}>
+            <boxGeometry />
+            <meshStandardMaterial color="red" />
+        </mesh>
         </RigidBody>
     );
 }

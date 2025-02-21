@@ -1,16 +1,12 @@
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { emptyRoom, xObstacleRoom } from "./RoomLayout";
+import { EmptyRoom } from "./RoomLayout";
 import { Vector2 } from "three";
 import Player from "./Player";
-import Obstacle from "./Obstacle";
-import Wall from "./Wall";
-import Floor from "./Floor";
 import Enemy from "./Enemy";
 import React from 'react';
 import Bullet from "./Bullet";
-import { HealthBar, ManaBar } from "./Game";
 
 function CameraController({ playerRef }) {
     useFrame(({ camera }) => {
@@ -26,7 +22,7 @@ function CameraController({ playerRef }) {
 }
 
 const getRandomPosition = () => {
-    const roomArea = 100;
+    const roomArea = 23;
     const x = Math.random() * roomArea - roomArea / 2;
     const y = 1;
     const z = Math.random() * roomArea - roomArea / 2;
@@ -36,51 +32,23 @@ const getRandomPosition = () => {
 
 export default function Scene() {
     const [mouse, setMouse] = useState(new Vector2());
-    const [enemyState, setEnemyState] = useState('stalk');
+    const [enemyState, setEnemyState] = useState('wander');
     const [bullets, setBullets] = useState([]);
     const [playerDirection, setPlayerDirection] = useState(null);
     const [enemies, setEnemies] = useState(() => {
         const enemyList = [];
-        const amountEnemy = 100;
-
+        const amountEnemy = 15;
+        
         for (let i = 0; i < amountEnemy; i++) {
             enemyList.push({
                 id: i,
                 position: getRandomPosition(),
             });
         }
-
+        
         return enemyList;
     });
     const playerRef = useRef();
-    const roomSize = 15;
-    const amountEnemy = 100;
-    let room = [<Floor key='floor' />];
-
-    for (let i = 0; i < roomSize; i++) {
-        for (let j = 0; j < roomSize; j++) {
-            if (xObstacleRoom[i][j] === 1) {
-                room.push(
-                    <Obstacle
-                    key={`obstacle-${i}-${j}`}
-                        position={[i - 5, 1, j - 5]} 
-                        />
-                )
-            }
-            else if (xObstacleRoom[i][j] === 2) {
-                room.push(
-                    <React.Fragment key={`wall-fragment-${i}-${j}`}>
-                        <Wall 
-                            position={[i - 5, 1, j - 5]}
-                        />
-                        <Wall 
-                            position={[i - 5, 2, j - 5]}
-                        />
-                    </React.Fragment>
-                )
-            }
-        }
-    }
     
     const handleRemoveBullet = (bulletId) => {
         setBullets((prev) => prev.filter(bullet => bullet.id !== bulletId));
@@ -130,12 +98,12 @@ export default function Scene() {
                 const playerPos = playerRef.current.translation();
                 const bulletSpawnPosition = [
                     playerPos.x,
-                    2,
+                    1,
                     playerPos.z,
                 ];
                 const velocity = {
                     x: playerDirection.x * bulletSpeed,
-                    y: playerDirection.y * bulletSpeed,
+                    y: 0,
                     z: playerDirection.z * bulletSpeed,
                 }
 
@@ -165,7 +133,7 @@ export default function Scene() {
             <Canvas camera={{ position: [0, 15, 10] }}>
                 <ambientLight />
                 <directionalLight />
-                <gridHelper args={[100, 100]} />
+                <gridHelper args={[1000, 1000]} />
                 
                 <Suspense>
                     <Physics
@@ -178,8 +146,6 @@ export default function Scene() {
                             mouse={mouse}
                             setPlayerDirection={setPlayerDirection}
                         />
-
-                        {room}
 
                         {enemies.map(enemy => (
                             <Enemy 
@@ -200,6 +166,8 @@ export default function Scene() {
                                 handleBulletCollision={handleBulletCollision}
                             />
                         ))};
+
+                        <EmptyRoom />
                     </Physics>
                 </Suspense>
             </Canvas>

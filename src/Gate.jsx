@@ -1,6 +1,6 @@
 import { RigidBody } from "@react-three/rapier";
 
-export default function Wall({ position }) {
+export default function Gate({ position }) {
     return (
         <RigidBody 
             type="fixed" 
@@ -8,8 +8,8 @@ export default function Wall({ position }) {
             position={position}
         >
             <mesh>
-                <boxGeometry args={[1, 3, 1]} />
-                <meshStandardMaterial color="orange" />
+                <cylinderGeometry args={[0.5, 0.5, 3, 8]} />
+                <meshStandardMaterial color='gray' />
             </mesh>
         </RigidBody>
     );

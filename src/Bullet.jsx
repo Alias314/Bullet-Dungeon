@@ -1,13 +1,15 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { RigidBody } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
 
 export default function Bullet({ id, position, velocity, handleBulletCollision }) {
     const bulletRef = useRef();
 
-    useFrame(() => {
-        bulletRef.current.setLinvel(velocity, true);
-    })
+    useEffect(() => {
+        if (bulletRef.current) {
+            bulletRef.current.setLinvel(velocity, true);
+        }
+    }, [velocity]);
 
     return (
         <RigidBody

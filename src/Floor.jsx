@@ -1,16 +1,17 @@
 import { RigidBody } from "@react-three/rapier";
 
-export default function Floor() {    
+export default function Floor({ roomDimensions, position=[0, 0, 0]}) {    
     return (
         <RigidBody
             name='Floor'
-            colliders='cuboid'
+            colliders={false}
             gravityScale={0}
             type='fixed'
             lockRotations
+            position={[position[0], 0, position[2]]}
         >
-            <mesh position={[2, 0, 2]}>
-                <boxGeometry args={[15, 1, 15]} />
+            <mesh>
+                <boxGeometry args={roomDimensions} />
                 <meshStandardMaterial color='white' />
             </mesh>
         </RigidBody>
