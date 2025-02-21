@@ -15,5 +15,3 @@ Basically Soul Knight (mobile game) but 3D.
 3. npm run dev
 4. ???
 5. profit
-
-hello
