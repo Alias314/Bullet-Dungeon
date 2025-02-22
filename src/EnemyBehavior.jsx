@@ -1,5 +1,5 @@
 
-export function rush(playerPos, enemyPos, speed) {
+export function follow(playerPos, enemyPos, speed) {
     const velocity = {
         x: 0,
         y: 0,
@@ -29,23 +29,34 @@ export function wander(positionToWander, enemyPos, speed) {
     return velocity;
 }
 
-export function stalk(playerPos, enemyPos, speed) {
+export function runAway(playerPos, enemyPos, speed) {
     const velocity = {
         x: 0,
         y: 0,
         z: 0,
     };
 
-    const distanceToStalk = Math.PI * 1.5;
-    const absoluteDistanceX = Math.abs(playerPos.x - enemyPos.x);
-    const absoluteDistanceZ = Math.abs(playerPos.z - enemyPos.z);
+    if (playerPos.x < enemyPos.x) velocity.x = speed;
+    if (playerPos.x > enemyPos.x) velocity.x = -speed;
+    if (playerPos.z < enemyPos.z) velocity.z = speed;
+    if (playerPos.z > enemyPos.z) velocity.z = -speed;
+
+    return velocity;
+}
+
+export function stalk(playerPos, enemyPos, speed, absoluteDistance, distanceToStalk) {
+    const velocity = {
+        x: 0,
+        y: 0,
+        z: 0,
+    };
 
     if (playerPos.x < enemyPos.x) velocity.x = -speed;
     if (playerPos.x > enemyPos.x) velocity.x = speed;
     if (playerPos.z < enemyPos.z) velocity.z = -speed;
     if (playerPos.z > enemyPos.z) velocity.z = speed;
 
-    if (absoluteDistanceX < distanceToStalk && absoluteDistanceZ < distanceToStalk) {
+    if (absoluteDistance[0] < distanceToStalk && absoluteDistance[2] < distanceToStalk) {
         if (playerPos.x < enemyPos.x) velocity.x = speed;
         if (playerPos.x > enemyPos.x) velocity.x = -speed;
         if (playerPos.z < enemyPos.z) velocity.z = speed;

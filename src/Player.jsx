@@ -1,9 +1,9 @@
 import { useRef, useState, useEffect } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { RigidBody } from "@react-three/rapier";
+import { interactionGroups, RigidBody } from "@react-three/rapier";
 import { Raycaster, Vector3, Plane, Quaternion } from "three";
 
-export default function Player({ playerRef, mouse, setPlayerDirection }) {
+export default function Player({ playerRef, mouse, setPlayerDirection, setPlayerBullets }) {
     const meshRef = useRef();
     const raycaster = useRef(new Raycaster());
     const plane = new Plane(new Vector3(0, 1, 0), 0);
@@ -14,7 +14,7 @@ export default function Player({ playerRef, mouse, setPlayerDirection }) {
         s: false, 
         d: false, 
     });
-    const speedMultiplier = 5;
+    const speedMultiplier = 7;
 
     useFrame(() => {
         if (playerRef.current) {
@@ -67,17 +67,18 @@ export default function Player({ playerRef, mouse, setPlayerDirection }) {
 
     return (
         <RigidBody 
-        ref={playerRef}
-        name="Player"
-        position={[0, 1, 0]}
-        colliders="cuboid"
-        type="dynamic"
-        gravityScale={0}
-        lockRotations
+            ref={playerRef}
+            name="Player"
+            position={[0, 1, 0]}
+            colliders="cuboid"
+            type="dynamic"
+            gravityScale={0}
+            collisionGroups={interactionGroups(0, [1, 3, 4, 5])}
+            lockRotations
         >
         <mesh ref={meshRef}>
             <boxGeometry />
-            <meshStandardMaterial color="red" />
+            <meshStandardMaterial color="orange" />
         </mesh>
         </RigidBody>
     );

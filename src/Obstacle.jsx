@@ -15,6 +15,7 @@ export default function Obstacle({ position }) {
             type='fixed' 
             colliders='cuboid' 
             position={position}
+            // collisionGroups={interactionGroups(4, [0, 1, 2, 3])}
         >
             <mesh>
                 <boxGeometry args={[1, 1, 1]} />
