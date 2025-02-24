@@ -14,7 +14,7 @@ export function PistolEnemy({
     const enemyRef = useRef();
     const speed = 1.8;
     const distanceToWander = 100;
-    const [positionToWander, setPositionToWander] = useState(null)
+    const [positionToWander, setPositionToWander] = useState(null);
 
     useFrame(() => {
         if (playerRef.current && enemyRef.current && positionToWander) {
@@ -121,7 +121,7 @@ export function MeleeEnemy({
     position, 
 }) {
     const enemyRef = useRef();
-    const speed = 1.5;
+    const speed = 2.3;
 
     useFrame(() => {
         if (playerRef.current && enemyRef.current) {
