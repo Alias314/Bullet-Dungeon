@@ -1,6 +1,12 @@
 # Bullet Dungeon
 Basically Soul Knight (mobile game) but 3D. 
 
+### Controls
+1. WASD keys - movement
+2. left mouse button - shooting
+3. space button - dash
+4. 1-4 - swap weapons
+
 ## Technologies Used:
 1. React
 2. React Three Fiber (To add 3D models)
