@@ -59,6 +59,9 @@ export function PistolEnemy({
     }, [time]);
 
     useEffect(() => {
+        setTimeout(() => {
+        }, Math.random * 1000);
+
         const interval = setInterval(() => {
             if (playerRef.current && enemyRef.current) {
                 const playerPos = playerRef.current.translation();
@@ -91,7 +94,9 @@ export function PistolEnemy({
             }
         }, 2000);
 
-        return () => clearInterval(interval);
+        return () => {
+            clearInterval(interval)
+        };
     }, [playerRef, enemyRef]);
 
     return (
@@ -121,7 +126,7 @@ export function MeleeEnemy({
     position, 
 }) {
     const enemyRef = useRef();
-    const speed = 2.3;
+    const speed = 3;
 
     useFrame(() => {
         if (playerRef.current && enemyRef.current) {

@@ -7,7 +7,8 @@ export default function Player({
   playerRef,
   mouse,
   setPlayerDirection,
-  setPlayerBullets,
+  dashBar,
+  setDashBar,
 }) {
   const meshRef = useRef();
   const raycaster = useRef(new Raycaster());
@@ -19,17 +20,23 @@ export default function Player({
     s: false,
     d: false,
   });
-  const speedMultiplier = 7;
+  const [isDashing, setIsDashing] = useState(false);
+  const [dashDirection, setDashDirection] = useState(new Vector3());
+  const speedMultiplier = 8;
+  const dashForce = 20;
+  const dashDuration = 0.2;
 
   useFrame(() => {
     if (playerRef.current) {
-      const input = new Vector3(
+      let input = new Vector3(
         (keyPressed["d"] ? 1 : 0) + (keyPressed["a"] ? -1 : 0),
         0,
         (keyPressed["s"] ? 1 : 0) + (keyPressed["w"] ? -1 : 0)
       );
 
-      if (input.length() > 0) {
+      if (isDashing) {
+        input = dashDirection.clone().multiplyScalar(dashForce);
+      } else if (input.length() > 0) {
         input.normalize().multiplyScalar(speedMultiplier);
       }
 
@@ -56,11 +63,32 @@ export default function Player({
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.repeat) return;
-      setKeyPressed((prev) => ({ ...prev, [e.key]: true }));
+
+      if (e.code === "Space" && dashBar > 0) {
+        const input = new Vector3(
+          (keyPressed["d"] ? 1 : 0) + (keyPressed["a"] ? -1 : 0),
+          0,
+          (keyPressed["s"] ? 1 : 0) + (keyPressed["w"] ? -1 : 0)
+        );
+        if (!isDashing && input.length() > 0) {
+          input.normalize();
+          setDashDirection(input);
+          setIsDashing(true);
+          setDashBar(prev => prev - 1);
+          console.log(dashBar - 1);
+          setTimeout(() => {
+            setIsDashing(false);
+          }, dashDuration * 1000);
+        }
+      } else {
+        setKeyPressed((prev) => ({ ...prev, [e.key.toLowerCase()]: true }));
+      }
     };
 
     const handleKeyUp = (e) => {
-      setKeyPressed((prev) => ({ ...prev, [e.key]: false }));
+      if (e.code !== "Space") {
+        setKeyPressed((prev) => ({ ...prev, [e.key.toLowerCase()]: false }));
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -69,7 +97,18 @@ export default function Player({
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, []);
+  }, [keyPressed, isDashing]);
+
+  useEffect(() => {
+    if (dashBar < 2) {
+      const interval = setInterval(() => {
+        setDashBar(prev => prev + 1);
+        console.log(`Dashbar Refilled: ${dashBar + 1}`);
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [dashBar]);
 
   return (
     <RigidBody
@@ -79,7 +118,7 @@ export default function Player({
       colliders="cuboid"
       type="dynamic"
       gravityScale={0}
-      collisionGroups={interactionGroups(0, [1, 3, 4, 5])}
+      collisionGroups={isDashing ? interactionGroups(10, [4]) : interactionGroups(0, [1, 3, 4, 5])}
       lockRotations
     >
       <mesh ref={meshRef}>

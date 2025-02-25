@@ -1,6 +1,5 @@
 import { useRef, useEffect } from "react";
 import { interactionGroups, RigidBody } from "@react-three/rapier";
-import { useFrame } from "@react-three/fiber";
 
 export function PlayerBullet({
   id,

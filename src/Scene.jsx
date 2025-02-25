@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Physics } from "@react-three/rapier";
+import { interactionGroups, Physics } from "@react-three/rapier";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { EmptyRoom } from "./RoomLayout";
 import { Vector2, Vector3 } from "three";
@@ -8,6 +8,8 @@ import { MeleeEnemy, PistolEnemy } from "./Enemy";
 import React from "react";
 import { PlayerBullet, EnemyBullet } from "./Bullet";
 import { Hallway } from "./Hallway";
+import { MegaKnight, WarMachine } from "./Boss";
+import { DashBar, HealthBar, Hotbar } from "./Game";
 
 function CameraController({ playerRef }) {
   useFrame(({ camera }) => {
@@ -18,7 +20,7 @@ function CameraController({ playerRef }) {
         camera.position.y,
         playerPos.z + 8
       );
-      camera.position.lerp(targetPos, 0.2);
+      camera.position.lerp(targetPos, 0.1);
     }
   });
 
@@ -39,7 +41,7 @@ export default function Scene() {
   const [playerBullets, setPlayerBullets] = useState([]);
   const [enemyBullets, setEnemyBullets] = useState([]);
   const [playerDirection, setPlayerDirection] = useState(null);
-  const [amountEnemy, setAmountEnemy] = useState(6);
+  const [amountEnemy, setAmountEnemy] = useState(10);
   const [enemies, setEnemies] = useState(() => {
     const enemyList = [];
 
@@ -56,6 +58,9 @@ export default function Scene() {
   });
   const playerRef = useRef();
   const playerDirectionRef = useRef(playerDirection);
+  const [playerHealth, setPlayerHealth] = useState(50);
+  const [dashBar, setDashBar] = useState(2);
+  const [selectedWeapon, setSelectedWeapon] = useState('pistol');
 
   useEffect(() => {
     playerDirectionRef.current = playerDirection;
@@ -97,11 +102,17 @@ export default function Scene() {
       handleRemoveEnemy(enemyId);
     }
 
+    if (other.rigidBodyObject.name === "Player") {
+      setPlayerHealth((prev) => prev - 10);
+    }
+
     handleRemoveBullet(bulletId);
   };
 
   useEffect(() => {
     let shootingInterval = null;
+    clearInterval(shootingInterval);
+
 
     const handlePointerMove = (e) => {
       setMouse(
@@ -115,21 +126,69 @@ export default function Scene() {
     const fireBullet = () => {
       const bulletSpeed = 40;
       const playerPos = playerRef.current.translation();
-      const bulletSpawnPosition = [playerPos.x, 1, playerPos.z];
-      const velocity = {
-        x: (playerDirectionRef.current.x + Math.random() / 10) * bulletSpeed,
-        y: 0,
-        z: (playerDirectionRef.current.z + Math.random() / 10) * bulletSpeed,
-      };
+      const amountPellet = 5;
+      const spreadAngle = 1;
 
-      setPlayerBullets((prevBullets) => [
-        ...prevBullets,
-        {
-          id: Math.random(),
-          position: bulletSpawnPosition,
-          velocity: velocity,
-        },
-      ]);
+      if (selectedWeapon === 'pistol') {
+        const bulletSpawnPosition = [playerPos.x, 1, playerPos.z];
+        const velocity = {
+          x: playerDirectionRef.current.x * bulletSpeed,
+          y: 0,
+          z: playerDirectionRef.current.z * bulletSpeed,
+        };
+
+        setPlayerBullets((prevBullets) => [
+          ...prevBullets,
+          {
+            id: Math.random(),
+            position: bulletSpawnPosition,
+            velocity: velocity,
+          },
+        ]);
+      } else if (selectedWeapon === 'shotgun') {
+        const pellets = [];
+
+        for (let i = 0; i < amountPellet; i++) {
+          const angleOffset = (Math.random() - 0.5) * spreadAngle;
+          const direction = new Vector3(
+            playerDirectionRef.current.x,
+            0,
+            playerDirectionRef.current.z
+          )
+            .applyAxisAngle(new Vector3(0, 1, 0), angleOffset)
+            .normalize();
+
+          const velocity = {
+            x: direction.x * bulletSpeed,
+            y: 0,
+            z: direction.z * bulletSpeed,
+          };
+
+          pellets.push({
+            id: Math.random(),
+            position: [playerPos.x, 1, playerPos.z],
+            velocity: velocity,
+          });
+        }
+
+        setPlayerBullets((prevBullets) => [...prevBullets, ...pellets]);
+      } else if (selectedWeapon === 'minigun') {
+        const bulletSpawnPosition = [playerPos.x, 1, playerPos.z];
+        const velocity = {
+          x: playerDirectionRef.current.x * bulletSpeed,
+          y: 0,
+          z: playerDirectionRef.current.z * bulletSpeed,
+        };
+
+        setPlayerBullets((prevBullets) => [
+          ...prevBullets,
+          {
+            id: Math.random(),
+            position: bulletSpawnPosition,
+            velocity: velocity,
+          },
+        ]);
+      }
     };
 
     const handlePointerDown = () => {
@@ -138,11 +197,22 @@ export default function Scene() {
         playerDirectionRef.current &&
         !shootingInterval
       ) {
-        fireBullet();
+        let weaponShootingInterval;
 
+        if (selectedWeapon === "pistol") {
+          weaponShootingInterval = 400;
+        } else if (selectedWeapon === "shotgun") {
+          weaponShootingInterval = 1200;
+        } else if (selectedWeapon === "minigun") {
+          weaponShootingInterval = 100;
+        } else if (selectedWeapon === "railgun") {
+          weaponShootingInterval = 2000;
+        }
+
+        fireBullet();
         shootingInterval = setInterval(() => {
           fireBullet();
-        }, 400);
+        }, weaponShootingInterval);
       }
     };
 
@@ -162,7 +232,32 @@ export default function Scene() {
       window.removeEventListener("pointerdown", handlePointerDown);
       window.removeEventListener("pointerup", handlePointerUp);
     };
+  }, [selectedWeapon]);
+
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === "1") {
+        setSelectedWeapon("pistol");
+      } else if (e.key === "2") {
+        setSelectedWeapon("shotgun");
+      } else if (e.key === "3") {
+        setSelectedWeapon("minigun");
+      } else if (e.key === "4") {
+        setSelectedWeapon("railgun");
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  if (playerHealth <= 0) {
+    return (
+      <div className="w-screen h-screen items-center justify-center text-4xl">
+        shit bruh game over
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full relative">
@@ -178,6 +273,8 @@ export default function Scene() {
               playerRef={playerRef}
               mouse={mouse}
               setPlayerDirection={setPlayerDirection}
+              dashBar={dashBar}
+              setDashBar={setDashBar}
             />
             {enemies.map((enemy) =>
               enemy.type === "pistol" ? (
@@ -197,6 +294,18 @@ export default function Scene() {
                 />
               )
             )}
+            {/* <WarMachine 
+              id={1}
+              playerRef={playerRef}
+              position={[0, 1, -5]}
+              setEnemyBullets={setEnemyBullets}
+            /> */}
+            {/* <MegaKnight
+              id={1}
+              playerRef={playerRef}
+              position={[0, 1, -5]}
+              setEnemyBullets={setEnemyBullets}
+            /> */}
             {playerBullets.map((bullet) => (
               <PlayerBullet
                 key={bullet.id}
@@ -224,6 +333,9 @@ export default function Scene() {
           </Physics>
         </Suspense>
       </Canvas>
+      <HealthBar health={playerHealth} />
+      <DashBar dashBar={dashBar} />
+      <Hotbar selectedWeapon={selectedWeapon} />
     </div>
   );
 }
