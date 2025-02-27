@@ -9,6 +9,8 @@ import React from "react";
 import * as B from "../Characters/Bullet";
 import { Hallway } from "../Environment/Hallway";
 import { DashBar, HealthBar, Hotbar } from "./Inventory";
+import GameOver from "./GameOver";
+import { useNavigate } from "react-router-dom";
 
 function CameraController({ playerRef }) {
   useFrame(({ camera }) => {
@@ -261,8 +263,8 @@ export default function Scene() {
 
   if (playerHealth <= 0) {
     return (
-      <div className="w-screen h-screen items-center justify-center text-4xl">
-        shit bruh game over
+      <div>
+        <GameOver />
       </div>
     );
   }
