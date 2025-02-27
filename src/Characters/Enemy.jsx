@@ -1,7 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { interactionGroups, RigidBody } from "@react-three/rapier";
 import { useEffect, useRef, useState } from "react";
-import { follow, stalk, runAway, wander } from "./EnemyBehavior";
+import { follow, stalk, runAway, wander } from "./Logic/EnemyBehavior";
 import { Vector3 } from "three";
 
 export function PistolEnemy({ id, playerRef, position, setEnemyBullets }) {

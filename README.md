@@ -14,6 +14,7 @@ Basically Soul Knight (mobile game) but 3D.
 4. React Three Postprocessing (to add glow and stuff but might remove later if too heavy)
 5. Tailwind
 6. Vite
+7. React Router DOM
 
 ## Installation
 1. clone repo
