@@ -15,7 +15,7 @@ const GameOver = () => {
                 backgroundRepeat: "no-repeat",
             }}
         >
-            <h1 className="text-6xl font-bold mb-8 font-title">Game Over</h1>
+            <h1 className="text-6xl text-red-700 font-extrabold mb-8 font-title tracking-wide">YOU DIED!</h1>
 
             <button
                 onClick={handleRestart}
