@@ -1,15 +1,14 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { interactionGroups, Physics } from "@react-three/rapier";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { EmptyRoom } from "./RoomLayout";
+import { EmptyRoom } from "../Environment/RoomLayout";
 import { Vector2, Vector3 } from "three";
-import Player from "./Player";
-import { MeleeEnemy, PistolEnemy, GatlingEnemy } from "./Enemy";
+import Player from "../Characters/Player";
+import { MeleeEnemy, PistolEnemy, GatlingEnemy } from "../Characters/Enemy";
 import React from "react";
-import * as B from "./Bullet";
-import { Hallway } from "./Hallway";
-import { MegaKnight, WarMachine } from "./Boss";
-import { DashBar, HealthBar, Hotbar } from "./Game";
+import * as B from "../Characters/Bullet";
+import { Hallway } from "../Environment/Hallway";
+import { DashBar, HealthBar, Hotbar } from "./Inventory";
 
 function CameraController({ playerRef }) {
   useFrame(({ camera }) => {
@@ -269,7 +268,7 @@ export default function Scene() {
   }
 
   return (
-    <div className="w-full h-full relative">
+    <div className="w-screen h-screen relative">
       <Canvas camera={{ position: [0, 13, 8] }} shadows>
         <ambientLight intensity={1} />
         <directionalLight
