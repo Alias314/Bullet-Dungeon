@@ -20,7 +20,7 @@ export default function Obstacle({ position }) {
       position={position}
       collisionGroups={interactionGroups(4, [0, 1, 2, 3])}
     >
-      <mesh>
+      <mesh castShadow>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial map={texture} />
       </mesh>

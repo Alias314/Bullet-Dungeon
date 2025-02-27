@@ -121,7 +121,7 @@ export default function Player({
       collisionGroups={isDashing ? interactionGroups(10, [4]) : interactionGroups(0, [1, 3, 4, 5])}
       lockRotations
     >
-      <mesh ref={meshRef}>
+      <mesh ref={meshRef} castShadow receiveShadow>
         <boxGeometry />
         <meshStandardMaterial color="orange" />
       </mesh>

@@ -4,9 +4,9 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { EmptyRoom } from "./RoomLayout";
 import { Vector2, Vector3 } from "three";
 import Player from "./Player";
-import { MeleeEnemy, PistolEnemy } from "./Enemy";
+import { MeleeEnemy, PistolEnemy, GatlingEnemy } from "./Enemy";
 import React from "react";
-import { PlayerBullet, EnemyBullet } from "./Bullet";
+import * as B from "./Bullet";
 import { Hallway } from "./Hallway";
 import { MegaKnight, WarMachine } from "./Boss";
 import { DashBar, HealthBar, Hotbar } from "./Game";
@@ -46,9 +46,18 @@ export default function Scene() {
     const enemyList = [];
 
     for (let i = 0; i < amountEnemy; i++) {
+      const randomValue = Math.random();
+      let type;
+      if (randomValue < 0.5) {
+        type = "melee";
+      } else if (randomValue < 0.8) {
+        type = "pistol";
+      } else {
+        type = "gatling";
+      }
       enemyList.push({
         id: i,
-        type: Math.random() < 0.5 ? "melee" : "pistol",
+        type,
         health: 30,
         position: getRandomPosition(),
       });
@@ -56,11 +65,12 @@ export default function Scene() {
 
     return enemyList;
   });
+
   const playerRef = useRef();
   const playerDirectionRef = useRef(playerDirection);
   const [playerHealth, setPlayerHealth] = useState(50);
   const [dashBar, setDashBar] = useState(2);
-  const [selectedWeapon, setSelectedWeapon] = useState('pistol');
+  const [selectedWeapon, setSelectedWeapon] = useState("pistol");
 
   useEffect(() => {
     playerDirectionRef.current = playerDirection;
@@ -113,7 +123,6 @@ export default function Scene() {
     let shootingInterval = null;
     clearInterval(shootingInterval);
 
-
     const handlePointerMove = (e) => {
       setMouse(
         new Vector2(
@@ -129,7 +138,7 @@ export default function Scene() {
       const amountPellet = 5;
       const spreadAngle = 1;
 
-      if (selectedWeapon === 'pistol') {
+      if (selectedWeapon === "pistol") {
         const bulletSpawnPosition = [playerPos.x, 1, playerPos.z];
         const velocity = {
           x: playerDirectionRef.current.x * bulletSpeed,
@@ -145,7 +154,7 @@ export default function Scene() {
             velocity: velocity,
           },
         ]);
-      } else if (selectedWeapon === 'shotgun') {
+      } else if (selectedWeapon === "shotgun") {
         const pellets = [];
 
         for (let i = 0; i < amountPellet; i++) {
@@ -172,7 +181,7 @@ export default function Scene() {
         }
 
         setPlayerBullets((prevBullets) => [...prevBullets, ...pellets]);
-      } else if (selectedWeapon === 'minigun') {
+      } else if (selectedWeapon === "minigun") {
         const bulletSpawnPosition = [playerPos.x, 1, playerPos.z];
         const velocity = {
           x: playerDirectionRef.current.x * bulletSpeed,
@@ -261,14 +270,26 @@ export default function Scene() {
 
   return (
     <div className="w-full h-full relative">
-      <Canvas camera={{ position: [0, 13, 8] }}>
+      <Canvas camera={{ position: [0, 13, 8] }} shadows>
         <ambientLight intensity={1} />
-        <directionalLight intensity={1} castShadow />
+        <directionalLight
+          position={[20, 20, -20]}
+          intensity={1}
+          castShadow
+          shadow-mapSize-width={256}
+          shadow-mapSize-height={256}
+          shadow-camera-near={0.5}
+          shadow-camera-far={50}
+          shadow-camera-left={-20}
+          shadow-camera-right={20}
+          shadow-camera-top={20}
+          shadow-camera-bottom={-20}
+        />
         <gridHelper args={[100, 100]} />
 
         <Suspense>
           <Physics interpolate={false} colliders={false}>
-            <CameraController playerRef={playerRef} />
+            <CameraController playerRef={playerRef}/>
             <Player
               playerRef={playerRef}
               mouse={mouse}
@@ -276,24 +297,48 @@ export default function Scene() {
               dashBar={dashBar}
               setDashBar={setDashBar}
             />
-            {enemies.map((enemy) =>
-              enemy.type === "pistol" ? (
-                <PistolEnemy
+            {enemies.map((enemy) => {
+              if (enemy.type === "pistol") {
+                return (
+                  <PistolEnemy
+                    key={enemy.id}
+                    id={enemy.id}
+                    playerRef={playerRef}
+                    position={enemy.position}
+                    setEnemyBullets={setEnemyBullets}
+                  />
+                );
+              } else if (enemy.type === "melee") {
+                return (
+                  <MeleeEnemy
+                    key={enemy.id}
+                    id={enemy.id}
+                    playerRef={playerRef}
+                    position={enemy.position}
+                  />
+                );
+              } else if (enemy.type === "gatling") {
+                return (
+                  <GatlingEnemy
+                    key={enemy.id}
+                    id={enemy.id}
+                    playerRef={playerRef}
+                    position={enemy.position}
+                    setEnemyBullets={setEnemyBullets}
+                  />
+                );
+              }
+            })}
+
+            {/* {enemies.map((enemy) =>
+                <GatlingEnemy
                   key={enemy.id}
                   id={enemy.id}
                   playerRef={playerRef}
                   position={enemy.position}
                   setEnemyBullets={setEnemyBullets}
                 />
-              ) : (
-                <MeleeEnemy
-                  key={enemy.id}
-                  id={enemy.id}
-                  playerRef={playerRef}
-                  position={enemy.position}
-                />
-              )
-            )}
+            )} */}
             {/* <WarMachine 
               id={1}
               playerRef={playerRef}
@@ -307,7 +352,7 @@ export default function Scene() {
               setEnemyBullets={setEnemyBullets}
             /> */}
             {playerBullets.map((bullet) => (
-              <PlayerBullet
+              <B.PlayerBullet
                 key={bullet.id}
                 id={bullet.id}
                 size={[0.3, 6, 6]}
@@ -316,9 +361,8 @@ export default function Scene() {
                 handleBulletCollision={handleBulletCollision}
               />
             ))}
-            ;
             {enemyBullets.map((bullet) => (
-              <EnemyBullet
+              <B.EnemyBullet
                 key={bullet.id}
                 id={bullet.id}
                 size={[0.3, 6, 6]}
@@ -327,7 +371,6 @@ export default function Scene() {
                 handleBulletCollision={handleBulletCollision}
               />
             ))}
-            ;
             <EmptyRoom position={[0, 0, 0]} amountEnemy={amountEnemy} />
             <Hallway position={[16.5, 0, 0.5]} />
           </Physics>

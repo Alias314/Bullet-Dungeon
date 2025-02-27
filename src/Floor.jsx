@@ -50,7 +50,7 @@ export default function Floor({ roomDimensions, position = [0, 0, 0] }) {
       position={[position[0], 0, position[2]]}
       collisionGroups={interactionGroups(4, [0, 1, 2, 3])}
     >
-      <mesh>
+      <mesh castShadow receiveShadow>
         <boxGeometry args={roomDimensions} />
         <meshStandardMaterial
           color='white'
