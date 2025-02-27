@@ -14,7 +14,14 @@ const MainMenu = () => {
                 backgroundRepeat: "no-repeat",
             }}
         >
-            <h1 className="text-6xl font-bold mb-8 font-title">Main Menu</h1>
+            <img
+                src="/assets/images/BD_Logo2_W.svg"
+                alt="Bullet Dungeon Logo"
+                className="w-56 mb-4"
+            />
+            {/* <h1 className="text-6xl font-bold mb-8 font-title">
+                Bullet Dungeon
+            </h1> */}
             <button
                 onClick={() => navigate("/game")}
                 className="bg-stone-800 hover:bg-stone-700 text-white font-bold w-45 py-2 px-4 rounded mb-4 font-title text-3xl cursor-pointer transition-colors duration-200 border-2 border-stone-600"
