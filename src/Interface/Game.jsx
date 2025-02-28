@@ -36,7 +36,7 @@ const getRandomPosition = () => {
     return [x, y, z];
 };
 
-export default function Scene() {
+export default function Game() {
     const [mouse, setMouse] = useState(new Vector2());
     const [playerBullets, setPlayerBullets] = useState([]);
     const [enemyBullets, setEnemyBullets] = useState([]);
