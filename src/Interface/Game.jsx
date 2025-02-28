@@ -1,15 +1,21 @@
+import { Suspense, useEffect, useRef, useState, React } from "react";
+import { Vector2, Vector3 } from "three";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { interactionGroups, Physics } from "@react-three/rapier";
-import { Suspense, useEffect, useRef, useState } from "react";
+
+// Environments
 import { EmptyRoom } from "../Environment/RoomLayout";
-import { Vector2, Vector3 } from "three";
+import { Hallway } from "../Environment/Hallway";
+
+// Characters
 import Player from "../Characters/Player";
 import { MeleeEnemy, PistolEnemy, GatlingEnemy } from "../Characters/Enemy";
-import React from "react";
 import * as B from "../Characters/Bullet";
-import { Hallway } from "../Environment/Hallway";
+
+// Interfaces
 import { DashBar, HealthBar, Hotbar } from "./Inventory";
 import GameOver from "./GameOver";
+import DamageOverlay from "./DamageOverlay";
 
 function CameraController({ playerRef }) {
     useFrame(({ camera }) => {
@@ -72,6 +78,18 @@ export default function Game() {
     const [dashBar, setDashBar] = useState(2);
     const [selectedWeapon, setSelectedWeapon] = useState("pistol");
 
+    const [showDamageOverlay, setShowDamageOverlay] = useState(false);
+
+    useEffect(() => {
+        if (showDamageOverlay) {
+            const timeout = setTimeout(() => {
+                setShowDamageOverlay(false);
+            }, 1000);
+
+            return () => clearTimeout(timeout);
+        }
+    }, [showDamageOverlay]);
+
     useEffect(() => {
         playerDirectionRef.current = playerDirection;
     }, [playerDirection]);
@@ -118,6 +136,7 @@ export default function Game() {
 
         if (other.rigidBodyObject.name === "Player") {
             setPlayerHealth((prev) => prev - 10);
+            setShowDamageOverlay(true);
         }
 
         handleRemoveBullet(bulletId);
@@ -274,6 +293,7 @@ export default function Game() {
 
     return (
         <div className="w-screen h-screen relative">
+            {showDamageOverlay && <DamageOverlay />}
             <Canvas camera={{ position: [0, 13, 8] }} shadows>
                 <ambientLight intensity={1} />
                 <directionalLight
@@ -335,26 +355,26 @@ export default function Game() {
                         })}
 
                         {/* {enemies.map((enemy) =>
-                <GatlingEnemy
-                  key={enemy.id}
-                  id={enemy.id}
-                  playerRef={playerRef}
-                  position={enemy.position}
-                  setEnemyBullets={setEnemyBullets}
-                />
-            )} */}
-                        {/* <WarMachine 
-              id={1}
-              playerRef={playerRef}
-              position={[0, 1, -5]}
-              setEnemyBullets={setEnemyBullets}
-            /> */}
-                        {/* <MegaKnight
-              id={1}
-              playerRef={playerRef}
-              position={[0, 1, -5]}
-              setEnemyBullets={setEnemyBullets}
-            /> */}
+                            <GatlingEnemy
+                            key={enemy.id}
+                            id={enemy.id}
+                            playerRef={playerRef}
+                            position={enemy.position}
+                            setEnemyBullets={setEnemyBullets}
+                            />
+                        )} */}
+                                    {/* <WarMachine 
+                        id={1}
+                        playerRef={playerRef}
+                        position={[0, 1, -5]}
+                        setEnemyBullets={setEnemyBullets}
+                        /> */}
+                                    {/* <MegaKnight
+                        id={1}
+                        playerRef={playerRef}
+                        position={[0, 1, -5]}
+                        setEnemyBullets={setEnemyBullets}
+                        /> */}
                         {playerBullets.map((bullet) => (
                             <B.PlayerBullet
                                 key={bullet.id}
