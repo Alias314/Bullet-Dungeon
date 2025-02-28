@@ -11,3 +11,12 @@ body {
 @theme {
     --font-title: Fondamento, "sans-serif";
 }
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
