@@ -22,3 +22,7 @@ Basically Soul Knight (mobile game) but 3D.
 3. npm run dev
 4. ???
 5. profit
+
+## Trello Board
+Here's the to do list. Just add stuff here that you wanna do.
+https://trello.com/b/4AbHlNs8/bullet-dungeon
