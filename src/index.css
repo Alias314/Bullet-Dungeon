@@ -6,7 +6,7 @@ body {
 
 @font-face {
     font-family: Fondamento;
-    src: url("../public/assets/fonts/Fondamento-Regular.ttf") format("truetype");
+    src: url("../assets/fonts/Fondamento-Regular.ttf") format("truetype");
 }
 @theme {
     --font-title: Fondamento, "sans-serif";
