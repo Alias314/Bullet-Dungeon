@@ -75,7 +75,6 @@ export default function Player({
           setDashDirection(input);
           setIsDashing(true);
           setDashBar(prev => prev - 1);
-          console.log(dashBar - 1);
           setTimeout(() => {
             setIsDashing(false);
           }, dashDuration * 1000);
@@ -103,7 +102,6 @@ export default function Player({
     if (dashBar < 2) {
       const interval = setInterval(() => {
         setDashBar(prev => prev + 1);
-        console.log(`Dashbar Refilled: ${dashBar + 1}`);
       }, 1000);
 
       return () => clearInterval(interval);

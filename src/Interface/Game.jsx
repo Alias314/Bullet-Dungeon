@@ -1,18 +1,19 @@
 import { Suspense, useEffect, useRef, useState, React } from "react";
 import { Vector2, Vector3 } from "three";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { interactionGroups, Physics } from "@react-three/rapier";
-import { Suspense, useEffect, useRef, useState } from "react";
-import { EmptyRoom, StartingRoom } from "../Environment/RoomLayout";
-import { Vector2, Vector3 } from "three";
+import { Physics } from "@react-three/rapier";
+
+// Characters
 import Player from "../Characters/Player";
 import { MeleeEnemy, PistolEnemy, GatlingEnemy } from "../Characters/Enemy";
 import * as B from "../Characters/Bullet";
-import { HallwayHorizontal, HallwayVertical } from "../Environment/Hallway";
+
+// Interfaces
 import { DashBar, HealthBar, Hotbar } from "./Inventory";
 import GameOver from "./GameOver";
 import LevelLayout from "../Environment/LevelLayout";
 import Minimap from "./Minimap";
+import DamageOverlay from "./DamageOverlay";
 
 function CameraController({ playerRef }) {
   useFrame(({ camera }) => {
@@ -96,13 +97,13 @@ function generateLayout() {
 }
 
 export default function Game() {
-    const [mouse, setMouse] = useState(new Vector2());
-    const [playerBullets, setPlayerBullets] = useState([]);
-    const [enemyBullets, setEnemyBullets] = useState([]);
-    const [playerDirection, setPlayerDirection] = useState(null);
-    const [amountEnemy, setAmountEnemy] = useState(10);
-    const [enemies, setEnemies] = useState(() => {
-        const enemyList = [];
+  const [mouse, setMouse] = useState(new Vector2());
+  const [playerBullets, setPlayerBullets] = useState([]);
+  const [enemyBullets, setEnemyBullets] = useState([]);
+  const [playerDirection, setPlayerDirection] = useState(null);
+  const [amountEnemy, setAmountEnemy] = useState(10);
+  const [enemies, setEnemies] = useState(() => {
+    const enemyList = [];
 
     for (let i = 0; i < amountEnemy; i++) {
       const randomValue = Math.random();
@@ -131,17 +132,17 @@ export default function Game() {
   const [dashBar, setDashBar] = useState(2);
   const [selectedWeapon, setSelectedWeapon] = useState("pistol");
 
-    const [showDamageOverlay, setShowDamageOverlay] = useState(false);
+  const [showDamageOverlay, setShowDamageOverlay] = useState(false);
 
-    useEffect(() => {
-        if (showDamageOverlay) {
-            const timeout = setTimeout(() => {
-                setShowDamageOverlay(false);
-            }, 1000);
+  useEffect(() => {
+    if (showDamageOverlay) {
+      const timeout = setTimeout(() => {
+        setShowDamageOverlay(false);
+      }, 1000);
 
-            return () => clearTimeout(timeout);
-        }
-    }, [showDamageOverlay]);
+      return () => clearTimeout(timeout);
+    }
+  }, [showDamageOverlay]);
   const [layout] = useState(() => generateLayout());
 
   useEffect(() => {
@@ -184,10 +185,10 @@ export default function Game() {
       handleRemoveEnemy(enemyId);
     }
 
-        if (other.rigidBodyObject.name === "Player") {
-            setPlayerHealth((prev) => prev - 10);
-            setShowDamageOverlay(true);
-        }
+    if (other.rigidBodyObject.name === "Player") {
+      setPlayerHealth((prev) => prev - 10);
+      setShowDamageOverlay(true);
+    }
 
     handleRemoveBullet(bulletId);
   };
@@ -341,24 +342,24 @@ export default function Game() {
     );
   }
 
-    return (
-        <div className="w-screen h-screen relative">
-            {showDamageOverlay && <DamageOverlay />}
-            <Canvas camera={{ position: [0, 13, 8] }} shadows>
-                <ambientLight intensity={1} />
-                <directionalLight
-                    position={[20, 20, -20]}
-                    intensity={1}
-                    castShadow
-                    shadow-mapSize-width={256}
-                    shadow-mapSize-height={256}
-                    shadow-camera-near={0.5}
-                    shadow-camera-far={50}
-                    shadow-camera-left={-20}
-                    shadow-camera-right={20}
-                    shadow-camera-top={20}
-                    shadow-camera-bottom={-20}
-                />
+  return (
+    <div className="w-screen h-screen relative">
+      {/* {showDamageOverlay && <DamageOverlay />} */}
+      <Canvas camera={{ position: [0, 13, 8] }} shadows>
+        <ambientLight intensity={1} />
+        <directionalLight
+          position={[20, 20, -20]}
+          intensity={1}
+          castShadow
+          shadow-mapSize-width={256}
+          shadow-mapSize-height={256}
+          shadow-camera-near={0.5}
+          shadow-camera-far={50}
+          shadow-camera-left={-20}
+          shadow-camera-right={20}
+          shadow-camera-top={20}
+          shadow-camera-bottom={-20}
+        />
 
         <Suspense>
           <Physics interpolate={false} colliders={false}>
@@ -422,11 +423,6 @@ export default function Game() {
                 handleBulletCollision={handleBulletCollision}
               />
             ))}
-            {/* <EmptyRoom
-                position={[0, 0, 0]}
-                amountEnemy={amountEnemy}
-            /> */}
-            {/* <StartingRoom position={[0, 0, 0]} /> */}
             <LevelLayout layout={layout} />
           </Physics>
         </Suspense>
@@ -435,6 +431,7 @@ export default function Game() {
       <DashBar dashBar={dashBar} />
       <Hotbar selectedWeapon={selectedWeapon} />
       <Minimap layout={layout} />
+      {showDamageOverlay && <DamageOverlay />}
     </div>
   );
 }
