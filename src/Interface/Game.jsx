@@ -309,7 +309,6 @@ export default function Game() {
                     shadow-camera-top={20}
                     shadow-camera-bottom={-20}
                 />
-                <gridHelper args={[100, 100]} />
 
                 <Suspense>
                     <Physics interpolate={false} colliders={false}>
