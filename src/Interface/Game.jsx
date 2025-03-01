@@ -1,3 +1,5 @@
+import { Suspense, useEffect, useRef, useState, React } from "react";
+import { Vector2, Vector3 } from "three";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { interactionGroups, Physics } from "@react-three/rapier";
 import { Suspense, useEffect, useRef, useState } from "react";
@@ -5,7 +7,6 @@ import { EmptyRoom, StartingRoom } from "../Environment/RoomLayout";
 import { Vector2, Vector3 } from "three";
 import Player from "../Characters/Player";
 import { MeleeEnemy, PistolEnemy, GatlingEnemy } from "../Characters/Enemy";
-import React from "react";
 import * as B from "../Characters/Bullet";
 import { HallwayHorizontal, HallwayVertical } from "../Environment/Hallway";
 import { DashBar, HealthBar, Hotbar } from "./Inventory";
@@ -94,14 +95,14 @@ function generateLayout() {
   return layout;
 }
 
-export default function Scene() {
-  const [mouse, setMouse] = useState(new Vector2());
-  const [playerBullets, setPlayerBullets] = useState([]);
-  const [enemyBullets, setEnemyBullets] = useState([]);
-  const [playerDirection, setPlayerDirection] = useState(null);
-  const [amountEnemy, setAmountEnemy] = useState(0);
-  const [enemies, setEnemies] = useState(() => {
-    const enemyList = [];
+export default function Game() {
+    const [mouse, setMouse] = useState(new Vector2());
+    const [playerBullets, setPlayerBullets] = useState([]);
+    const [enemyBullets, setEnemyBullets] = useState([]);
+    const [playerDirection, setPlayerDirection] = useState(null);
+    const [amountEnemy, setAmountEnemy] = useState(10);
+    const [enemies, setEnemies] = useState(() => {
+        const enemyList = [];
 
     for (let i = 0; i < amountEnemy; i++) {
       const randomValue = Math.random();
@@ -129,6 +130,18 @@ export default function Scene() {
   const [playerHealth, setPlayerHealth] = useState(50);
   const [dashBar, setDashBar] = useState(2);
   const [selectedWeapon, setSelectedWeapon] = useState("pistol");
+
+    const [showDamageOverlay, setShowDamageOverlay] = useState(false);
+
+    useEffect(() => {
+        if (showDamageOverlay) {
+            const timeout = setTimeout(() => {
+                setShowDamageOverlay(false);
+            }, 1000);
+
+            return () => clearTimeout(timeout);
+        }
+    }, [showDamageOverlay]);
   const [layout] = useState(() => generateLayout());
 
   useEffect(() => {
@@ -171,9 +184,10 @@ export default function Scene() {
       handleRemoveEnemy(enemyId);
     }
 
-    if (other.rigidBodyObject.name === "Player") {
-      setPlayerHealth((prev) => prev - 10);
-    }
+        if (other.rigidBodyObject.name === "Player") {
+            setPlayerHealth((prev) => prev - 10);
+            setShowDamageOverlay(true);
+        }
 
     handleRemoveBullet(bulletId);
   };
@@ -327,24 +341,24 @@ export default function Scene() {
     );
   }
 
-  return (
-    <div className="w-screen h-screen relative">
-      <Canvas camera={{ position: [0, 13, 8] }} shadows>
-        <ambientLight intensity={1} />
-        <directionalLight
-          position={[20, 20, -20]}
-          intensity={1}
-          castShadow
-          shadow-mapSize-width={256}
-          shadow-mapSize-height={256}
-          shadow-camera-near={0.5}
-          shadow-camera-far={50}
-          shadow-camera-left={-20}
-          shadow-camera-right={20}
-          shadow-camera-top={20}
-          shadow-camera-bottom={-20}
-        />
-        <gridHelper args={[100, 100]} />
+    return (
+        <div className="w-screen h-screen relative">
+            {showDamageOverlay && <DamageOverlay />}
+            <Canvas camera={{ position: [0, 13, 8] }} shadows>
+                <ambientLight intensity={1} />
+                <directionalLight
+                    position={[20, 20, -20]}
+                    intensity={1}
+                    castShadow
+                    shadow-mapSize-width={256}
+                    shadow-mapSize-height={256}
+                    shadow-camera-near={0.5}
+                    shadow-camera-far={50}
+                    shadow-camera-left={-20}
+                    shadow-camera-right={20}
+                    shadow-camera-top={20}
+                    shadow-camera-bottom={-20}
+                />
 
         <Suspense>
           <Physics interpolate={false} colliders={false}>
