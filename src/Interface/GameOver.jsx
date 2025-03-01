@@ -1,4 +1,5 @@
 import React from "react";
+import DamageOverlay from "./DamageOverlay";
 
 const GameOver = () => {
     const handleRestart = () => {
@@ -15,6 +16,7 @@ const GameOver = () => {
                 backgroundRepeat: "no-repeat",
             }}
         >
+            <DamageOverlay />
             <h1 className="text-6xl text-red-700 font-extrabold mb-8 font-title tracking-wide">YOU DIED!</h1>
 
             <button
