@@ -344,7 +344,6 @@ export default function Game() {
 
   return (
     <div className="w-screen h-screen relative">
-      {/* {showDamageOverlay && <DamageOverlay />} */}
       <Canvas camera={{ position: [0, 13, 8] }} shadows>
         <ambientLight intensity={1} />
         <directionalLight
@@ -423,7 +422,7 @@ export default function Game() {
                 handleBulletCollision={handleBulletCollision}
               />
             ))}
-            <LevelLayout layout={layout} />
+            <LevelLayout layout={layout} playerRef={playerRef} />
           </Physics>
         </Suspense>
       </Canvas>

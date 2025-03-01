@@ -3,7 +3,7 @@ import Wall from "./Wall";
 import Gate from "./Gate";
 import { HallwayHorizontal, HallwayVertical } from "./Hallway";
 
-export function EmptyRoom({ position, amountEnemy }) {
+export function EmptyRoom({ position, amountEnemy, playerRef }) {
   const roomSize = 22;
   const hallwaySize = 6;
   const roomDimensions = [roomSize, 1, roomSize];
@@ -15,6 +15,9 @@ export function EmptyRoom({ position, amountEnemy }) {
   const hallwayPositionLeft = position[0] - roomSize / 2 - hallwaySize / 2;
   const hallwayPositionRight = position[0] + roomSize / 2 + hallwaySize / 2;
   const offset = 0.5;
+  const playerPos = playerRef && playerRef.current ? playerRef.current.translation() : null;
+  const absoluteDistance = playerPos ? [Math.abs(position[0] - playerPos.x), 0, Math.abs(position[2] - playerPos.z)] : null;
+  const distanceToView = 24;
 
   for (let i = 0; i < roomSize; i++) {
     for (let j = 0; j < roomSize; j++) {
@@ -58,43 +61,47 @@ export function EmptyRoom({ position, amountEnemy }) {
 
   return (
     <>
-      <Floor roomDimensions={roomDimensions} position={position} />
-      <HallwayVertical
-        position={[
-          position[0],
-          position[1],
-          hallwayPositionTop,
-        ]}
-      />
-      <HallwayVertical
-        position={[
-          position[0],
-          position[1],
-          hallwayPositionBottom,
-        ]}
-      />
-      <HallwayHorizontal 
-        position={[
-          hallwayPositionLeft,
-          position[1],
-          position[2],
-        ]}
-      />
-      <HallwayHorizontal 
-        position={[
-          hallwayPositionRight,
-          position[1],
-          position[2],
-        ]}
-      />
-      
-      {walls}
-      {amountEnemy && gates}
+      {playerPos && absoluteDistance[0] <= distanceToView && absoluteDistance[2] <= distanceToView && (
+        <>
+          <Floor roomDimensions={roomDimensions} position={position} />
+          <HallwayVertical
+            position={[
+              position[0],
+              position[1],
+              hallwayPositionTop,
+            ]}
+          />
+          <HallwayVertical
+            position={[
+              position[0],
+              position[1],
+              hallwayPositionBottom,
+            ]}
+          />
+          <HallwayHorizontal 
+            position={[
+              hallwayPositionLeft,
+              position[1],
+              position[2],
+            ]}
+          />
+          <HallwayHorizontal 
+            position={[
+              hallwayPositionRight,
+              position[1],
+              position[2],
+            ]}
+          />
+          
+          {walls}
+          {amountEnemy && gates}
+        </>
+      )}
     </>
   );
 }
 
-export function StartingRoom({ position }) {
+export function StartingRoom({ position, playerRef }) {
   const roomSize = 12;
   const hallwaySize = 6;
   const roomDimensions = [roomSize, 1, roomSize];
@@ -105,6 +112,9 @@ export function StartingRoom({ position }) {
   const hallwayPositionLeft = position[0] - roomSize / 2 - hallwaySize / 2;
   const hallwayPositionRight = position[0] + roomSize / 2 + hallwaySize / 2;
   const offset = 0.5;
+  const playerPos = playerRef && playerRef.current ? playerRef.current.translation() : null;
+  const absoluteDistance = playerPos ? [Math.abs(position[0] - playerPos.x), 0, Math.abs(position[2] - playerPos.z)] : null;
+  const distanceToView = 24;
 
   for (let i = 0; i < roomSize; i++) {
     for (let j = 0; j < roomSize; j++) {
@@ -131,37 +141,41 @@ export function StartingRoom({ position }) {
 
   return (
     <>
-      <HallwayVertical
-        position={[
-          position[0],
-          position[1],
-          hallwayPositionTop,
-        ]}
-      />
-      <HallwayVertical
-        position={[
-          position[0],
-          position[1],
-          hallwayPositionBottom,
-        ]}
-      />
-      <HallwayHorizontal 
-        position={[
-          hallwayPositionLeft,
-          position[1],
-          position[2],
-        ]}
-      />
-      <HallwayHorizontal 
-        position={[
-          hallwayPositionRight,
-          position[1],
-          position[2],
-        ]}
-      />
+      {playerPos && absoluteDistance[0] <= distanceToView && absoluteDistance[2] <= distanceToView && (
+        <>
+          <HallwayVertical
+            position={[
+              position[0],
+              position[1],
+              hallwayPositionTop,
+            ]}
+          />
+          <HallwayVertical
+            position={[
+              position[0],
+              position[1],
+              hallwayPositionBottom,
+            ]}
+          />
+          <HallwayHorizontal 
+            position={[
+              hallwayPositionLeft,
+              position[1],
+              position[2],
+            ]}
+          />
+          <HallwayHorizontal 
+            position={[
+              hallwayPositionRight,
+              position[1],
+              position[2],
+            ]}
+          />
 
-      <Floor roomDimensions={roomDimensions} position={position} />
-      {walls}
+          <Floor roomDimensions={roomDimensions} position={position} />
+          {walls}
+        </>
+      )}    
     </>
   );
 }
