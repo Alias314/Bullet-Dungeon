@@ -59,7 +59,7 @@ export function EmptyRoom({
   const hallwayPositionRight = position[0] + roomSize / 2 + hallwaySize / 2;
   const offset = 0.5;
   const distanceToView = 24;
-  const distanceToSummon = 11;
+  const distanceToSummon = roomSize / 2 - 1;
   const playerPos =
     playerRef && playerRef.current ? playerRef.current.translation() : null;
   const hasSummonedRef = useRef(false);

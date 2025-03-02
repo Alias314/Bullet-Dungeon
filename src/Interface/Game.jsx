@@ -44,7 +44,7 @@ function generateLayout() {
   const startingX = 3;
   const startingY = 3;
   const size = layout.length;
-  const maxRooms = 5;
+  const maxRooms = 7;
   let amountRooms = 1;
 
   const directions = {
