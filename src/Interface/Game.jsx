@@ -31,15 +31,6 @@ function CameraController({ playerRef }) {
   return null;
 }
 
-const getRandomPosition = () => {
-  const roomArea = 23;
-  const x = Math.random() * roomArea - roomArea / 2;
-  const y = 1;
-  const z = Math.random() * roomArea - roomArea / 2;
-
-  return [x, y, z];
-};
-
 function generateLayout() {
   let layout = [
     [-1, -1, -1, -1, -1, -1, -1],
@@ -53,7 +44,7 @@ function generateLayout() {
   const startingX = 3;
   const startingY = 3;
   const size = layout.length;
-  const maxRooms = 5;
+  const maxRooms = 7;
   let amountRooms = 1;
 
   const directions = {
@@ -102,36 +93,12 @@ export default function Game() {
   const [enemyBullets, setEnemyBullets] = useState([]);
   const [playerDirection, setPlayerDirection] = useState(null);
   const [amountEnemy, setAmountEnemy] = useState(10);
-  const [enemies, setEnemies] = useState(() => {
-    const enemyList = [];
-
-    for (let i = 0; i < amountEnemy; i++) {
-      const randomValue = Math.random();
-      let type;
-      if (randomValue < 0.5) {
-        type = "melee";
-      } else if (randomValue < 0.8) {
-        type = "pistol";
-      } else {
-        type = "gatling";
-      }
-      enemyList.push({
-        id: i,
-        type,
-        health: 30,
-        position: getRandomPosition(),
-      });
-    }
-
-    return enemyList;
-  });
-
+  const [enemies, setEnemies] = useState();
   const playerRef = useRef();
   const playerDirectionRef = useRef(playerDirection);
   const [playerHealth, setPlayerHealth] = useState(50);
   const [dashBar, setDashBar] = useState(2);
   const [selectedWeapon, setSelectedWeapon] = useState("pistol");
-
   const [showDamageOverlay, setShowDamageOverlay] = useState(false);
 
   useEffect(() => {
@@ -344,7 +311,6 @@ export default function Game() {
 
   return (
     <div className="w-screen h-screen relative">
-      {/* {showDamageOverlay && <DamageOverlay />} */}
       <Canvas camera={{ position: [0, 13, 8] }} shadows>
         <ambientLight intensity={1} />
         <directionalLight
@@ -371,38 +337,39 @@ export default function Game() {
               dashBar={dashBar}
               setDashBar={setDashBar}
             />
-            {enemies.map((enemy) => {
-              if (enemy.type === "pistol") {
-                return (
-                  <PistolEnemy
-                    key={enemy.id}
-                    id={enemy.id}
-                    playerRef={playerRef}
-                    position={enemy.position}
-                    setEnemyBullets={setEnemyBullets}
-                  />
-                );
-              } else if (enemy.type === "melee") {
-                return (
-                  <MeleeEnemy
-                    key={enemy.id}
-                    id={enemy.id}
-                    playerRef={playerRef}
-                    position={enemy.position}
-                  />
-                );
-              } else if (enemy.type === "gatling") {
-                return (
-                  <GatlingEnemy
-                    key={enemy.id}
-                    id={enemy.id}
-                    playerRef={playerRef}
-                    position={enemy.position}
-                    setEnemyBullets={setEnemyBullets}
-                  />
-                );
-              }
-            })}
+            {enemies &&
+              enemies.map((enemy) => {
+                if (enemy.type === "pistol") {
+                  return (
+                    <PistolEnemy
+                      key={enemy.id}
+                      id={enemy.id}
+                      playerRef={playerRef}
+                      position={enemy.position}
+                      setEnemyBullets={setEnemyBullets}
+                    />
+                  );
+                } else if (enemy.type === "melee") {
+                  return (
+                    <MeleeEnemy
+                      key={enemy.id}
+                      id={enemy.id}
+                      playerRef={playerRef}
+                      position={enemy.position}
+                    />
+                  );
+                } else if (enemy.type === "gatling") {
+                  return (
+                    <GatlingEnemy
+                      key={enemy.id}
+                      id={enemy.id}
+                      playerRef={playerRef}
+                      position={enemy.position}
+                      setEnemyBullets={setEnemyBullets}
+                    />
+                  );
+                }
+              })}
             {playerBullets.map((bullet) => (
               <B.PlayerBullet
                 key={bullet.id}
@@ -423,7 +390,13 @@ export default function Game() {
                 handleBulletCollision={handleBulletCollision}
               />
             ))}
-            <LevelLayout layout={layout} />
+            <LevelLayout
+              layout={layout}
+              amountEnemy={amountEnemy}
+              setAmountEnemy={setAmountEnemy}
+              playerRef={playerRef}
+              setEnemies={setEnemies}
+            />
           </Physics>
         </Suspense>
       </Canvas>
