@@ -221,12 +221,10 @@ export function GatlingEnemy({ id, playerRef, position, setEnemyBullets }) {
     const intervalId = setInterval(() => {
       setEnemyState("follow");
       setSpeed(1.7);
-      console.log("State set to follow");
 
       const timeoutId = setTimeout(() => {
         setEnemyState("shoot");
         setSpeed(0.75);
-        console.log("State set to shoot");
       }, 2000);
 
       return () => clearTimeout(timeoutId);
