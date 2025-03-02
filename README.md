@@ -25,4 +25,4 @@ Basically Soul Knight (mobile game) but 3D.
 
 ## Trello Board
 Here's the to do list. Just add stuff here that you wanna do.
-https://trello.com/b/4AbHlNs8/bullet-dungeon
+https://trello.com/invite/b/67ab7cb058fe3d5fc46ff291/ATTI0719f4df65f2ab578000d7d47bfe233d886B4187/bullet-dungeon
