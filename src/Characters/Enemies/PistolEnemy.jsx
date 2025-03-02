@@ -66,44 +66,40 @@ export default function PistolEnemy({ id, playerRef, position, setEnemyBullets }
   }, [time]);
 
   useEffect(() => {
-    const initialDelay = Math.random() * 2000;
-  
-    const timeout = setTimeout(() => {
-      const interval = setInterval(() => {
-        if (playerRef.current && enemyRef.current) {
-          const playerPos = playerRef.current.translation();
-          const enemyPos = enemyRef.current.translation();
-          const bulletSpeed = 10;
-  
-          const direction = new Vector3(
-            playerPos.x - enemyPos.x,
-            playerPos.y - enemyPos.y,
-            playerPos.z - enemyPos.z
-          ).normalize();
-  
-          const velocity = {
-            x: direction.x * bulletSpeed,
-            y: direction.y * bulletSpeed,
-            z: direction.z * bulletSpeed,
-          };
-  
-          setEnemyBullets((prev) => [
-            ...prev,
-            {
-              id: Math.random(),
-              position: [enemyPos.x, enemyPos.y, enemyPos.z],
-              velocity,
-            },
-          ]);
-        }
-      }, 2000);
-  
-      return () => clearInterval(interval);
-    }, initialDelay);
+    setTimeout(() => {}, Math.random * 1000);
 
-    return () => clearTimeout(timeout);
+    const interval = setInterval(() => {
+      if (playerRef.current && enemyRef.current) {
+        const playerPos = playerRef.current.translation();
+        const enemyPos = enemyRef.current.translation();
+        const bulletSpeed = 10;
+        const direction = new Vector3(
+          playerPos.x - enemyPos.x,
+          playerPos.y - enemyPos.y,
+          playerPos.z - enemyPos.z
+        ).normalize();
+        const velocity = {
+          x: direction.x * bulletSpeed,
+          y: direction.y * bulletSpeed,
+          z: direction.z * bulletSpeed,
+        };
+
+        setEnemyBullets((prev) => [
+          ...prev,
+          {
+            id: Math.random(),
+
+            position: [enemyPos.x, enemyPos.y, enemyPos.z],
+            velocity,
+          },
+        ]);
+      }
+    }, 2000);
+
+    return () => {
+      clearInterval(interval);
+    };
   }, [playerRef, enemyRef]);
-  
 
   return (
     <>
