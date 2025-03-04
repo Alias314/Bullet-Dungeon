@@ -4,7 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { follow, stalk, runAway, wander } from "../Logic/EnemyBehavior";
 import { Vector3 } from "three";
 
-export default function MeleeEnemy({ id, playerRef, position }) {
+export default function MeleeEnemy({
+  id,
+  playerRef,
+  position,
+  handleMeleeEnemyCollision,
+}) {
   const enemyRef = useRef();
   const speed = 3;
 
@@ -29,6 +34,9 @@ export default function MeleeEnemy({ id, playerRef, position }) {
         gravityScale={0}
         collisionGroups={interactionGroups(1, [0, 1, 2, 4])}
         lockRotations
+        onCollisionEnter={({ manifold, target, other }) => {
+          handleMeleeEnemyCollision(manifold, target, other, id);
+        }}
       >
         <mesh castShadow>
           <boxGeometry />

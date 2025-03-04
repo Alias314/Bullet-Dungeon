@@ -17,6 +17,7 @@ export default function useGameLogic(playerRef, selectedWeapon) {
     playerDirectionRef.current = playerDirection;
   }, [playerDirection]);
 
+  // damage overlay
   useEffect(() => {
     if (showDamageOverlay) {
       const timeout = setTimeout(() => {
@@ -26,6 +27,7 @@ export default function useGameLogic(playerRef, selectedWeapon) {
     }
   }, [showDamageOverlay]);
 
+  // shooting and stuff
   useEffect(() => {
     let shootingInterval = null;
 
@@ -132,11 +134,13 @@ export default function useGameLogic(playerRef, selectedWeapon) {
     };
   }, [selectedWeapon, playerRef]);
 
+  // remove bullets
   const handleRemoveBullet = (bulletId) => {
     setPlayerBullets((prev) => prev.filter((bullet) => bullet.id !== bulletId));
     setEnemyBullets((prev) => prev.filter((bullet) => bullet.id !== bulletId));
   };
 
+  // remove enemy
   const handleRemoveEnemy = (enemyId) => {
     setEnemies((prev) =>
       prev
@@ -155,20 +159,24 @@ export default function useGameLogic(playerRef, selectedWeapon) {
     );
   };
 
+  // bullet collision
   const handleBulletCollision = (manifold, target, other, bulletId) => {
-    if (
-      other.rigidBodyObject &&
-      other.rigidBodyObject.name &&
-      other.rigidBodyObject.name.startsWith("Enemy-")
-    ) {
+    if (other.rigidBodyObject.name.startsWith("Enemy-")) {
       const enemyId = parseInt(other.rigidBodyObject.name.split("-")[1]);
       handleRemoveEnemy(enemyId);
-    }
-    if (other.rigidBodyObject.name === "Player") {
+    } else if (other.rigidBodyObject.name === "Player") {
       setPlayerHealth((prev) => prev - 10);
       setShowDamageOverlay(true);
     }
     handleRemoveBullet(bulletId);
+  };
+
+  // melee enemy collision
+  const handleMeleeEnemyCollision = (manifold, target, other) => {
+    if (other.rigidBodyObject.name === "Player") {
+      setPlayerHealth((prev) => prev - 1);
+      setShowDamageOverlay(true);
+    }
   };
 
   return {
@@ -190,5 +198,6 @@ export default function useGameLogic(playerRef, selectedWeapon) {
     showDamageOverlay,
     setShowDamageOverlay,
     handleBulletCollision,
+    handleMeleeEnemyCollision,
   };
 }

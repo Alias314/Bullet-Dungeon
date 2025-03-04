@@ -33,7 +33,7 @@ export default function GatlingEnemy({ id, playerRef, position, setEnemyBullets 
           const playerPos = playerRef.current.translation();
           const enemyPos = enemyRef.current.translation();
           const bulletSpeed = 10;
-          let bulletSpread = Math.random() * 5;
+          let bulletSpread = Math.random() * 10;
           bulletSpread = bulletSpread - bulletSpread / 2;
           const direction = new Vector3(
             playerPos.x - enemyPos.x + bulletSpread,

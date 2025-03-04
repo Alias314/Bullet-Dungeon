@@ -45,6 +45,7 @@ export default function Scene() {
     showDamageOverlay,
     setShowDamageOverlay,
     handleBulletCollision,
+    handleMeleeEnemyCollision,
   } = useGameLogic(playerRef, selectedWeapon);
 
   useEffect(() => {
@@ -106,6 +107,7 @@ export default function Scene() {
                       id={enemy.id}
                       playerRef={playerRef}
                       position={enemy.position}
+                      handleMeleeEnemyCollision={handleMeleeEnemyCollision}
                     />
                   );
                 } else if (enemy.type === "gatling") {
