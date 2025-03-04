@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MainMenu from "./Interface/MainMenu";
-import Game from "./Interface/Game";
+import Scene from "./Interface/Scene";
 // import Settings from './Settings';
 
 const App = () => {
@@ -9,7 +9,7 @@ const App = () => {
         <Router>
             <Routes>
                 <Route path="/" element={<MainMenu />} />
-                <Route path="/game" element={<Game />} />
+                <Route path="/scene" element={<Scene />} />
                 {/* <Route path="/settings" element={<Settings />} /> */}
             </Routes>
         </Router>

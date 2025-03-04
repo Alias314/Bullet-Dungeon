@@ -23,7 +23,7 @@ const MainMenu = () => {
                 Bullet Dungeon
             </h1> */}
             <button
-                onClick={() => navigate("/game")}
+                onClick={() => navigate("/scene")}
                 className="bg-stone-800 hover:bg-stone-700 text-white font-bold w-45 py-2 px-4 rounded mb-4 font-title text-3xl cursor-pointer transition-colors duration-200 border-2 border-stone-600"
             >
                 Start Game

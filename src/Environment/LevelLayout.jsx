@@ -1,6 +1,12 @@
 import { EmptyRoom, StartingRoom } from "./RoomLayout";
 
-export default function LevelLayout({ layout, amountEnemy, setAmountEnemy, playerRef, setEnemies }) {
+export default function LevelLayout({
+  layout,
+  amountEnemy,
+  setAmountEnemy,
+  playerRef,
+  setEnemies,
+}) {
   const cellSize = 34;
 
   return (
@@ -13,6 +19,7 @@ export default function LevelLayout({ layout, amountEnemy, setAmountEnemy, playe
             //   playerRef={playerRef}
             // />
             <EmptyRoom
+              key={`room-${i}-${j}`}
               position={[(j - 3) * cellSize, 0, (i - 3) * cellSize]}
               amountEnemy={amountEnemy}
               setAmountEnemy={setAmountEnemy}
@@ -21,6 +28,7 @@ export default function LevelLayout({ layout, amountEnemy, setAmountEnemy, playe
             />
           ) : room === 1 ? (
             <EmptyRoom
+              key={`room-${i}-${j}`}
               position={[(j - 3) * cellSize, 0, (i - 3) * cellSize]}
               amountEnemy={amountEnemy}
               setAmountEnemy={setAmountEnemy}
