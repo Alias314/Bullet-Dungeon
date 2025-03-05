@@ -5,7 +5,7 @@ const DamageOverlay = () => {
         <div
             className="absolute inset-0 pointer-events-none"
             style={{
-                backgroundColor: "rgba(255, 0, 0, 1)",
+                backgroundColor: "rgba(255, 0, 0, 0.5)",
                 animation: "fadeOut 1s forwards",
             }}
         ></div>
