@@ -11,7 +11,7 @@ import GatlingEnemy from "../Characters/Enemies/GatlingEnemy";
 import * as B from "../Characters/Bullet";
 
 // Interface
-import { DashBar, HealthBar, Hotbar } from "./Inventory";
+import { BossHealthBar, DashBar, HealthBar, Hotbar } from "./Inventory";
 import GameOver from "./GameOver";
 import LevelLayout from "../Environment/LevelLayout";
 import Minimap from "./Minimap";
@@ -25,6 +25,7 @@ import { CustomRoom } from "../Environment/RoomLayout";
 // testing
 import OverseerBossRoom from "../Environment/Rooms/OverseerBossRoom";
 import Overseer from "../Characters/Enemies/Bosses/Overseer";
+import { BokehPass } from "three/examples/jsm/Addons.js";
 
 export default function Scene() {
   const playerRef = useRef();
@@ -47,6 +48,8 @@ export default function Scene() {
     showDamageOverlay,
     handleBulletCollision,
     handleMeleeEnemyCollision,
+    bosses,
+    setBosses,
   } = useGameLogic(playerRef, selectedWeapon);
 
   useEffect(() => {
@@ -150,14 +153,27 @@ export default function Scene() {
               playerRef={playerRef}
               setEnemies={setEnemies}
             />
-            {/* <OverseerBossRoom position={[0, 0, 0]} playerRef={playerRef} />
-            <Overseer id={0} playerRef={playerRef} position={[5, 2, 5]} setEnemyBullets={setEnemyBullets} /> */}
+            {/* <OverseerBossRoom
+              position={[0, 0, 0]}
+              playerRef={playerRef}
+              setBosses={setBosses}
+            />
+            {bosses && (
+              <Overseer
+                key={0}
+                id={0}
+                playerRef={playerRef}
+                position={[5, 2, 5]}
+                setEnemyBullets={setEnemyBullets}
+              />
+            )} */}
           </Physics>
         </Suspense>
       </Canvas>
       <HealthBar health={playerHealth} />
       <DashBar dashBar={dashBar} />
-      <Hotbar selectedWeapon={selectedWeapon} />
+      <BossHealthBar bosses={bosses} />
+      {/* <Hotbar selectedWeapon={selectedWeapon} /> */}
       <Minimap layout={layout} />
       {showDamageOverlay && <DamageOverlay />}
     </div>

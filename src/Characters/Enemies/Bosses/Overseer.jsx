@@ -7,14 +7,22 @@ import {
   runAway,
   wander,
   dash,
-} from "../../Logic/EnemyBehavior";
+} from "../../Logic/EnemyMovementBehavior";
 import { Vector3 } from "three";
-import { radialBullet } from "../../Logic/BossBehavior";
+import {
+  radialShoot,
+  pistolShoot,
+  shotgunShoot,
+  radialMachineGun,
+  radialBarrageShoot,
+} from "../../Logic/EnemyShootingBehavior";
+import { delay } from "../../../Utils/helper";
 
 export default function Overseer({ id, playerRef, position, setEnemyBullets }) {
-  const [time, setTime] = useState(0);
   const enemyRef = useRef();
   const speed = 1;
+  const bossStates = ["follow", "barrage"];
+  const [bossState, setBossState] = useState(bossStates[0]);
 
   useFrame(() => {
     if (playerRef.current && enemyRef.current) {
@@ -26,7 +34,13 @@ export default function Overseer({ id, playerRef, position, setEnemyBullets }) {
         Math.abs(playerPos.z - enemyPos.z),
       ];
       const distanceToStalk = 7;
-      const targetVelocityObj = follow(playerPos, enemyPos, speed);
+      let targetVelocityObj;
+
+      if (bossState === "follow") {
+        targetVelocityObj = follow(playerPos, enemyPos, speed);
+      } else if (bossState === "barrage") {
+        targetVelocityObj = { x: 0, y: 0, z: 0 };
+      }
 
       const currentVelocity = enemyRef.current.linvel();
       const targetVelocity = new Vector3(
@@ -46,54 +60,49 @@ export default function Overseer({ id, playerRef, position, setEnemyBullets }) {
     }
   });
 
+  const barrageAttack = async (enemyPos) => {
+    await delay(1000);
+    await radialBarrageShoot(enemyPos, setEnemyBullets, 10, 12, 40);
+    await delay(300);
+    radialShoot(enemyPos, setEnemyBullets, 10, 64);
+  };
+
+  const followAttack = async (playerPos, enemyPos) => {
+    await shotgunShoot(playerPos, enemyPos, 10, 5, setEnemyBullets);
+    await delay(1000);
+    await radialShoot(enemyPos, setEnemyBullets, 10, 32);
+  };
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (enemyRef.current) {
+    if (bossState === "barrage") {
+      const enemyPos = enemyRef.current.translation();
+      barrageAttack(enemyPos);
+    } else if (bossState === "follow") {
+      const interval = setInterval(() => {
+        const playerPos = playerRef.current.translation();
         const enemyPos = enemyRef.current.translation();
-        radialBullet(enemyPos, setEnemyBullets, 10, 16);
-      }
-    }, 1000);
+        followAttack(playerPos, enemyPos);
+      }, 2000);
 
+      return () => clearInterval(interval);
+    }
+  }, [playerRef, enemyRef, bossState, setEnemyBullets]);
+
+  useEffect(() => {
+    const toggleBossState = () => {
+      setBossState((prevState) =>
+        prevState === "follow" ? "barrage" : "follow"
+      );
+    };
+    const interval = setInterval(toggleBossState, 11000);
     return () => clearInterval(interval);
-  }, [enemyRef, setEnemyBullets]);
-
-//   useEffect(() => {
-//     const interval = setInterval(() => {
-//       if (playerRef.current && enemyRef.current) {
-//         const playerPos = playerRef.current.translation();
-//         const enemyPos = enemyRef.current.translation();
-//         const bulletSpeed = 10;
-//         const direction = new Vector3(
-//           playerPos.x - enemyPos.x,
-//           playerPos.y - enemyPos.y,
-//           playerPos.z - enemyPos.z
-//         ).normalize();
-//         const velocity = {
-//           x: direction.x * bulletSpeed,
-//           y: direction.y * bulletSpeed,
-//           z: direction.z * bulletSpeed,
-//         };
-
-//         setEnemyBullets((prev) => [
-//           ...prev,
-//           {
-//             id: Math.random(),
-
-//             position: [enemyPos.x, enemyPos.y, enemyPos.z],
-//             velocity,
-//           },
-//         ]);
-//       }
-//     }, 2000);
-
-//     return () => clearInterval(interval);
-//   }, [playerRef, enemyRef]);
+  }, []);
 
   return (
     <>
       <RigidBody
         ref={enemyRef}
-        name={`Enemy-${id}`}
+        name="Overseer"
         position={position}
         colliders="cuboid"
         type="dynamic"

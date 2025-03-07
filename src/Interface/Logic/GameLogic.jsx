@@ -11,6 +11,7 @@ export default function useGameLogic(playerRef, selectedWeapon) {
   const [playerHealth, setPlayerHealth] = useState(10000);
   const [dashBar, setDashBar] = useState(2);
   const [showDamageOverlay, setShowDamageOverlay] = useState(false);
+  const [bosses, setBosses] = useState(null);
 
   const playerDirectionRef = useRef(playerDirection);
   useEffect(() => {
@@ -167,6 +168,12 @@ export default function useGameLogic(playerRef, selectedWeapon) {
     } else if (other.rigidBodyObject.name === "Player") {
       setPlayerHealth((prev) => prev - 10);
       setShowDamageOverlay(true);
+    } else if (other.rigidBodyObject.name === "Overseer") {
+      setBosses((prev) => {
+        if (!prev) return null;
+        const newHealth = prev.health - 10;
+        return newHealth <= 0 ? null : { ...prev, health: newHealth };
+      });
     }
     handleRemoveBullet(bulletId);
   };
@@ -195,5 +202,7 @@ export default function useGameLogic(playerRef, selectedWeapon) {
     showDamageOverlay,
     handleBulletCollision,
     handleMeleeEnemyCollision,
+    bosses,
+    setBosses,
   };
 }

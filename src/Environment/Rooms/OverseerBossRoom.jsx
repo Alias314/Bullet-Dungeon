@@ -5,9 +5,9 @@ import { HallwayHorizontal, HallwayVertical } from "../Hallway";
 import { useRef, useEffect } from "react";
 
 // just use this as template
-export default function OverseerBossRoom({ position, playerRef }) {
+export default function OverseerBossRoom({ position, playerRef, setBosses }) {
   const roomSize = 50;
-  const roomDimensions = [40, 1, 35];
+  const roomDimensions = [45, 1, 30];
   const offset = 0.5;
   const playerPos =
     playerRef && playerRef.current ? playerRef.current.translation() : null;
@@ -23,6 +23,12 @@ export default function OverseerBossRoom({ position, playerRef }) {
     Array(roomSize).fill(0)
   );
   const walls = [];
+  const hasSummonedRef = useRef(false);
+
+  if (!hasSummonedRef.current) {
+    setBosses({ id: 1, type: "Overseer", health: 300 });
+    hasSummonedRef.current = true;
+  }
 
   // this for custom layout.
   // 0 is nothing
@@ -32,7 +38,12 @@ export default function OverseerBossRoom({ position, playerRef }) {
   // 4 is idk maybe like spike traps or something
   for (let i = 0; i < roomDimensions[0]; i++) {
     for (let j = 0; j < roomDimensions[2]; j++) {
-      if (i === 0 || i === roomDimensions[0] - 1 || j === 0 || j === roomDimensions[2] - 1) {
+      if (
+        i === 0 ||
+        i === roomDimensions[0] - 1 ||
+        j === 0 ||
+        j === roomDimensions[2] - 1
+      ) {
         layout[i][j] = 1;
       }
     }

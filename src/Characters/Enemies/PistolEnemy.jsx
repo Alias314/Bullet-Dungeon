@@ -1,8 +1,9 @@
 import { useFrame } from "@react-three/fiber";
 import { interactionGroups, RigidBody } from "@react-three/rapier";
 import { useEffect, useRef, useState } from "react";
-import { follow, stalk, runAway, wander } from "../Logic/EnemyBehavior";
+import { follow, stalk, runAway, wander } from "../Logic/EnemyMovementBehavior";
 import { Vector3 } from "three";
+import { delay } from "../../Utils/helper";
 
 export default function PistolEnemy({
   id,
@@ -86,8 +87,8 @@ export default function PistolEnemy({
   }, [time]);
 
   useEffect(() => {
-    setTimeout(() => {}, Math.random * 1000);
-
+    // delay(Math.random() * 1000);
+    
     const interval = setInterval(() => {
       if (playerRef.current && enemyRef.current) {
         const playerPos = playerRef.current.translation();

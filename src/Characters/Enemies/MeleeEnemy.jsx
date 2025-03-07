@@ -1,7 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { interactionGroups, RigidBody } from "@react-three/rapier";
 import { useEffect, useRef, useState } from "react";
-import { follow, stalk, runAway, wander } from "../Logic/EnemyBehavior";
+import { follow, stalk, runAway, wander } from "../Logic/EnemyMovementBehavior";
 import { Vector3 } from "three";
 
 export default function MeleeEnemy({

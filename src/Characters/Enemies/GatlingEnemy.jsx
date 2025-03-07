@@ -1,7 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { interactionGroups, RigidBody } from "@react-three/rapier";
 import { useEffect, useRef, useState } from "react";
-import { follow, stalk, runAway, wander } from "../Logic/EnemyBehavior";
+import { follow, stalk, runAway, wander } from "../Logic/EnemyMovementBehavior";
 import { Vector3 } from "three";
 
 export default function GatlingEnemy({
@@ -42,8 +42,6 @@ export default function GatlingEnemy({
   useEffect(() => {
     let interval = null;
 
-    setTimeout(() => {}, Math.random() * 1000);
-
     if (enemyState === "shoot") {
       interval = setInterval(() => {
         if (playerRef.current && enemyRef.current) {
@@ -67,7 +65,6 @@ export default function GatlingEnemy({
             ...prev,
             {
               id: Math.random(),
-
               position: [enemyPos.x, enemyPos.y, enemyPos.z],
               velocity,
             },
