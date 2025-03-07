@@ -12,14 +12,28 @@ export default function MeleeEnemy({
 }) {
   const enemyRef = useRef();
   const speed = 3;
+  const smoothingFactor = 0.1;
 
   useFrame(() => {
     if (playerRef.current && enemyRef.current) {
       const playerPos = playerRef.current.translation();
       const enemyPos = enemyRef.current.translation();
-      const velocity = follow(playerPos, enemyPos, speed);
+      const targetVelObj = follow(playerPos, enemyPos, speed);
+      const targetVelocity = new Vector3(
+        targetVelObj.x,
+        targetVelObj.y,
+        targetVelObj.z
+      );
 
-      enemyRef.current.setLinvel(velocity, true);
+      const currentVelocity = enemyRef.current.linvel();
+      const newVelocity = new Vector3()
+        .copy(currentVelocity)
+        .lerp(targetVelocity, smoothingFactor);
+
+      enemyRef.current.setLinvel(
+        { x: newVelocity.x, y: newVelocity.y, z: newVelocity.z },
+        true
+      );
     }
   });
 

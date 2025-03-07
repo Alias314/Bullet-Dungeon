@@ -4,7 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { follow, stalk, runAway, wander } from "../Logic/EnemyBehavior";
 import { Vector3 } from "three";
 
-export default function GatlingEnemy({ id, playerRef, position, setEnemyBullets }) {
+export default function GatlingEnemy({
+  id,
+  playerRef,
+  position,
+  setEnemyBullets,
+}) {
   const [time, setTime] = useState(0);
   const enemyRef = useRef();
   const [speed, setSpeed] = useState(1.7);
@@ -14,11 +19,23 @@ export default function GatlingEnemy({ id, playerRef, position, setEnemyBullets 
     if (playerRef.current && enemyRef.current) {
       const playerPos = playerRef.current.translation();
       const enemyPos = enemyRef.current.translation();
-      let velocity;
+      const targetVelocityObj = follow(playerPos, enemyPos, speed);
+      const targetVelocity = new Vector3(
+        targetVelocityObj.x,
+        targetVelocityObj.y,
+        targetVelocityObj.z
+      );
 
-      velocity = follow(playerPos, enemyPos, speed);
+      const currentVelocity = enemyRef.current.linvel();
+      const smoothingFactor = 0.1;
+      const newVelocity = new Vector3()
+        .copy(currentVelocity)
+        .lerp(targetVelocity, smoothingFactor);
 
-      enemyRef.current.setLinvel(velocity, true);
+      enemyRef.current.setLinvel(
+        { x: newVelocity.x, y: newVelocity.y, z: newVelocity.z },
+        true
+      );
     }
   });
 

@@ -20,6 +20,11 @@ import { generateLayout } from "./Logic/GenerateLayout";
 import { CameraController } from "./Logic/CameraController";
 
 import useGameLogic from "./Logic/GameLogic";
+import { CustomRoom } from "../Environment/RoomLayout";
+
+// testing
+import OverseerBossRoom from "../Environment/Rooms/OverseerBossRoom";
+import Overseer from "../Characters/Enemies/Bosses/Overseer";
 
 export default function Scene() {
   const playerRef = useRef();
@@ -30,20 +35,16 @@ export default function Scene() {
     mouse,
     playerBullets,
     enemyBullets,
-    setPlayerBullets,
     setEnemyBullets,
-    playerDirection,
     setPlayerDirection,
     amountEnemy,
     setAmountEnemy,
     enemies,
     setEnemies,
     playerHealth,
-    setPlayerHealth,
     dashBar,
     setDashBar,
     showDamageOverlay,
-    setShowDamageOverlay,
     handleBulletCollision,
     handleMeleeEnemyCollision,
   } = useGameLogic(playerRef, selectedWeapon);
@@ -149,6 +150,8 @@ export default function Scene() {
               playerRef={playerRef}
               setEnemies={setEnemies}
             />
+            {/* <OverseerBossRoom position={[0, 0, 0]} playerRef={playerRef} />
+            <Overseer id={0} playerRef={playerRef} position={[5, 2, 5]} setEnemyBullets={setEnemyBullets} /> */}
           </Physics>
         </Suspense>
       </Canvas>

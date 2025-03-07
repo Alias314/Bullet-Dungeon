@@ -8,7 +8,7 @@ export default function useGameLogic(playerRef, selectedWeapon) {
   const [playerDirection, setPlayerDirection] = useState(null);
   const [amountEnemy, setAmountEnemy] = useState(10);
   const [enemies, setEnemies] = useState([]);
-  const [playerHealth, setPlayerHealth] = useState(50);
+  const [playerHealth, setPlayerHealth] = useState(10000);
   const [dashBar, setDashBar] = useState(2);
   const [showDamageOverlay, setShowDamageOverlay] = useState(false);
 
@@ -183,20 +183,16 @@ export default function useGameLogic(playerRef, selectedWeapon) {
     mouse,
     playerBullets,
     enemyBullets,
-    setPlayerBullets,
     setEnemyBullets,
-    playerDirection,
     setPlayerDirection,
     amountEnemy,
     setAmountEnemy,
     enemies,
     setEnemies,
     playerHealth,
-    setPlayerHealth,
     dashBar,
     setDashBar,
     showDamageOverlay,
-    setShowDamageOverlay,
     handleBulletCollision,
     handleMeleeEnemyCollision,
   };

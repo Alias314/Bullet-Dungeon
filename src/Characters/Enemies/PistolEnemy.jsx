@@ -4,7 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { follow, stalk, runAway, wander } from "../Logic/EnemyBehavior";
 import { Vector3 } from "three";
 
-export default function PistolEnemy({ id, playerRef, position, setEnemyBullets }) {
+export default function PistolEnemy({
+  id,
+  playerRef,
+  position,
+  setEnemyBullets,
+}) {
   const [time, setTime] = useState(0);
   const enemyRef = useRef();
   const speed = 1.8;
@@ -21,13 +26,13 @@ export default function PistolEnemy({ id, playerRef, position, setEnemyBullets }
         Math.abs(playerPos.z - enemyPos.z),
       ];
       const distanceToStalk = 7;
-      let velocity;
+      let targetVelocityObj;
 
       if (
         absoluteDistance[0] < distanceToStalk &&
         absoluteDistance[2] < distanceToStalk
       ) {
-        velocity = stalk(
+        targetVelocityObj = stalk(
           playerPos,
           enemyPos,
           speed,
@@ -35,10 +40,25 @@ export default function PistolEnemy({ id, playerRef, position, setEnemyBullets }
           distanceToStalk
         );
       } else {
-        velocity = wander(positionToWander, enemyPos, speed);
+        targetVelocityObj = wander(positionToWander, enemyPos, speed);
       }
 
-      enemyRef.current.setLinvel(velocity, true);
+      const currentVelocity = enemyRef.current.linvel();
+      const targetVelocity = new Vector3(
+        targetVelocityObj.x,
+        targetVelocityObj.y,
+        targetVelocityObj.z
+      );
+      const smoothingFactor = 0.1;
+
+      const newVelocity = new Vector3()
+        .copy(currentVelocity)
+        .lerp(targetVelocity, smoothingFactor);
+
+      enemyRef.current.setLinvel(
+        { x: newVelocity.x, y: newVelocity.y, z: newVelocity.z },
+        true
+      );
     }
   });
 

@@ -13,5 +13,6 @@ export function CameraController({ playerRef }) {
       camera.position.lerp(targetPos, 0.1);
     }
   });
+
   return null;
 }
