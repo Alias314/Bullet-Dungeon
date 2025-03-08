@@ -24,6 +24,7 @@ import { CustomRoom } from "../Environment/RoomLayout";
 
 // testing
 import OverseerBossRoom from "../Environment/Rooms/OverseerBossRoom";
+import ChestRoom from "../Environment/Rooms/ChestRoom"
 import Overseer from "../Characters/Enemies/Bosses/Overseer";
 import { BokehPass } from "three/examples/jsm/Addons.js";
 
@@ -126,6 +127,15 @@ export default function Scene() {
                   );
                 }
               })}
+            {bosses && (
+              <Overseer
+                key={0}
+                id={0}
+                playerRef={playerRef}
+                position={[5, 2, 5]}
+                setEnemyBullets={setEnemyBullets}
+              />
+            )}
             {playerBullets.map((bullet) => (
               <B.PlayerBullet
                 key={bullet.id}
@@ -146,27 +156,19 @@ export default function Scene() {
                 handleBulletCollision={handleBulletCollision}
               />
             ))}
-            <LevelLayout
+            {/* <LevelLayout
               layout={layout}
               amountEnemy={amountEnemy}
               setAmountEnemy={setAmountEnemy}
               playerRef={playerRef}
               setEnemies={setEnemies}
-            />
+            /> */}
             {/* <OverseerBossRoom
               position={[0, 0, 0]}
               playerRef={playerRef}
               setBosses={setBosses}
-            />
-            {bosses && (
-              <Overseer
-                key={0}
-                id={0}
-                playerRef={playerRef}
-                position={[5, 2, 5]}
-                setEnemyBullets={setEnemyBullets}
-              />
-            )} */}
+            /> */}
+            {/* <ChestRoom position={[0, 0, 0]} playerRef={playerRef} /> */}
           </Physics>
         </Suspense>
       </Canvas>

@@ -3,10 +3,10 @@ import { RigidBody, interactionGroups } from "@react-three/rapier";
 import * as THREE from "three";
 import { useLoader } from "@react-three/fiber";
 
-export default function Wall({ position }) {
+export default function TreasureChest({ position }) {
     const texture = useLoader(
         THREE.TextureLoader,
-        "/assets/textures/stone_slab_top.png"
+        "/assets/textures/chest_front.png"
     );
 
     texture.magFilter = THREE.NearestFilter;
@@ -22,7 +22,7 @@ export default function Wall({ position }) {
             collisionGroups={interactionGroups(4, [0, 1, 2, 3])}
         >
             <mesh castShadow>
-                <boxGeometry args={[1, 3, 1]} />
+                <boxGeometry args={[1, 1, 1]} />
                 <meshStandardMaterial map={texture} />
             </mesh>
         </RigidBody>

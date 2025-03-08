@@ -26,7 +26,7 @@ export default function OverseerBossRoom({ position, playerRef, setBosses }) {
   const hasSummonedRef = useRef(false);
 
   if (!hasSummonedRef.current) {
-    setBosses({ id: 1, type: "Overseer", health: 300 });
+    setBosses({ id: 1, type: "Overseer", health: 1000 });
     hasSummonedRef.current = true;
   }
 
