@@ -27,6 +27,9 @@ import OverseerBossRoom from "../Environment/Rooms/OverseerBossRoom";
 import ChestRoom from "../Environment/Rooms/ChestRoom"
 import Overseer from "../Characters/Enemies/Bosses/Overseer";
 import { BokehPass } from "three/examples/jsm/Addons.js";
+import MediumRoom1 from "../Environment/Rooms/MediumRoom1";
+import MediumRoom2 from "../Environment/Rooms/MediumRoom2";
+import SmallRoomTemplate from "../Environment/Rooms/SmallRoomTemplate"
 
 export default function Scene() {
   const playerRef = useRef();
@@ -156,19 +159,22 @@ export default function Scene() {
                 handleBulletCollision={handleBulletCollision}
               />
             ))}
-            {/* <LevelLayout
+            <LevelLayout
               layout={layout}
               amountEnemy={amountEnemy}
               setAmountEnemy={setAmountEnemy}
               playerRef={playerRef}
               setEnemies={setEnemies}
-            /> */}
+            />
             {/* <OverseerBossRoom
               position={[0, 0, 0]}
               playerRef={playerRef}
               setBosses={setBosses}
             /> */}
             {/* <ChestRoom position={[0, 0, 0]} playerRef={playerRef} /> */}
+            {/* <MediumRoom1 position={[0, 0, 0]} playerRef={playerRef} /> */}
+            {/* <MediumRoom2 position={[0, 0, 0]} playerRef={playerRef} /> */}
+            {/* <SmallRoomTemplate position={[0, 0, 0]} playerRef={playerRef} /> */}
           </Physics>
         </Suspense>
       </Canvas>

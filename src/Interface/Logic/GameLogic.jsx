@@ -8,7 +8,7 @@ export default function useGameLogic(playerRef, selectedWeapon) {
   const [playerDirection, setPlayerDirection] = useState(null);
   const [amountEnemy, setAmountEnemy] = useState(10);
   const [enemies, setEnemies] = useState([]);
-  const [playerHealth, setPlayerHealth] = useState(10000);
+  const [playerHealth, setPlayerHealth] = useState(100);
   const [dashBar, setDashBar] = useState(2);
   const [showDamageOverlay, setShowDamageOverlay] = useState(false);
   const [bosses, setBosses] = useState(null);
