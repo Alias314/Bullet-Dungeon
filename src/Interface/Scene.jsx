@@ -24,12 +24,11 @@ import { CustomRoom } from "../Environment/RoomLayout";
 
 // testing
 import OverseerBossRoom from "../Environment/Rooms/OverseerBossRoom";
-import ChestRoom from "../Environment/Rooms/ChestRoom"
+import ChestRoom from "../Environment/Rooms/ChestRoom";
 import Overseer from "../Characters/Enemies/Bosses/Overseer";
-import { BokehPass } from "three/examples/jsm/Addons.js";
-import MediumRoom1 from "../Environment/Rooms/MediumRoom1";
-import MediumRoom2 from "../Environment/Rooms/MediumRoom2";
-import SmallRoomTemplate from "../Environment/Rooms/SmallRoomTemplate"
+import SmallRoomTemplate from "../Environment/Rooms/SmallRoomTemplate";
+import SquareRoomTemplate from "../Environment/Rooms/SquareRoomTemplate";
+import MediumRoomTemplate from "../Environment/Rooms/MediumRoomTemplate";
 
 export default function Scene() {
   const playerRef = useRef();
@@ -66,6 +65,10 @@ export default function Scene() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  useEffect(() => {
+    console.log(amountEnemy);
+  }, [amountEnemy]);
 
   if (playerHealth <= 0) return <GameOver />;
 
@@ -173,8 +176,30 @@ export default function Scene() {
             /> */}
             {/* <ChestRoom position={[0, 0, 0]} playerRef={playerRef} /> */}
             {/* <MediumRoom1 position={[0, 0, 0]} playerRef={playerRef} /> */}
-            {/* <MediumRoom2 position={[0, 0, 0]} playerRef={playerRef} /> */}
-            {/* <SmallRoomTemplate position={[0, 0, 0]} playerRef={playerRef} /> */}
+            {/* <MediumRoomTemplate
+              position={[0, 0, 0]}
+              playerRef={playerRef}
+              openings={{ top: true, bottom: true, left: true, right: true }}
+              amountEnemy={amountEnemy}
+              setAmountEnemy={setAmountEnemy}
+              setEnemies={setEnemies}
+            /> */}
+            {/* <SmallRoomTemplate
+              position={[0, 0, 0]}
+              playerRef={playerRef}
+              openings={{ top: true, bottom: true, left: true, right: true }}
+              amountEnemy={amountEnemy}
+              setAmountEnemy={setAmountEnemy}
+              setEnemies={setEnemies}
+            /> */}
+            {/* <SquareRoomTemplate
+              position={[0, 0, 0]}
+              playerRef={playerRef}
+              openings={{ top: true, bottom: true, left: true, right: true }}
+              amountEnemy={amountEnemy}
+              setAmountEnemy={setAmountEnemy}
+              setEnemies={setEnemies}
+            /> */}
           </Physics>
         </Suspense>
       </Canvas>

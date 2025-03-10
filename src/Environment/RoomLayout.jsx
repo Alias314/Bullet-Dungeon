@@ -137,7 +137,7 @@ export function EmptyRoom({
               position={[position[0], position[1], hallwayPositionBottom]}
             />
             <HallwayHorizontal
-              position={[hallwayPositionLeft, position[1], position[2]]}
+              position={[hallwayPositionLeft - 1, position[1], position[2]]}
             />
             <HallwayHorizontal
               position={[hallwayPositionRight, position[1], position[2]]}

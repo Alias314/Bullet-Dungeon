@@ -48,7 +48,8 @@ export function BoxNonDestructible({ position }) {
         >
             <mesh castShadow>
                 <boxGeometry args={[1, 1, 1]} />
-                <meshStandardMaterial map={texture} />
+                {/* <meshStandardMaterial map={texture} /> */}
+                <meshStandardMaterial color={'gray'} />
             </mesh>
         </RigidBody>
     );
