@@ -24,7 +24,7 @@ export default function Wall({ position }) {
             <mesh castShadow>
                 <boxGeometry args={[1, 3, 1]} />
                 {/* <meshStandardMaterial map={texture} /> */}
-                <meshStandardMaterial color={'gray'} />
+                <meshStandardMaterial color={'orange'} />
             </mesh>
         </RigidBody>
     );

@@ -48,5 +48,22 @@ export function generateLayout() {
     }
   }
 
+  // temporary level layout for now, will focus on other mechanics first
+  // 0 - starting room
+  // 1 - small room template
+  // 2 - medium room template
+  // 3 - square room template
+  // 4 - chest room
+  // 5 - overseer boss room
+  layout = [
+    [-1, -1, -1, -1, -1, -1, -1],
+    [-1, -1, -1, 5, 3, -1, -1],
+    [-1, -1, -1, 3, 2, 1, -1],
+    [-1, -1, 1, 1, 2, -1, -1],
+    [-1, -1, 2, 1, 3, -1, -1],
+    [-1, -1, 1, 3, -1, -1, -1],
+    [-1, -1, -1, 0, -1, -1, -1],
+  ];
+
   return layout;
 }

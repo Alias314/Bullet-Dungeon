@@ -1,7 +1,7 @@
 import Floor from "../Floor";
 import Wall from "../Wall";
 import Gate from "../Gate";
-import { HallwayHorizontal, HallwayVertical } from "../Hallway";
+// import { HallwayHorizontal, HallwayVertical } from "../Hallway";
 import { useRef, useEffect } from "react";
 import TreasureChest from "../Obstacles/TreasureChest";
 

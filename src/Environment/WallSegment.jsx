@@ -13,7 +13,7 @@ export default function WallSegment({ position, size }) {
     >
       <mesh castShadow>
         <boxGeometry args={size} />
-        <meshStandardMaterial color="gray" />
+        <meshStandardMaterial color="orange" />
       </mesh>
     </RigidBody>
   );

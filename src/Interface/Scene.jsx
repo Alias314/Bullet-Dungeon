@@ -26,14 +26,16 @@ import { CustomRoom } from "../Environment/RoomLayout";
 import OverseerBossRoom from "../Environment/Rooms/OverseerBossRoom";
 import ChestRoom from "../Environment/Rooms/ChestRoom";
 import Overseer from "../Characters/Enemies/Bosses/Overseer";
-import SmallRoomTemplate from "../Environment/Rooms/SmallRoomTemplate";
-import SquareRoomTemplate from "../Environment/Rooms/SquareRoomTemplate";
-import MediumRoomTemplate from "../Environment/Rooms/MediumRoomTemplate";
+
+import gameplayMusic from "../Assets/Audio/gameplayMusic.mp3";
 
 export default function Scene() {
   const playerRef = useRef();
   const [selectedWeapon, setSelectedWeapon] = useState("pistol");
   const [layout] = useState(() => generateLayout());
+  const audioRef = useRef(null);
+
+
 
   const {
     mouse,
@@ -53,6 +55,7 @@ export default function Scene() {
     handleMeleeEnemyCollision,
     bosses,
     setBosses,
+    isInvincible,
   } = useGameLogic(playerRef, selectedWeapon);
 
   useEffect(() => {
@@ -66,38 +69,42 @@ export default function Scene() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  useEffect(() => {
-    console.log(amountEnemy);
-  }, [amountEnemy]);
-
   if (playerHealth <= 0) return <GameOver />;
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.play();
+    }
+  }, []);
 
   return (
     <div className="w-screen h-screen relative">
-      <Canvas camera={{ position: [0, 13, 8] }} shadows>
+      <Canvas camera={{ position: [0, 14, 6] }} shadows>
         <ambientLight intensity={1} />
         <directionalLight
           position={[20, 20, -20]}
           intensity={1}
           castShadow
-          shadow-mapSize-width={256}
-          shadow-mapSize-height={256}
+          shadow-mapSize-width={1024}
+          shadow-mapSize-height={1024}
           shadow-camera-near={0.5}
-          shadow-camera-far={50}
-          shadow-camera-left={-20}
-          shadow-camera-right={20}
-          shadow-camera-top={20}
-          shadow-camera-bottom={-20}
+          shadow-camera-far={200}
+          shadow-camera-left={-100}
+          shadow-camera-right={100}
+          shadow-camera-top={100}
+          shadow-camera-bottom={-100}
         />
+
         <Suspense>
           <Physics interpolate={false} colliders={false}>
-            <CameraController playerRef={playerRef} />
+            <CameraController playerRef={playerRef} mouse={mouse} />
             <Player
               playerRef={playerRef}
               mouse={mouse}
               setPlayerDirection={setPlayerDirection}
               dashBar={dashBar}
               setDashBar={setDashBar}
+              isInvincible={isInvincible}
             />
             {enemies &&
               enemies.map((enemy) => {
@@ -109,6 +116,7 @@ export default function Scene() {
                       playerRef={playerRef}
                       position={enemy.position}
                       setEnemyBullets={setEnemyBullets}
+                      showIndicator={enemy.showIndicator}
                     />
                   );
                 } else if (enemy.type === "melee") {
@@ -119,6 +127,7 @@ export default function Scene() {
                       playerRef={playerRef}
                       position={enemy.position}
                       handleMeleeEnemyCollision={handleMeleeEnemyCollision}
+                      showIndicator={enemy.showIndicator}
                     />
                   );
                 } else if (enemy.type === "gatling") {
@@ -129,6 +138,7 @@ export default function Scene() {
                       playerRef={playerRef}
                       position={enemy.position}
                       setEnemyBullets={setEnemyBullets}
+                      showIndicator={enemy.showIndicator}
                     />
                   );
                 }
@@ -138,7 +148,7 @@ export default function Scene() {
                 key={0}
                 id={0}
                 playerRef={playerRef}
-                position={[5, 2, 5]}
+                position={bosses.position}
                 setEnemyBullets={setEnemyBullets}
               />
             )}
@@ -168,14 +178,15 @@ export default function Scene() {
               setAmountEnemy={setAmountEnemy}
               playerRef={playerRef}
               setEnemies={setEnemies}
+              setBosses={setBosses}
             />
             {/* <OverseerBossRoom
               position={[0, 0, 0]}
               playerRef={playerRef}
+              openings={{ top: true, bottom: true, left: true, right: true }}
               setBosses={setBosses}
             /> */}
             {/* <ChestRoom position={[0, 0, 0]} playerRef={playerRef} /> */}
-            {/* <MediumRoom1 position={[0, 0, 0]} playerRef={playerRef} /> */}
             {/* <MediumRoomTemplate
               position={[0, 0, 0]}
               playerRef={playerRef}
@@ -206,9 +217,9 @@ export default function Scene() {
       <HealthBar health={playerHealth} />
       <DashBar dashBar={dashBar} />
       <BossHealthBar bosses={bosses} />
-      {/* <Hotbar selectedWeapon={selectedWeapon} /> */}
-      <Minimap layout={layout} />
+      <Minimap layout={layout} playerRef={playerRef} />
       {showDamageOverlay && <DamageOverlay />}
+      <audio ref={audioRef} src={gameplayMusic} />
     </div>
   );
 }

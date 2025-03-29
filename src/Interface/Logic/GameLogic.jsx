@@ -2,16 +2,35 @@ import { useState, useEffect, useRef } from "react";
 import { Vector2, Vector3 } from "three";
 
 export default function useGameLogic(playerRef, selectedWeapon) {
-  const [mouse, setMouse] = useState(new Vector2());
+  // player
+  const [playerHealth, setPlayerHealth] = useState(5);
   const [playerBullets, setPlayerBullets] = useState([]);
-  const [enemyBullets, setEnemyBullets] = useState([]);
   const [playerDirection, setPlayerDirection] = useState(null);
-  const [amountEnemy, setAmountEnemy] = useState(10);
-  const [enemies, setEnemies] = useState([]);
-  const [playerHealth, setPlayerHealth] = useState(100);
+  const [mouse, setMouse] = useState(new Vector2());
   const [dashBar, setDashBar] = useState(2);
   const [showDamageOverlay, setShowDamageOverlay] = useState(false);
+
+  // Weapon cooldown configuration
+  const weaponConfig = {
+    pistol: { interval: 400, auto: true },
+    shotgun: { interval: 1200, auto: false },
+    minigun: { interval: 100, auto: true },
+    railgun: { interval: 2000, auto: false }
+  };
+
+  // enemy
+  const [enemies, setEnemies] = useState([]);
+  const [amountEnemy, setAmountEnemy] = useState(0);
+  const [enemyBullets, setEnemyBullets] = useState([]);
   const [bosses, setBosses] = useState(null);
+  const shootingIntervalRef = useRef(null);
+
+  // invincibility frame
+  const [isInvincible, setIsInvincible] = useState(false);
+  const isInvincibleRef = useRef(isInvincible);
+  useEffect(() => {
+    isInvincibleRef.current = isInvincible;
+  }, [isInvincible]);
 
   const playerDirectionRef = useRef(playerDirection);
   useEffect(() => {
@@ -28,10 +47,11 @@ export default function useGameLogic(playerRef, selectedWeapon) {
     }
   }, [showDamageOverlay]);
 
-  // shooting and stuff
+  // player shooting
   useEffect(() => {
     let shootingInterval = null;
 
+    // calculate mouse position
     const handlePointerMove = (e) => {
       setMouse(
         new Vector2(
@@ -41,6 +61,7 @@ export default function useGameLogic(playerRef, selectedWeapon) {
       );
     };
 
+    // spawn bullets based on selected weapon
     const fireBullet = () => {
       if (!playerRef.current || !playerDirectionRef.current) return;
       const bulletSpeed = 40;
@@ -96,11 +117,12 @@ export default function useGameLogic(playerRef, selectedWeapon) {
       }
     };
 
+    // hold mouse button to shoot
     const handlePointerDown = () => {
       if (
         playerRef.current &&
         playerDirectionRef.current &&
-        !shootingInterval
+        !shootingIntervalRef.current
       ) {
         let weaponShootingInterval;
         if (selectedWeapon === "pistol") {
@@ -112,15 +134,16 @@ export default function useGameLogic(playerRef, selectedWeapon) {
         } else if (selectedWeapon === "railgun") {
           weaponShootingInterval = 2000;
         }
+
         fireBullet();
-        shootingInterval = setInterval(fireBullet, weaponShootingInterval);
+        shootingIntervalRef.current = setInterval(fireBullet, weaponShootingInterval);
       }
     };
 
     const handlePointerUp = () => {
-      if (shootingInterval) {
-        clearInterval(shootingInterval);
-        shootingInterval = null;
+      if (shootingIntervalRef.current) {
+        clearInterval(shootingIntervalRef.current);
+        shootingIntervalRef.current = null;
       }
     };
 
@@ -132,6 +155,10 @@ export default function useGameLogic(playerRef, selectedWeapon) {
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerdown", handlePointerDown);
       window.removeEventListener("pointerup", handlePointerUp);
+
+      if (shootingIntervalRef.current) {
+        clearInterval(shootingIntervalRef.current);
+      }
     };
   }, [selectedWeapon, playerRef]);
 
@@ -143,21 +170,19 @@ export default function useGameLogic(playerRef, selectedWeapon) {
 
   // remove enemy
   const handleRemoveEnemy = (enemyId) => {
-    setEnemies((prev) =>
-      prev
+    setEnemies((prev) => {
+      const newEnemies = prev
         .map((enemy) => {
           if (enemy.id === enemyId) {
             const newHealth = enemy.health - 10;
-            if (newHealth <= 0) {
-              setAmountEnemy((prev) => prev - 1);
-              return null;
-            }
-            return { ...enemy, health: newHealth };
+            return newHealth <= 0 ? null : { ...enemy, health: newHealth };
           }
           return enemy;
         })
-        .filter((enemy) => enemy !== null)
-    );
+        .filter((enemy) => enemy !== null);
+      setAmountEnemy(newEnemies.length);
+      return newEnemies;
+    });
   };
 
   // bullet collision
@@ -166,8 +191,12 @@ export default function useGameLogic(playerRef, selectedWeapon) {
       const enemyId = parseInt(other.rigidBodyObject.name.split("-")[1]);
       handleRemoveEnemy(enemyId);
     } else if (other.rigidBodyObject.name === "Player") {
-      setPlayerHealth((prev) => prev - 10);
-      setShowDamageOverlay(true);
+      if (!isInvincibleRef.current) {
+        setPlayerHealth((prev) => prev - 1);
+        setShowDamageOverlay(true);
+        setIsInvincible(true);
+        setTimeout(() => setIsInvincible(false), 1000);
+      }
     } else if (other.rigidBodyObject.name === "Overseer") {
       setBosses((prev) => {
         if (!prev) return null;
@@ -181,8 +210,13 @@ export default function useGameLogic(playerRef, selectedWeapon) {
   // melee enemy collision
   const handleMeleeEnemyCollision = (manifold, target, other) => {
     if (other.rigidBodyObject.name === "Player") {
-      setPlayerHealth((prev) => prev - 1);
-      setShowDamageOverlay(true);
+      // reset invincibility frame after 1 second
+      if (!isInvincibleRef.current) {
+        setPlayerHealth((prev) => prev - 1);
+        setShowDamageOverlay(true);
+        setIsInvincible(true);
+        setTimeout(() => setIsInvincible(false), 1000);
+      }
     }
   };
 
@@ -204,5 +238,6 @@ export default function useGameLogic(playerRef, selectedWeapon) {
     handleMeleeEnemyCollision,
     bosses,
     setBosses,
+    isInvincible,
   };
 }

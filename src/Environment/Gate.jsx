@@ -5,7 +5,7 @@ export default function Gate({ position }) {
         <RigidBody type="fixed" colliders="cuboid" position={position}>
             <mesh castShadow>
                 <cylinderGeometry args={[0.5, 0.5, 3, 8]} />
-                <meshStandardMaterial color="gray" />
+                <meshStandardMaterial color="red" />
             </mesh>
         </RigidBody>
     );

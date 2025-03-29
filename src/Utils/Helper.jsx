@@ -3,20 +3,28 @@ export function delay(ms) {
 }
 
 const getRandomPosition = (roomDimensions, position) => {
-  const x = Math.random() * roomDimensions[0] - roomDimensions[0] / 2 + position[0] - 5;
+  const margin = 5;
+  const x =
+    Math.random() * (roomDimensions[0] - 2 * margin) -
+    (roomDimensions[0] - 2 * margin) / 2 +
+    position[0];
   const y = 1;
-  const z = Math.random() * roomDimensions[2] - roomDimensions[2] / 2 + position[2] - 5;
+  const z =
+    Math.random() * (roomDimensions[2] - 2 * margin) -
+    (roomDimensions[2] - 2 * margin) / 2 +
+    position[2];
   return [x, y, z];
 };
 
 export const summonEnemies = (roomDimensions, position, setAmountEnemy) => {
   const enemyList = [];
-  const amountEnemy = 10;
+  const amountEnemy = Math.max(Math.random() * 12, 7);
+  // const amountEnemy = 0;
 
   for (let i = 0; i < amountEnemy; i++) {
     const randomValue = Math.random();
     let type;
-    if (randomValue < 0.5) {
+    if (randomValue < 0.4) {
       type = "melee";
     } else if (randomValue < 0.8) {
       type = "pistol";
@@ -28,6 +36,7 @@ export const summonEnemies = (roomDimensions, position, setAmountEnemy) => {
       type,
       health: 30,
       position: getRandomPosition(roomDimensions, position),
+      showIndicator: false,
     });
   }
   setAmountEnemy(amountEnemy);

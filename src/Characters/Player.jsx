@@ -9,6 +9,7 @@ export default function Player({
   setPlayerDirection,
   dashBar,
   setDashBar,
+  isInvincible,
 }) {
   const meshRef = useRef();
   const raycaster = useRef(new Raycaster());
@@ -22,7 +23,7 @@ export default function Player({
   });
   const [isDashing, setIsDashing] = useState(false);
   const [dashDirection, setDashDirection] = useState(new Vector3());
-  const speedMultiplier = 8;
+  const speedMultiplier = 10;
   const dashForce = 20;
   const dashDuration = 0.2;
 
@@ -74,7 +75,7 @@ export default function Player({
           input.normalize();
           setDashDirection(input);
           setIsDashing(true);
-          setDashBar(prev => prev - 1);
+          setDashBar((prev) => prev - 1);
           setTimeout(() => {
             setIsDashing(false);
           }, dashDuration * 1000);
@@ -101,7 +102,7 @@ export default function Player({
   useEffect(() => {
     if (dashBar < 2) {
       const interval = setInterval(() => {
-        setDashBar(prev => prev + 1);
+        setDashBar((prev) => prev + 1);
       }, 1000);
 
       return () => clearInterval(interval);
@@ -112,16 +113,40 @@ export default function Player({
     <RigidBody
       ref={playerRef}
       name="Player"
-      position={[0, 1, 0]}
+      position={[0, 1, 112]}
       colliders="cuboid"
       type="dynamic"
       gravityScale={0}
-      collisionGroups={isDashing ? interactionGroups(10, [4]) : interactionGroups(0, [1, 3, 4, 5])}
+      collisionGroups={
+        isDashing
+          ? interactionGroups(10, [4])
+          : interactionGroups(0, [1, 3, 4, 5])
+      }
       lockRotations
     >
       <mesh ref={meshRef} castShadow receiveShadow>
         <boxGeometry />
-        <meshStandardMaterial color="orange" />
+        <meshStandardMaterial
+          color="orange"
+          transparent={true}
+          opacity={isInvincible ? 0.5 : 1}
+        />
+      </mesh>
+      <mesh position={[0.25, 0.2, 0.51]}>
+        <circleGeometry args={[0.15, 12]} />
+        <meshStandardMaterial color='white' />
+      </mesh>
+      <mesh position={[0.22, 0.15, 0.52]}>
+        <circleGeometry args={[0.08, 12]} />
+        <meshStandardMaterial color='black' />
+      </mesh>
+      <mesh position={[-0.25, 0.2, 0.51]}>
+        <circleGeometry args={[0.15, 12]} />
+        <meshStandardMaterial color='white' />
+      </mesh>
+      <mesh position={[-0.22, 0.15, 0.52]}>
+        <circleGeometry args={[0.08, 12]} />
+        <meshStandardMaterial color='black' />
       </mesh>
     </RigidBody>
   );

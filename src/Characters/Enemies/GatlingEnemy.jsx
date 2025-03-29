@@ -1,7 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { interactionGroups, RigidBody } from "@react-three/rapier";
 import { useEffect, useRef, useState } from "react";
-import { follow, stalk, runAway, wander } from "../Logic/EnemyMovementBehavior";
+import { follow } from "../Logic/EnemyMovementBehavior";
 import { Vector3 } from "three";
 
 export default function GatlingEnemy({
@@ -9,29 +9,29 @@ export default function GatlingEnemy({
   playerRef,
   position,
   setEnemyBullets,
+  showIndicator,
+  handleMeleeEnemyCollision,
 }) {
-  const [time, setTime] = useState(0);
-  const enemyRef = useRef();
   const [speed, setSpeed] = useState(1.7);
-  const [enemyState, setEnemyState] = useState("follow");
+  const [enemyState, setEnemyState] = useState("follow"); // "follow" or "shoot"
+  const enemyRef = useRef();
 
+  // Movement: When not showing indicator, follow the player.
   useFrame(() => {
-    if (playerRef.current && enemyRef.current) {
+    if (playerRef.current && enemyRef.current && !showIndicator) {
       const playerPos = playerRef.current.translation();
       const enemyPos = enemyRef.current.translation();
-      const targetVelocityObj = follow(playerPos, enemyPos, speed);
+      const targetVelObj = follow(playerPos, enemyPos, speed);
       const targetVelocity = new Vector3(
-        targetVelocityObj.x,
-        targetVelocityObj.y,
-        targetVelocityObj.z
+        targetVelObj.x,
+        targetVelObj.y,
+        targetVelObj.z
       );
-
       const currentVelocity = enemyRef.current.linvel();
       const smoothingFactor = 0.1;
       const newVelocity = new Vector3()
         .copy(currentVelocity)
         .lerp(targetVelocity, smoothingFactor);
-
       enemyRef.current.setLinvel(
         { x: newVelocity.x, y: newVelocity.y, z: newVelocity.z },
         true
@@ -39,11 +39,42 @@ export default function GatlingEnemy({
     }
   });
 
+  // Enemy state cycle: randomly delay the start so not all enemies sync up.
   useEffect(() => {
-    let interval = null;
+    let intervalId;
+    let shootTimeoutId;
+    const initialDelay = Math.random() * 5000; // Random delay up to 5s
 
-    if (enemyState === "shoot") {
-      interval = setInterval(() => {
+    const startCycle = () => {
+      // Set to "follow" for 2 seconds
+      setEnemyState("follow");
+      setSpeed(1.7);
+      shootTimeoutId = setTimeout(() => {
+        // Then switch to "shoot" for the remainder of the cycle
+        setEnemyState("shoot");
+        setSpeed(0.75);
+      }, 2000);
+    };
+
+    const timeoutId = setTimeout(() => {
+      startCycle();
+      intervalId = setInterval(() => {
+        startCycle();
+      }, 5000);
+    }, initialDelay);
+
+    return () => {
+      clearTimeout(timeoutId);
+      clearTimeout(shootTimeoutId);
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, []);
+
+  // Shooting logic: Only when in "shoot" state and not in indicator mode.
+  useEffect(() => {
+    let shootingInterval;
+    if (enemyState === "shoot" && !showIndicator) {
+      shootingInterval = setInterval(() => {
         if (playerRef.current && enemyRef.current) {
           const playerPos = playerRef.current.translation();
           const enemyPos = enemyRef.current.translation();
@@ -60,7 +91,6 @@ export default function GatlingEnemy({
             y: direction.y * bulletSpeed,
             z: direction.z * bulletSpeed,
           };
-
           setEnemyBullets((prev) => [
             ...prev,
             {
@@ -72,45 +102,40 @@ export default function GatlingEnemy({
         }
       }, 200);
     }
-
     return () => {
-      clearInterval(interval);
+      if (shootingInterval) clearInterval(shootingInterval);
     };
-  }, [playerRef, enemyRef, enemyState]);
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setEnemyState("follow");
-      setSpeed(1.7);
-
-      const timeoutId = setTimeout(() => {
-        setEnemyState("shoot");
-        setSpeed(0.75);
-      }, 2000);
-
-      return () => clearTimeout(timeoutId);
-    }, 5000);
-
-    return () => clearInterval(intervalId);
-  }, []);
+  }, [enemyState, playerRef, setEnemyBullets, showIndicator]);
 
   return (
-    <>
-      <RigidBody
-        ref={enemyRef}
-        name={`Enemy-${id}`}
-        position={position}
-        colliders="cuboid"
-        type="dynamic"
-        gravityScale={0}
-        collisionGroups={interactionGroups(1, [0, 1, 2, 4])}
-        lockRotations
-      >
-        <mesh castShadow>
-          <boxGeometry />
-          <meshStandardMaterial color={"purple"} />
-        </mesh>
-      </RigidBody>
-    </>
+    <RigidBody
+      key={showIndicator ? "indicator" : "active"}
+      ref={enemyRef}
+      name={`Enemy-${id}`}
+      position={position}
+      colliders={showIndicator ? false : "cuboid"}
+      type="dynamic"
+      gravityScale={0}
+      collisionGroups={
+        showIndicator
+          ? interactionGroups(0, [])
+          : interactionGroups(1, [0, 1, 2, 4])
+      }
+      lockRotations
+    >
+      <mesh castShadow>
+        {showIndicator ? (
+          <>
+            <sphereGeometry args={[1, 16, 16]} />
+            <meshStandardMaterial color="red" transparent opacity={0.4} />
+          </>
+        ) : (
+          <>
+            <boxGeometry />
+            <meshStandardMaterial color="purple" />
+          </>
+        )}
+      </mesh>
+    </RigidBody>
   );
 }

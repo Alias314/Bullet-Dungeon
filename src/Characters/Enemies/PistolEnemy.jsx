@@ -10,6 +10,7 @@ export default function PistolEnemy({
   playerRef,
   position,
   setEnemyBullets,
+  showIndicator,
 }) {
   const [time, setTime] = useState(0);
   const enemyRef = useRef();
@@ -18,7 +19,12 @@ export default function PistolEnemy({
   const [positionToWander, setPositionToWander] = useState(null);
 
   useFrame(() => {
-    if (playerRef.current && enemyRef.current && positionToWander) {
+    if (
+      playerRef.current &&
+      enemyRef.current &&
+      positionToWander &&
+      !showIndicator
+    ) {
       const playerPos = playerRef.current.translation();
       const enemyPos = enemyRef.current.translation();
       const absoluteDistance = [
@@ -87,58 +93,74 @@ export default function PistolEnemy({
   }, [time]);
 
   useEffect(() => {
-    // delay(Math.random() * 1000);
-    
-    const interval = setInterval(() => {
-      if (playerRef.current && enemyRef.current) {
-        const playerPos = playerRef.current.translation();
-        const enemyPos = enemyRef.current.translation();
-        const bulletSpeed = 10;
-        const direction = new Vector3(
-          playerPos.x - enemyPos.x,
-          playerPos.y - enemyPos.y,
-          playerPos.z - enemyPos.z
-        ).normalize();
-        const velocity = {
-          x: direction.x * bulletSpeed,
-          y: direction.y * bulletSpeed,
-          z: direction.z * bulletSpeed,
-        };
+    if (showIndicator) return;
 
-        setEnemyBullets((prev) => [
-          ...prev,
-          {
-            id: Math.random(),
+    const initialDelay = Math.random() * 2000;
+    let shootingInterval;
+    const timeout = setTimeout(() => {
+      shootingInterval = setInterval(() => {
+        if (playerRef.current && enemyRef.current) {
+          const playerPos = playerRef.current.translation();
+          const enemyPos = enemyRef.current.translation();
+          const bulletSpeed = 10;
+          const direction = new Vector3(
+            playerPos.x - enemyPos.x,
+            playerPos.y - enemyPos.y,
+            playerPos.z - enemyPos.z
+          ).normalize();
+          const velocity = {
+            x: direction.x * bulletSpeed,
+            y: direction.y * bulletSpeed,
+            z: direction.z * bulletSpeed,
+          };
 
-            position: [enemyPos.x, enemyPos.y, enemyPos.z],
-            velocity,
-          },
-        ]);
-      }
-    }, 2000);
+          setEnemyBullets((prev) => [
+            ...prev,
+            {
+              id: Math.random(),
+              position: [enemyPos.x, enemyPos.y, enemyPos.z],
+              velocity,
+            },
+          ]);
+        }
+      }, 2000);
+    }, initialDelay);
 
     return () => {
-      clearInterval(interval);
+      clearTimeout(timeout);
+      if (shootingInterval) clearInterval(shootingInterval);
     };
-  }, [playerRef, enemyRef]);
+  }, [playerRef, enemyRef, setEnemyBullets, showIndicator]);
 
   return (
-    <>
-      <RigidBody
-        ref={enemyRef}
-        name={`Enemy-${id}`}
-        position={position}
-        colliders="cuboid"
-        type="dynamic"
-        gravityScale={0}
-        collisionGroups={interactionGroups(1, [0, 1, 2, 4])}
-        lockRotations
-      >
-        <mesh castShadow>
-          <boxGeometry />
-          <meshStandardMaterial color={"red"} />
-        </mesh>
-      </RigidBody>
-    </>
+    <RigidBody
+      key={showIndicator ? "indicator" : "active"}
+      ref={enemyRef}
+      name={`Enemy-${id}`}
+      position={position}
+      colliders={showIndicator ? false : "cuboid"}
+      type="dynamic"
+      gravityScale={0}
+      collisionGroups={
+        showIndicator
+          ? interactionGroups(0, [])
+          : interactionGroups(1, [0, 1, 2, 4])
+      }
+      lockRotations
+    >
+      <mesh castShadow>
+        {showIndicator ? (
+          <>
+            <sphereGeometry args={[1, 16, 16]} />
+            <meshStandardMaterial color="red" transparent opacity={0.4} />
+          </>
+        ) : (
+          <>
+            <boxGeometry />
+            <meshStandardMaterial color="red" />
+          </>
+        )}
+      </mesh>
+    </RigidBody>
   );
 }
