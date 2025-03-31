@@ -78,7 +78,7 @@ export default function Scene() {
   }, []);
 
   return (
-    <div className="w-screen h-screen relative">
+    <div className="w-screen h-screen relative bg-gray-900">
       <Canvas camera={{ position: [0, 14, 6] }} shadows>
         <ambientLight intensity={1} />
         <directionalLight

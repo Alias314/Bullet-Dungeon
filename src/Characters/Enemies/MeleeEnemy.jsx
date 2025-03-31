@@ -13,7 +13,7 @@ export default function MeleeEnemy({
 }) {
   const enemyRef = useRef();
   const visualRef = useRef();
-  const speed = 3;
+  const speed = 4;
   const smoothingFactor = 0.1;
 
   useFrame(() => {

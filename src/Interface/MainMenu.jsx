@@ -10,7 +10,6 @@ const MainMenu = () => {
     const handlePlay = () => {
         if (audioRef.current) {
             audioRef.current.play();
-            console.log('music played');
         }
     };
 

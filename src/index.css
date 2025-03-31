@@ -1,22 +1,33 @@
 @import "tailwindcss";
 
-body {
-    background-color: black;
+@font-face {
+  font-family: "Fondamento";
+  src: url("/assets/fonts/Fondamento-Regular.ttf") format("truetype");
 }
 
 @font-face {
-    font-family: Fondamento;
-    src: url("../assets/fonts/Fondamento-Regular.ttf") format("truetype");
+  font-family: "Cubic";
+  src: url("/assets/fonts/cubic.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
 }
-@theme {
-    --font-title: Fondamento, "sans-serif";
+
+@font-face {
+    font-family: "Dune";
+    src: url("/assets/fonts/Dune_Rise.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+.font-title {
+  font-family: "Dune", sans-serif;
 }
 
 @keyframes fadeOut {
-    from {
-        opacity: 1;
-    }
-    to {
-        opacity: 0;
-    }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
