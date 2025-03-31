@@ -24,9 +24,9 @@ export const summonEnemies = (roomDimensions, position, setAmountEnemy) => {
   for (let i = 0; i < amountEnemy; i++) {
     const randomValue = Math.random();
     let type;
-    if (randomValue < 0.4) {
+    if (randomValue < 0) {
       type = "melee";
-    } else if (randomValue < 0.8) {
+    } else if (randomValue < 1) {
       type = "pistol";
     } else {
       type = "gatling";

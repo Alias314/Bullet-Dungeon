@@ -28,14 +28,14 @@ import ChestRoom from "../Environment/Rooms/ChestRoom";
 import Overseer from "../Characters/Enemies/Bosses/Overseer";
 
 import gameplayMusic from "../Assets/Audio/gameplayMusic.mp3";
+import SplashScreen from "./SplashScreen";
 
 export default function Scene() {
   const playerRef = useRef();
   const [selectedWeapon, setSelectedWeapon] = useState("pistol");
   const [layout] = useState(() => generateLayout());
   const audioRef = useRef(null);
-
-
+  const [hasClickedSplashScreen, setHasClickedSplashScreen] = useState(false);
 
   const {
     mouse,
@@ -58,6 +58,8 @@ export default function Scene() {
     isInvincible,
   } = useGameLogic(playerRef, selectedWeapon);
 
+  useEffect(() => {}, [hasClickedSplashScreen]);
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "1") setSelectedWeapon("pistol");
@@ -72,14 +74,22 @@ export default function Scene() {
   if (playerHealth <= 0) return <GameOver />;
 
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.play();
-    }
+    const handleUserInteraction = () => {
+      if (audioRef.current) {
+        audioRef.current.play().catch((e) => {
+          console.warn("Audio playback failed:", e);
+        });
+        window.removeEventListener("click", handleUserInteraction);
+      }
+    };
+
+    window.addEventListener("click", handleUserInteraction);
+    return () => window.removeEventListener("click", handleUserInteraction);
   }, []);
 
   return (
     <div className="w-screen h-screen relative bg-gray-900">
-      <Canvas camera={{ position: [0, 14, 6] }} shadows>
+      <Canvas className="w-full h-full" camera={{ position: [0, 14, 6] }} shadows>
         <ambientLight intensity={1} />
         <directionalLight
           position={[20, 20, -20]}
@@ -180,37 +190,6 @@ export default function Scene() {
               setEnemies={setEnemies}
               setBosses={setBosses}
             />
-            {/* <OverseerBossRoom
-              position={[0, 0, 0]}
-              playerRef={playerRef}
-              openings={{ top: true, bottom: true, left: true, right: true }}
-              setBosses={setBosses}
-            /> */}
-            {/* <ChestRoom position={[0, 0, 0]} playerRef={playerRef} /> */}
-            {/* <MediumRoomTemplate
-              position={[0, 0, 0]}
-              playerRef={playerRef}
-              openings={{ top: true, bottom: true, left: true, right: true }}
-              amountEnemy={amountEnemy}
-              setAmountEnemy={setAmountEnemy}
-              setEnemies={setEnemies}
-            /> */}
-            {/* <SmallRoomTemplate
-              position={[0, 0, 0]}
-              playerRef={playerRef}
-              openings={{ top: true, bottom: true, left: true, right: true }}
-              amountEnemy={amountEnemy}
-              setAmountEnemy={setAmountEnemy}
-              setEnemies={setEnemies}
-            /> */}
-            {/* <SquareRoomTemplate
-              position={[0, 0, 0]}
-              playerRef={playerRef}
-              openings={{ top: true, bottom: true, left: true, right: true }}
-              amountEnemy={amountEnemy}
-              setAmountEnemy={setAmountEnemy}
-              setEnemies={setEnemies}
-            /> */}
           </Physics>
         </Suspense>
       </Canvas>
@@ -219,7 +198,17 @@ export default function Scene() {
       <BossHealthBar bosses={bosses} />
       <Minimap layout={layout} playerRef={playerRef} />
       {showDamageOverlay && <DamageOverlay />}
-      <audio ref={audioRef} src={gameplayMusic} />
+
+      {!hasClickedSplashScreen && (
+        <SplashScreen setHasClickedSplashScreen={setHasClickedSplashScreen} />
+      )}
+
+      <audio
+        ref={audioRef}
+        src={"assets/audio/Digestive_Biscuit.mp3"}
+        loop
+        hidden
+      />
     </div>
   );
 }

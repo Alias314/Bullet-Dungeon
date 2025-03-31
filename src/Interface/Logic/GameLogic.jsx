@@ -3,7 +3,7 @@ import { Vector2, Vector3 } from "three";
 
 export default function useGameLogic(playerRef, selectedWeapon) {
   // player
-  const [playerHealth, setPlayerHealth] = useState(5);
+  const [playerHealth, setPlayerHealth] = useState(10000);
   const [playerBullets, setPlayerBullets] = useState([]);
   const [playerDirection, setPlayerDirection] = useState(null);
   const [mouse, setMouse] = useState(new Vector2());

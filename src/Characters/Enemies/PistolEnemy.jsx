@@ -17,8 +17,10 @@ export default function PistolEnemy({
   const speed = 1.8;
   const distanceToWander = 100;
   const [positionToWander, setPositionToWander] = useState(null);
+  const meshRef = useRef();
+  const localTime = useRef(0);
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (
       playerRef.current &&
       enemyRef.current &&
@@ -66,6 +68,11 @@ export default function PistolEnemy({
         { x: newVelocity.x, y: newVelocity.y, z: newVelocity.z },
         true
       );
+    }
+    
+    if (meshRef.current) {
+      localTime.current += delta;
+      meshRef.current.rotation.y = localTime.current * 0.6;
     }
   });
 
@@ -155,10 +162,10 @@ export default function PistolEnemy({
             <meshStandardMaterial color="red" transparent opacity={0.4} />
           </>
         ) : (
-          <>
-            <boxGeometry />
-            <meshStandardMaterial color="red" />
-          </>
+          <mesh ref={meshRef}>
+            <cylinderGeometry args={[0, 1, 1.5, 3]} />
+            <meshStandardMaterial color="red"/>
+          </mesh>
         )}
       </mesh>
     </RigidBody>
