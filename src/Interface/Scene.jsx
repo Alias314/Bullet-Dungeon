@@ -36,7 +36,7 @@ export default function Scene() {
   const [selectedWeapon, setSelectedWeapon] = useState("pistol");
   const [layout] = useState(() => generateLayout());
   const audioRef = useRef(null);
-  const shootAudioRef = useRef(null);
+  // const shootAudioRef = useRef(null);
   const [hasClickedSplashScreen, setHasClickedSplashScreen] = useState(false);
   const shakeRef = useRef(0);
 
@@ -63,7 +63,6 @@ export default function Scene() {
     bosses,
     setBosses,
     isInvincible,
-    isShoot,
   } = useGameLogic(playerRef, selectedWeapon, triggerCameraShake);
 
   useEffect(() => {}, [hasClickedSplashScreen]);
@@ -82,25 +81,11 @@ export default function Scene() {
   if (playerHealth <= 0) return <GameOver />;
 
   useEffect(() => {
-    const handleUserInteraction = () => {
-      if (audioRef.current) {
-        audioRef.current.play().catch((e) => {
-          console.warn("Audio playback failed:", e);
-        });
-        window.removeEventListener("click", handleUserInteraction);
-      }
-    };
-
-    window.addEventListener("click", handleUserInteraction);
-    return () => window.removeEventListener("click", handleUserInteraction);
+    const gameplayAudio = new Audio("assets/audio/Digestive_Biscuit.mp3");
+    gameplayAudio.volume = 0.04;
+    gameplayAudio.loop = true;
+    gameplayAudio.play();
   }, []);
-
-  useEffect(() => {
-    if (shootAudioRef.current && isShoot.current) {
-      shootAudioRef.current.play();
-      isShoot.current = false;
-    }
-  }, [isShoot.current]);
 
   return (
     <div className="w-screen h-screen relative bg-gray-900">
@@ -236,18 +221,6 @@ export default function Scene() {
       {!hasClickedSplashScreen && (
         <SplashScreen setHasClickedSplashScreen={setHasClickedSplashScreen} />
       )}
-
-      <audio
-        ref={audioRef}
-        src={"assets/audio/Digestive_Biscuit.mp3"}
-        loop
-        hidden
-      />
-      <audio
-        ref={shootAudioRef}
-        src={"assets/audio/Retro_Impact_20.wav"}
-        hidden
-      />
     </div>
   );
 }

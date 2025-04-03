@@ -62,47 +62,55 @@ function Particle() {
 
 export default function Menu() {
   const navigate = useNavigate();
-  const audioRef = useRef();
+  const audioRef = useRef(null);
   const particles = [];
 
   for (let i = 0; i < 150; i++) {
-    particles.push(<Particle />);
+    particles.push(<Particle key={i} />);
   }
 
-  const handlePlay = () => navigate("/scene");
-  const handleSettings = () => navigate("/settings");
+  const handlePlay = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    navigate("/scene");
+  };
+
+  const handleSettings = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    navigate("/settings");
+  };
 
   useEffect(() => {
-    const playMusic = () => {
-      if (audioRef.current) {
-        audioRef.current.volume = 0.5;
-        audioRef.current.play().catch((e) => {
-          console.warn("Autoplay blocked:", e);
-        });
-      }
-      window.removeEventListener("click", playMusic);
-    };
+    const audio = new Audio("/assets/audio/Digestive_Biscuit.mp3");
+    audio.volume = 0.04;
+    audio.loop = true;
+    audio.play();
+    audioRef.current = audio;
 
-    window.addEventListener("click", playMusic);
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
   }, []);
 
   return (
     <div className="w-screen h-screen relative overflow-hidden bg-[linear-gradient(0deg,rgba(255,136,0,1)_0%,rgba(255,136,0,0.4)_90%)]">
-      {/* Title */}
-
-      {/* 3D Canvas */}
       <Canvas camera={{ position: [2, 1, 3] }}>
         <ambientLight intensity={1} />
         <directionalLight position={[10, 10, 10]} intensity={1} castShadow />
-
         <FloatingModel />
         {particles}
       </Canvas>
+
       <h1 className="absolute top-10 left-1/2 -translate-x-1/2 text-7xl text-center text-amber-900 font-title font-bold z-10">
         Geometry Dungeon
       </h1>
 
-      {/* Button Panel */}
       <div className="absolute top-45 w-full h-full flex flex-col items-center justify-center gap-4">
         <button
           onClick={handlePlay}
@@ -117,13 +125,6 @@ export default function Menu() {
           Settings
         </button>
       </div>
-
-      <audio
-        ref={audioRef}
-        src={"assets/audio/Digestive_Biscuit.mp3"}
-        loop
-        hidden
-      />
     </div>
   );
 }

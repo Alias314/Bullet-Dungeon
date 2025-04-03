@@ -73,7 +73,7 @@ export function Hotbar({ selectedWeapon }) {
   );
 }
 
-export function BossHealthBar({ bosses, maxHealth = 1000 }) {
+export function BossHealthBar({ bosses, maxHealth = 1500 }) {
   if (!bosses) return null;
 
   const healthPercent = Math.max(
@@ -87,7 +87,7 @@ export function BossHealthBar({ bosses, maxHealth = 1000 }) {
         className="h-full bg-amber-400"
         style={{ width: `${healthPercent}%` }}
       ></div>
-      <div className="absolute inset-0 flex items-center justify-center text-black text-sm font-bold">
+      <div className="absolute inset-0 flex items-center justify-center text-white text-sm font-bold">
         {bosses.health} / {maxHealth}
       </div>
     </div>

@@ -72,9 +72,9 @@ export default function Overseer({ id, playerRef, position, setEnemyBullets }) {
 
   const barrageAttack = async (enemyPos) => {
     await delay(1000);
-    await radialBarrageShoot(enemyPos, setEnemyBullets, 10, 10, 32);
+    await radialBarrageShoot(enemyPos, setEnemyBullets, 10, 10, 28);
     await delay(300);
-    radialShoot(enemyPos, setEnemyBullets, 10, 24);
+    radialShoot(enemyPos, setEnemyBullets, 10, 32);
   };
 
   const followAttack = async (playerPos, enemyPos) => {
@@ -105,7 +105,7 @@ export default function Overseer({ id, playerRef, position, setEnemyBullets }) {
         prevState === "follow" ? "barrage" : "follow"
       );
     };
-    const interval = setInterval(toggleBossState, 11000);
+    const interval = setInterval(toggleBossState, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -121,10 +121,6 @@ export default function Overseer({ id, playerRef, position, setEnemyBullets }) {
         collisionGroups={interactionGroups(1, [0, 1, 2, 4])}
         lockRotations
       >
-        {/* <mesh>
-          <boxGeometry args={[2, 2, 2]} />
-          <meshStandardMaterial color={"red"} />
-        </mesh> */}
         <primitive
           ref={meshRef}
           object={scene}

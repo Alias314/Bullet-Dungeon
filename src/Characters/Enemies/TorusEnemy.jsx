@@ -19,6 +19,13 @@ export default function MeleeEnemy({
   const smoothingFactor = 0.1;
   const localTime = useRef(0);
   const meshRef = useRef();
+  const shootAudioRef = useRef();
+  useEffect(() => {
+    shootAudioRef.current = new Audio(
+      "assets/audio/Retro_Gun_SingleShot_04.wav"
+    );
+    shootAudioRef.current.volume = 0.2;
+  }, []);
 
   useFrame((_, delta) => {
     if (meshRef.current) {
@@ -33,6 +40,12 @@ export default function MeleeEnemy({
     const timeout = setTimeout(() => {
       if (enemyRef.current?.isValid()) {
         intervalRef.current = setInterval(() => {
+          if (shootAudioRef.current) {
+            const soundClone = shootAudioRef.current.cloneNode();
+            soundClone.volume = 0.2;
+
+            soundClone.play();
+          }
           if (enemyRef.current?.isValid()) {
             const enemyPos = enemyRef.current.translation();
             radialShoot(enemyPos, setEnemyBullets, 10, 8);
@@ -40,7 +53,7 @@ export default function MeleeEnemy({
         }, 3000);
       }
     }, initialDelay);
-  
+
     return () => {
       clearTimeout(timeout);
       if (intervalRef.current) {
@@ -48,7 +61,6 @@ export default function MeleeEnemy({
       }
     };
   }, []);
-  
 
   return (
     <RigidBody

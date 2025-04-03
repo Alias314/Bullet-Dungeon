@@ -19,6 +19,13 @@ export default function PistolEnemy({
   const [positionToWander, setPositionToWander] = useState(null);
   const meshRef = useRef();
   const localTime = useRef(0);
+  const shootAudioRef = useRef();
+  useEffect(() => {
+    shootAudioRef.current = new Audio(
+      "assets/audio/Retro_Gun_SingleShot_04.wav"
+    );
+    shootAudioRef.current.volume = 0.2;
+  }, []);
 
   useFrame((_, delta) => {
     if (
@@ -69,7 +76,7 @@ export default function PistolEnemy({
         true
       );
     }
-    
+
     if (meshRef.current) {
       localTime.current += delta;
       meshRef.current.rotation.y = localTime.current * 0.6;
@@ -106,6 +113,13 @@ export default function PistolEnemy({
     let shootingInterval;
     const timeout = setTimeout(() => {
       shootingInterval = setInterval(() => {
+        if (shootAudioRef.current) {
+          const soundClone = shootAudioRef.current.cloneNode();
+          soundClone.volume = 0.2;
+
+          soundClone.play();
+        }
+
         if (playerRef.current && enemyRef.current) {
           const playerPos = playerRef.current.translation();
           const enemyPos = enemyRef.current.translation();
@@ -164,7 +178,7 @@ export default function PistolEnemy({
         ) : (
           <mesh ref={meshRef}>
             <cylinderGeometry args={[0, 1, 1.5, 3]} />
-            <meshStandardMaterial color="#fa5555"/>
+            <meshStandardMaterial color="#fa5555" />
           </mesh>
         )}
       </mesh>

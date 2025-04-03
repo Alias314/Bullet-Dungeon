@@ -6,7 +6,8 @@ import {
   RigidBody,
 } from "@react-three/rapier";
 import { Raycaster, Vector3, Plane, Quaternion } from "three";
-import * as THREE from 'three'
+import * as THREE from "three";
+import useSound from "use-sound";
 
 export default function Player({
   playerRef,
@@ -31,6 +32,10 @@ export default function Player({
   const speedMultiplier = 10;
   const dashForce = 20;
   const dashDuration = 0.2;
+  const dashAudioRef = useRef();
+  useEffect(() => {
+    dashAudioRef.current = new Audio('assets/audio/Retro_Swooosh_16.wav');
+  }, []);
 
   useFrame(() => {
     if (playerRef.current) {
@@ -71,6 +76,11 @@ export default function Player({
       if (e.repeat) return;
 
       if (e.code === "Space" && dashBar > 0) {
+        if (dashAudioRef.current) {
+          const soundClone = dashAudioRef.current.cloneNode();
+          soundClone.play();
+        }
+
         const input = new Vector3(
           (keyPressed["d"] ? 1 : 0) + (keyPressed["a"] ? -1 : 0),
           0,

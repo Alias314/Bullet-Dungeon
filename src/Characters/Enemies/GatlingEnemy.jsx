@@ -18,6 +18,12 @@ export default function GatlingEnemy({
   const enemyRef = useRef();
   const localTime = useRef(0);
   const meshRef = useRef();
+  const shootAudioRef = useRef();
+  useEffect(() => {
+    shootAudioRef.current = new Audio(
+      "assets/audio/Retro_Gun_SingleShot_04.wav"
+    );
+  }, []);
 
   // Movement: When not showing indicator, follow the player.
   useFrame((_, delta) => {
@@ -84,6 +90,11 @@ export default function GatlingEnemy({
     let shootingInterval;
     if (enemyState === "shoot" && !showIndicator) {
       shootingInterval = setInterval(() => {
+        if (shootAudioRef.current) {
+          const soundClone = shootAudioRef.current.cloneNode();
+          soundClone.volume = 0.2;
+          soundClone.play();
+        }
         if (playerRef.current && enemyRef.current) {
           const playerPos = playerRef.current.translation();
           const enemyPos = enemyRef.current.translation();

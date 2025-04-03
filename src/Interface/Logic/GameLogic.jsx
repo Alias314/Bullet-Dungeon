@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Vector2, Vector3 } from "three";
+import useSound from "use-sound";
+import shootSound from '/assets/audio/Retro_Gun_SingleShot_04.wav';
 
 export default function useGameLogic(
   playerRef,
@@ -29,6 +31,12 @@ export default function useGameLogic(
   const [enemyBullets, setEnemyBullets] = useState([]);
   const [bosses, setBosses] = useState(null);
   const shootingIntervalRef = useRef(null);
+
+  // sound effects
+  const shootAudioRef = useRef();
+  useEffect(() => {
+    shootAudioRef.current = new Audio('assets/audio/Retro_Gun_SingleShot_04.wav');
+  }, []);
 
   // invincibility frame
   const [isInvincible, setIsInvincible] = useState(false);
@@ -72,6 +80,11 @@ export default function useGameLogic(
 
       if (triggerCameraShake) {
         triggerCameraShake();
+      }
+
+      if (shootAudioRef.current) {
+        const soundClone = shootAudioRef.current.cloneNode();
+        soundClone.play();
       }
 
       const bulletSpeed = 40;

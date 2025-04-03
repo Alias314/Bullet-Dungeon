@@ -36,7 +36,7 @@ export default function OverseerBossRoom({
     absoluteDistance[0] <= distanceToSummon &&
     absoluteDistance[2] <= distanceToSummon
   ) {
-    setBosses({ id: 1, type: "Overseer", health: 1000, position: [position[0] + 5, 2, position[2]] });
+    setBosses({ id: 1, type: "Overseer", health: 1500, position: [position[0] + 5, 2, position[2]] });
     hasSummonedRef.current = true;
   }
 
