@@ -3,6 +3,7 @@ import { interactionGroups, RigidBody } from "@react-three/rapier";
 import { useRef } from "react";
 import { follow } from "../Logic/EnemyMovementBehavior";
 import { Vector3 } from "three";
+import * as THREE from "three";
 
 export default function MeleeEnemy({
   id,
@@ -74,36 +75,12 @@ export default function MeleeEnemy({
               <meshStandardMaterial color="red" transparent opacity={0.4} />
             </>
           ) : (
-            <>
+            <mesh>
               <boxGeometry />
-              <meshStandardMaterial color="green" />
-            </>
+              <meshStandardMaterial color="#69ba27" />
+            </mesh>
           )}
         </mesh>
-        <mesh position={[0.25, 0.2, 0.51]}>
-        <circleGeometry args={[0.15, 12]} />
-        <meshStandardMaterial color='white' />
-      </mesh>
-      <mesh position={[0.22, 0.15, 0.52]}>
-        <circleGeometry args={[0.08, 12]} />
-        <meshStandardMaterial color='black' />
-      </mesh>
-      <mesh position={[-0.25, 0.2, 0.51]}>
-        <circleGeometry args={[0.15, 12]} />
-        <meshStandardMaterial color='white' />
-      </mesh>
-      <mesh position={[-0.22, 0.15, 0.52]}>
-        <circleGeometry args={[0.08, 12]} />
-        <meshStandardMaterial color='black' />
-      </mesh>
-      <mesh position={[-0.22, 0.3, 0.52]} rotation={[0, 0, 2.7]}>
-        <planeGeometry args={[0.4, 0.1]} />
-        <meshStandardMaterial color='black' />
-      </mesh>
-      <mesh position={[0.22, 0.3, 0.52]} rotation={[0, 0, -2.7]}>
-        <planeGeometry args={[0.4, 0.1]} />
-        <meshStandardMaterial color='black' />
-      </mesh>
       </group>
     </RigidBody>
   );

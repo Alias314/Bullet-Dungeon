@@ -3,6 +3,7 @@ import { interactionGroups, RigidBody } from "@react-three/rapier";
 import { useEffect, useRef, useState } from "react";
 import { follow } from "../Logic/EnemyMovementBehavior";
 import { Vector3 } from "three";
+import * as THREE from "three";
 
 export default function GatlingEnemy({
   id,
@@ -15,9 +16,11 @@ export default function GatlingEnemy({
   const [speed, setSpeed] = useState(1.7);
   const [enemyState, setEnemyState] = useState("follow"); // "follow" or "shoot"
   const enemyRef = useRef();
+  const localTime = useRef(0);
+  const meshRef = useRef();
 
   // Movement: When not showing indicator, follow the player.
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (playerRef.current && enemyRef.current && !showIndicator) {
       const playerPos = playerRef.current.translation();
       const enemyPos = enemyRef.current.translation();
@@ -36,6 +39,12 @@ export default function GatlingEnemy({
         { x: newVelocity.x, y: newVelocity.y, z: newVelocity.z },
         true
       );
+
+      if (meshRef.current) {
+        localTime.current += delta * 0.5;
+        meshRef.current.rotation.y = localTime.current;
+        meshRef.current.rotation.x = localTime.current;
+      }
     }
   });
 
@@ -130,10 +139,10 @@ export default function GatlingEnemy({
             <meshStandardMaterial color="red" transparent opacity={0.4} />
           </>
         ) : (
-          <>
-            <boxGeometry />
+          <mesh ref={meshRef}>
+            <icosahedronGeometry args={[0.8]} />
             <meshStandardMaterial color="purple" />
-          </>
+          </mesh>
         )}
       </mesh>
     </RigidBody>

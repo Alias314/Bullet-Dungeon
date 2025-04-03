@@ -1,12 +1,11 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import gameplayMusic from "../Assets/Audio/gameplayMusic.mp3";
 import { useGLTF } from "@react-three/drei";
 
 const getRandomPosition = () => {
-    const offset = 5;
-    const boundary = 10;
+  const offset = 5;
+  const boundary = 10;
   const x = Math.random() * boundary - offset;
   const y = Math.random() * boundary - offset;
   const z = Math.random() * boundary - offset;
@@ -15,6 +14,7 @@ const getRandomPosition = () => {
 
 function FloatingModel() {
   const { scene } = useGLTF("/assets/models/mainMenuModel.glb");
+  // const { scene } = useGLTF("/assets/models/boss.glb");
   const modelRef = useRef();
   let time = 0;
 
@@ -24,11 +24,15 @@ function FloatingModel() {
       modelRef.current.position.y = Math.sin(time) * 0.1;
       modelRef.current.rotation.y = Math.sin(time) * 0.1;
       modelRef.current.rotation.x = Math.cos(time) * 0.05;
+
+      // modelRef.current.position.y = Math.sin(time) * 0.1 + 0.6;
+      // modelRef.current.rotation.y = time;
     }
   });
 
   return (
     <primitive ref={modelRef} object={scene} position={[0, 0, 0]} scale={0.5} />
+    // <primitive ref={modelRef} object={scene} position={[0, 0, 0]} scale={0.2} />
   );
 }
 
@@ -43,15 +47,15 @@ function Particle() {
     meshRef.current.position.x += Math.sin(time) * 0.005;
 
     if (meshRef.current.position.y >= 10) {
-        meshRef.current.position.set(...getRandomPosition());
-        timeRef.current = 0;
+      meshRef.current.position.set(...getRandomPosition());
+      time = 0;
     }
   });
 
   return (
     <mesh ref={meshRef} position={getRandomPosition()} rotation={[0, 0.6, 0]}>
       <circleGeometry args={[0.04, 16]} />
-      <meshStandardMaterial color={'#FF9317'} />
+      <meshStandardMaterial color={"#FF9317"} />
     </mesh>
   );
 }
@@ -62,9 +66,7 @@ export default function Menu() {
   const particles = [];
 
   for (let i = 0; i < 150; i++) {
-    particles.push(
-        <Particle />
-    );
+    particles.push(<Particle />);
   }
 
   const handlePlay = () => navigate("/scene");

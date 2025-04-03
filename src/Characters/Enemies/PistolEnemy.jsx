@@ -3,7 +3,7 @@ import { interactionGroups, RigidBody } from "@react-three/rapier";
 import { useEffect, useRef, useState } from "react";
 import { follow, stalk, runAway, wander } from "../Logic/EnemyMovementBehavior";
 import { Vector3 } from "three";
-import { delay } from "../../Utils/helper";
+// import { delay } from "../../Utils/helper";
 
 export default function PistolEnemy({
   id,
@@ -164,7 +164,7 @@ export default function PistolEnemy({
         ) : (
           <mesh ref={meshRef}>
             <cylinderGeometry args={[0, 1, 1.5, 3]} />
-            <meshStandardMaterial color="red"/>
+            <meshStandardMaterial color="#fa5555"/>
           </mesh>
         )}
       </mesh>

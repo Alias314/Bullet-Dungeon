@@ -1,5 +1,5 @@
 import { useFrame } from "@react-three/fiber";
-import { interactionGroups, RigidBody } from "@react-three/rapier";
+import { CuboidCollider, interactionGroups, RigidBody } from "@react-three/rapier";
 import { useEffect, useRef, useState } from "react";
 import {
   follow,
@@ -17,14 +17,18 @@ import {
   radialBarrageShoot,
 } from "../../Logic/EnemyShootingBehavior";
 import { delay } from "../../../Utils/helper";
+import { useGLTF } from "@react-three/drei";
 
 export default function Overseer({ id, playerRef, position, setEnemyBullets }) {
   const enemyRef = useRef();
-  const speed = 1;
+  const speed = 2;
   const bossStates = ["follow", "barrage"];
   const [bossState, setBossState] = useState(bossStates[0]);
+  const { scene } = useGLTF("/assets/models/boss.glb");
+  const meshRef = useRef();
+  const localTime = useRef(0);
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (playerRef.current && enemyRef.current) {
       const playerPos = playerRef.current.translation();
       const enemyPos = enemyRef.current.translation();
@@ -57,20 +61,27 @@ export default function Overseer({ id, playerRef, position, setEnemyBullets }) {
         { x: newVelocity.x, y: newVelocity.y, z: newVelocity.z },
         true
       );
+
+      if (meshRef.current) {
+        localTime.current -= delta;
+
+        meshRef.current.rotation.y = localTime.current;
+      }
     }
   });
 
   const barrageAttack = async (enemyPos) => {
     await delay(1000);
-    await radialBarrageShoot(enemyPos, setEnemyBullets, 10, 12, 40);
+    await radialBarrageShoot(enemyPos, setEnemyBullets, 10, 10, 32);
     await delay(300);
-    radialShoot(enemyPos, setEnemyBullets, 10, 64);
+    radialShoot(enemyPos, setEnemyBullets, 10, 24);
   };
 
   const followAttack = async (playerPos, enemyPos) => {
     await shotgunShoot(playerPos, enemyPos, 10, 5, setEnemyBullets);
     await delay(1000);
-    await radialShoot(enemyPos, setEnemyBullets, 10, 32);
+    enemyPos = enemyRef.current.translation();
+    await radialShoot(enemyPos, setEnemyBullets, 10, 18);
   };
 
   useEffect(() => {
@@ -104,16 +115,23 @@ export default function Overseer({ id, playerRef, position, setEnemyBullets }) {
         ref={enemyRef}
         name="Overseer"
         position={position}
-        colliders="cuboid"
+        colliders={false}
         type="dynamic"
         gravityScale={0}
         collisionGroups={interactionGroups(1, [0, 1, 2, 4])}
         lockRotations
       >
-        <mesh>
+        {/* <mesh>
           <boxGeometry args={[2, 2, 2]} />
           <meshStandardMaterial color={"red"} />
-        </mesh>
+        </mesh> */}
+        <primitive
+          ref={meshRef}
+          object={scene}
+          position={[0, 0, 0]}
+          scale={0.35}
+        />
+        <CuboidCollider args={[1, 1, 1]} />
       </RigidBody>
     </>
   );

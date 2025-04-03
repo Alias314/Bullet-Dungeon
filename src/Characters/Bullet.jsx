@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import { interactionGroups, RigidBody } from "@react-three/rapier";
+import * as THREE from "three";
 
 export function PlayerBullet({
   id,

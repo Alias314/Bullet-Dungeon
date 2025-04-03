@@ -1,13 +1,14 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
-import { Vector2, Vector3 } from "three";
+import { TorusGeometry, Vector2, Vector3 } from "three";
 
 // Characters
 import Player from "../Characters/Player";
 import MeleeEnemy from "../Characters/Enemies/MeleeEnemy";
 import PistolEnemy from "../Characters/Enemies/PistolEnemy";
 import GatlingEnemy from "../Characters/Enemies/GatlingEnemy";
+import TorusEnemy from "../Characters/Enemies/TorusEnemy";
 import * as B from "../Characters/Bullet";
 
 // Interface
@@ -35,7 +36,13 @@ export default function Scene() {
   const [selectedWeapon, setSelectedWeapon] = useState("pistol");
   const [layout] = useState(() => generateLayout());
   const audioRef = useRef(null);
+  const shootAudioRef = useRef(null);
   const [hasClickedSplashScreen, setHasClickedSplashScreen] = useState(false);
+  const shakeRef = useRef(0);
+
+  const triggerCameraShake = () => {
+    shakeRef.current = 0;
+  };
 
   const {
     mouse,
@@ -56,7 +63,8 @@ export default function Scene() {
     bosses,
     setBosses,
     isInvincible,
-  } = useGameLogic(playerRef, selectedWeapon);
+    isShoot,
+  } = useGameLogic(playerRef, selectedWeapon, triggerCameraShake);
 
   useEffect(() => {}, [hasClickedSplashScreen]);
 
@@ -87,9 +95,20 @@ export default function Scene() {
     return () => window.removeEventListener("click", handleUserInteraction);
   }, []);
 
+  useEffect(() => {
+    if (shootAudioRef.current && isShoot.current) {
+      shootAudioRef.current.play();
+      isShoot.current = false;
+    }
+  }, [isShoot.current]);
+
   return (
     <div className="w-screen h-screen relative bg-gray-900">
-      <Canvas className="w-full h-full" camera={{ position: [0, 14, 6] }} shadows>
+      <Canvas
+        className="w-full h-full"
+        camera={{ position: [0, 14, 6] }}
+        shadows
+      >
         <ambientLight intensity={1} />
         <directionalLight
           position={[20, 20, -20]}
@@ -107,7 +126,11 @@ export default function Scene() {
 
         <Suspense>
           <Physics interpolate={false} colliders={false}>
-            <CameraController playerRef={playerRef} mouse={mouse} />
+            <CameraController
+              playerRef={playerRef}
+              mouse={mouse}
+              shakeRef={shakeRef}
+            />
             <Player
               playerRef={playerRef}
               mouse={mouse}
@@ -143,6 +166,17 @@ export default function Scene() {
                 } else if (enemy.type === "gatling") {
                   return (
                     <GatlingEnemy
+                      key={enemy.id}
+                      id={enemy.id}
+                      playerRef={playerRef}
+                      position={enemy.position}
+                      setEnemyBullets={setEnemyBullets}
+                      showIndicator={enemy.showIndicator}
+                    />
+                  );
+                } else if (enemy.type === "torus") {
+                  return (
+                    <TorusEnemy
                       key={enemy.id}
                       id={enemy.id}
                       playerRef={playerRef}
@@ -207,6 +241,11 @@ export default function Scene() {
         ref={audioRef}
         src={"assets/audio/Digestive_Biscuit.mp3"}
         loop
+        hidden
+      />
+      <audio
+        ref={shootAudioRef}
+        src={"assets/audio/Retro_Impact_20.wav"}
         hidden
       />
     </div>

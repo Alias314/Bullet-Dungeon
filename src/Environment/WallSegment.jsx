@@ -1,6 +1,6 @@
 import { RigidBody, interactionGroups } from "@react-three/rapier";
 import * as THREE from "three";
-import { useLoader } from "@react-three/fiber";
+import { useRef } from "react";
 
 export default function WallSegment({ position, size }) {
   return (
@@ -15,6 +15,14 @@ export default function WallSegment({ position, size }) {
         <boxGeometry args={size} />
         <meshStandardMaterial color="orange" />
       </mesh>
+
+      <lineSegments>
+        <edgesGeometry
+          attach="geometry"
+          args={[new THREE.BoxGeometry(...size)]}
+        />
+        <lineBasicMaterial attach="material" color="white" linewidth={2} />
+      </lineSegments>
     </RigidBody>
   );
 }

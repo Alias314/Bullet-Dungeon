@@ -28,7 +28,7 @@ export default function OverseerBossRoom({
   const gates = [];
 
   const hasSummonedRef = useRef(false);
-  const distanceToSummon = 13;
+  const distanceToSummon = 12;
   if (
     !hasSummonedRef.current &&
     playerPos &&

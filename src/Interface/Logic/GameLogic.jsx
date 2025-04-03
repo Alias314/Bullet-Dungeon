@@ -1,21 +1,26 @@
 import { useState, useEffect, useRef } from "react";
 import { Vector2, Vector3 } from "three";
 
-export default function useGameLogic(playerRef, selectedWeapon) {
+export default function useGameLogic(
+  playerRef,
+  selectedWeapon,
+  triggerCameraShake
+) {
   // player
-  const [playerHealth, setPlayerHealth] = useState(10000);
+  const [playerHealth, setPlayerHealth] = useState(1000000);
   const [playerBullets, setPlayerBullets] = useState([]);
   const [playerDirection, setPlayerDirection] = useState(null);
   const [mouse, setMouse] = useState(new Vector2());
   const [dashBar, setDashBar] = useState(2);
   const [showDamageOverlay, setShowDamageOverlay] = useState(false);
+  const isShoot = useRef(false);
 
   // Weapon cooldown configuration
   const weaponConfig = {
     pistol: { interval: 400, auto: true },
     shotgun: { interval: 1200, auto: false },
     minigun: { interval: 100, auto: true },
-    railgun: { interval: 2000, auto: false }
+    railgun: { interval: 2000, auto: false },
   };
 
   // enemy
@@ -64,6 +69,11 @@ export default function useGameLogic(playerRef, selectedWeapon) {
     // spawn bullets based on selected weapon
     const fireBullet = () => {
       if (!playerRef.current || !playerDirectionRef.current) return;
+
+      if (triggerCameraShake) {
+        triggerCameraShake();
+      }
+
       const bulletSpeed = 40;
       const playerPos = playerRef.current.translation();
       const amountPellet = 5;
@@ -115,6 +125,8 @@ export default function useGameLogic(playerRef, selectedWeapon) {
           { id: Math.random(), position: bulletSpawnPosition, velocity },
         ]);
       }
+
+      isShoot.current = true;
     };
 
     // hold mouse button to shoot
@@ -136,7 +148,10 @@ export default function useGameLogic(playerRef, selectedWeapon) {
         }
 
         fireBullet();
-        shootingIntervalRef.current = setInterval(fireBullet, weaponShootingInterval);
+        shootingIntervalRef.current = setInterval(
+          fireBullet,
+          weaponShootingInterval
+        );
       }
     };
 
@@ -239,5 +254,6 @@ export default function useGameLogic(playerRef, selectedWeapon) {
     bosses,
     setBosses,
     isInvincible,
+    isShoot,
   };
 }

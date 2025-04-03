@@ -84,10 +84,10 @@ export function BossHealthBar({ bosses, maxHealth = 1000 }) {
   return (
     <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-[800px] h-6 bg-gray-800 border-2 border-gray-600">
       <div
-        className="h-full bg-purple-500"
+        className="h-full bg-amber-400"
         style={{ width: `${healthPercent}%` }}
       ></div>
-      <div className="absolute inset-0 flex items-center justify-center text-white text-sm font-bold">
+      <div className="absolute inset-0 flex items-center justify-center text-black text-sm font-bold">
         {bosses.health} / {maxHealth}
       </div>
     </div>

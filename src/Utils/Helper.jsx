@@ -8,7 +8,7 @@ const getRandomPosition = (roomDimensions, position) => {
     Math.random() * (roomDimensions[0] - 2 * margin) -
     (roomDimensions[0] - 2 * margin) / 2 +
     position[0];
-  const y = 1;
+  const y = 1.1;
   const z =
     Math.random() * (roomDimensions[2] - 2 * margin) -
     (roomDimensions[2] - 2 * margin) / 2 +
@@ -19,17 +19,19 @@ const getRandomPosition = (roomDimensions, position) => {
 export const summonEnemies = (roomDimensions, position, setAmountEnemy) => {
   const enemyList = [];
   const amountEnemy = Math.max(Math.random() * 12, 7);
-  // const amountEnemy = 0;
+  // const amountEnemy = 3;
 
   for (let i = 0; i < amountEnemy; i++) {
     const randomValue = Math.random();
     let type;
-    if (randomValue < 0) {
+    if (randomValue <= 0.3) {
       type = "melee";
-    } else if (randomValue < 1) {
+    } else if (randomValue <= 0.6) {
       type = "pistol";
-    } else {
+    } else if (randomValue <= 0.8) {
       type = "gatling";
+    } else {
+      type = "torus";
     }
     enemyList.push({
       id: i,

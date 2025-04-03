@@ -1,7 +1,12 @@
 import { useRef, useState, useEffect } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { CuboidCollider, interactionGroups, RigidBody } from "@react-three/rapier";
+import {
+  CuboidCollider,
+  interactionGroups,
+  RigidBody,
+} from "@react-three/rapier";
 import { Raycaster, Vector3, Plane, Quaternion } from "three";
+import * as THREE from 'three'
 
 export default function Player({
   playerRef,
@@ -113,7 +118,7 @@ export default function Player({
     <RigidBody
       ref={playerRef}
       name="Player"
-      position={[0, 1, 112]}
+      position={[0, 1.1, 112]}
       colliders={false}
       type="dynamic"
       gravityScale={0}
@@ -134,21 +139,20 @@ export default function Player({
       </mesh>
       <mesh position={[0.25, 0.2, 0.51]}>
         <circleGeometry args={[0.15, 12]} />
-        <meshStandardMaterial color='white' />
+        <meshStandardMaterial color="white" />
       </mesh>
       <mesh position={[0.22, 0.15, 0.52]}>
         <circleGeometry args={[0.08, 12]} />
-        <meshStandardMaterial color='black' />
+        <meshStandardMaterial color="black" />
       </mesh>
       <mesh position={[-0.25, 0.2, 0.51]}>
         <circleGeometry args={[0.15, 12]} />
-        <meshStandardMaterial color='white' />
+        <meshStandardMaterial color="white" />
       </mesh>
       <mesh position={[-0.22, 0.15, 0.52]}>
         <circleGeometry args={[0.08, 12]} />
-        <meshStandardMaterial color='black' />
+        <meshStandardMaterial color="black" />
       </mesh>
-      
       <CuboidCollider args={[0.5, 0.5, 0.5]} />
     </RigidBody>
   );
