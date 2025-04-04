@@ -27,6 +27,12 @@ export default function Overseer({ id, playerRef, position, setEnemyBullets }) {
   const { scene } = useGLTF("/assets/models/boss.glb");
   const meshRef = useRef();
   const localTime = useRef(0);
+  const shootAudioRef = useRef();
+  useEffect(() => {
+    shootAudioRef.current = new Audio(
+      "assets/audio/Retro_Gun_SingleShot_04.wav"
+    );
+  }, []);
 
   useFrame((_, delta) => {
     if (playerRef.current && enemyRef.current) {
@@ -72,16 +78,16 @@ export default function Overseer({ id, playerRef, position, setEnemyBullets }) {
 
   const barrageAttack = async (enemyPos) => {
     await delay(1000);
-    await radialBarrageShoot(enemyPos, setEnemyBullets, 10, 10, 28);
+    await radialBarrageShoot(enemyPos, setEnemyBullets, 10, 10, 28, shootAudioRef);
     await delay(300);
-    radialShoot(enemyPos, setEnemyBullets, 10, 32);
+    radialShoot(enemyPos, setEnemyBullets, 10, 32, shootAudioRef);
   };
 
   const followAttack = async (playerPos, enemyPos) => {
-    await shotgunShoot(playerPos, enemyPos, 10, 5, setEnemyBullets);
+    await shotgunShoot(playerPos, enemyPos, 10, 5, setEnemyBullets, shootAudioRef);
     await delay(1000);
     enemyPos = enemyRef.current.translation();
-    await radialShoot(enemyPos, setEnemyBullets, 10, 18);
+    await radialShoot(enemyPos, setEnemyBullets, 10, 18, shootAudioRef);
   };
 
   useEffect(() => {

@@ -81,12 +81,14 @@ export default function Scene() {
   if (playerHealth <= 0) return <GameOver />;
 
   useEffect(() => {
-    const gameplayAudio = new Audio("assets/audio/Digestive_Biscuit.mp3");
-    gameplayAudio.volume = 0.04;
-    gameplayAudio.loop = true;
-    gameplayAudio.play();
-  }, []);
-
+    if (hasClickedSplashScreen) {
+      const gameplayAudio = new Audio("assets/audio/Digestive_Biscuit.mp3");
+      gameplayAudio.volume = 0.04;
+      gameplayAudio.loop = true;
+      gameplayAudio.play();
+    }
+  }, [hasClickedSplashScreen]);
+  
   return (
     <div className="w-screen h-screen relative bg-gray-900">
       <Canvas

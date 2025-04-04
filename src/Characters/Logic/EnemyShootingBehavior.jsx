@@ -1,12 +1,20 @@
 import { Vector3 } from "three";
 import { delay } from "../../Utils/helper";
+import { useRef, useEffect } from "react";
 
 export async function radialShoot(
   enemyPos,
   setEnemyBullets,
   bulletSpeed,
-  amountBullets
+  amountBullets,
+  shootAudioRef
 ) {
+  if (shootAudioRef.current) {
+    const soundClone = shootAudioRef.current.cloneNode();
+    soundClone.volume = 0.5;
+    soundClone.play();
+  }
+
   for (let i = 0; i < amountBullets; i++) {
     const angle = (i / amountBullets) * Math.PI * 2;
     const direction = new Vector3(
@@ -37,10 +45,17 @@ export async function radialBarrageShoot(
   setEnemyBullets,
   bulletSpeed,
   amountBullets,
-  amountBarrage
+  amountBarrage,
+  shootAudioRef
 ) {
   for (let i = 0; i < amountBarrage; i++) {
     await delay(150);
+
+    if (shootAudioRef.current) {
+      const soundClone = shootAudioRef.current.cloneNode();
+      soundClone.volume = 0.5;
+      soundClone.play();
+    }
 
     for (let j = 0; j < amountBullets; j++) {
       const offset = (i % 2) * (Math.PI / amountBullets);
@@ -103,10 +118,18 @@ export async function shotgunShoot(
   enemyPos,
   bulletSpeed,
   amountBullet,
-  setEnemyBullets
+  setEnemyBullets,
+  shootAudioRef
 ) {
   const pellets = [];
   const spreadAngle = 1;
+
+  if (shootAudioRef.current) {
+    const soundClone = shootAudioRef.current.cloneNode();
+    soundClone.volume = 0.5;
+    soundClone.play();
+  }
+
   for (let i = 0; i < amountBullet; i++) {
     const angleOffset = (Math.random() - 0.5) * spreadAngle;
     const direction = new Vector3(
