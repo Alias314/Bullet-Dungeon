@@ -40,15 +40,9 @@ export default function MeleeEnemy({
     const timeout = setTimeout(() => {
       if (enemyRef.current?.isValid()) {
         intervalRef.current = setInterval(() => {
-          if (shootAudioRef.current) {
-            const soundClone = shootAudioRef.current.cloneNode();
-            soundClone.volume = 0.2;
-
-            soundClone.play();
-          }
           if (enemyRef.current?.isValid()) {
             const enemyPos = enemyRef.current.translation();
-            radialShoot(enemyPos, setEnemyBullets, 10, 8);
+            radialShoot(enemyPos, setEnemyBullets, 10, 8, shootAudioRef);
           }
         }, 3000);
       }
@@ -89,7 +83,7 @@ export default function MeleeEnemy({
             <mesh ref={meshRef}>
               <mesh>
                 <torusGeometry args={[1, 0.5, 4, 8]} />
-                <meshStandardMaterial color="#69ba27" />
+                <meshStandardMaterial color="#7a62f5" />
               </mesh>
               <mesh>
                 <torusGeometry args={[1, 0.5, 4, 8]} />

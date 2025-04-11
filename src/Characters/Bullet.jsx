@@ -31,7 +31,11 @@ export function PlayerBullet({
     >
       <mesh position={position}>
         <sphereGeometry args={size} />
-        <meshStandardMaterial color="orange" />
+        <meshStandardMaterial
+          color="orange"
+          emissive="red"
+          emissiveIntensity={0.7}
+        />
       </mesh>
     </RigidBody>
   );
@@ -66,7 +70,11 @@ export function EnemyBullet({
     >
       <mesh position={position}>
         <sphereGeometry args={size} />
-        <meshStandardMaterial color="red" />
+        <meshStandardMaterial
+          color="red"
+          emissive="red"
+          emissiveIntensity={0.7}
+        />
       </mesh>
     </RigidBody>
   );

@@ -36,7 +36,7 @@ export default function OverseerBossRoom({
     absoluteDistance[0] <= distanceToSummon &&
     absoluteDistance[2] <= distanceToSummon
   ) {
-    setBosses({ id: 1, type: "Overseer", health: 1500, position: [position[0] + 5, 2, position[2]] });
+    setBosses({ id: 1, type: "Overseer", health: 1500, position: [position[0], 2, position[2]] });
     hasSummonedRef.current = true;
   }
 
@@ -52,7 +52,7 @@ export default function OverseerBossRoom({
         walls.push(
           <WallSegment
             key="top-left"
-            position={[segmentCenterX - offset, 2, topWallZ]}
+            position={[segmentCenterX + offset, 2, topWallZ]}
             size={[leftSegmentLength, 3, 1]}
           />
         );
@@ -72,7 +72,7 @@ export default function OverseerBossRoom({
       walls.push(
         <WallSegment
           key="top"
-          position={[position[0], 2, topWallZ]}
+          position={[position[0] + offset, 2, topWallZ]}
           size={[roomWidth, 3, 1]}
         />
       );
@@ -91,7 +91,7 @@ export default function OverseerBossRoom({
         walls.push(
           <WallSegment
             key="bottom-left"
-            position={[segmentCenterX - offset, 2, bottomWallZ]}
+            position={[segmentCenterX, 2, bottomWallZ]}
             size={[leftSegmentLength, 3, 1]}
           />
         );
@@ -102,7 +102,7 @@ export default function OverseerBossRoom({
         walls.push(
           <WallSegment
             key="bottom-right"
-            position={[segmentCenterX + offset, 2, bottomWallZ]}
+            position={[segmentCenterX + 1, 2, bottomWallZ]}
             size={[rightSegmentLength, 3, 1]}
           />
         );
@@ -111,7 +111,7 @@ export default function OverseerBossRoom({
       walls.push(
         <WallSegment
           key="bottom"
-          position={[position[0], 2, bottomWallZ]}
+          position={[position[0] + 0.5, 2, bottomWallZ]}
           size={[roomWidth, 3, 1]}
         />
       );
@@ -130,7 +130,7 @@ export default function OverseerBossRoom({
         walls.push(
           <WallSegment
             key="left-top"
-            position={[leftWallX, 2, segmentCenterZ - offset]}
+            position={[leftWallX + offset, 2, segmentCenterZ - offset]}
             size={[1, 3, topSegmentLength]}
           />
         );
@@ -141,7 +141,7 @@ export default function OverseerBossRoom({
         walls.push(
           <WallSegment
             key="left-bottom"
-            position={[leftWallX, 2, segmentCenterZ + offset]}
+            position={[leftWallX + offset, 2, segmentCenterZ + offset]}
             size={[1, 3, bottomSegmentLength]}
           />
         );
@@ -150,7 +150,7 @@ export default function OverseerBossRoom({
       walls.push(
         <WallSegment
           key="left"
-          position={[leftWallX, 2, position[2]]}
+          position={[leftWallX + offset, 2, position[2]]}
           size={[1, 3, roomDepth]}
         />
       );
@@ -169,7 +169,7 @@ export default function OverseerBossRoom({
         walls.push(
           <WallSegment
             key="right-top"
-            position={[rightWallX, 2, segmentCenterZ - offset]}
+            position={[rightWallX + offset, 2, segmentCenterZ - offset]}
             size={[1, 3, topSegmentLength]}
           />
         );
@@ -180,7 +180,7 @@ export default function OverseerBossRoom({
         walls.push(
           <WallSegment
             key="right-bottom"
-            position={[rightWallX, 2, segmentCenterZ + offset]}
+            position={[rightWallX + offset, 2, segmentCenterZ + offset]}
             size={[1, 3, bottomSegmentLength]}
           />
         );
@@ -189,7 +189,7 @@ export default function OverseerBossRoom({
       walls.push(
         <WallSegment
           key="right"
-          position={[rightWallX, 2, position[2]]}
+          position={[rightWallX + offset, 2, position[2]]}
           size={[1, 3, roomDepth]}
         />
       );
@@ -221,7 +221,7 @@ export default function OverseerBossRoom({
             <Gate
               key={`bottom-${j}`}
               position={[
-                position[0] + j - roomWidth / 2 + offset,
+                position[0] + j - roomWidth / 2 + offset + 0.5,
                 1.3,
                 position[2] + roomDepth / 2 - offset,
               ]}
@@ -270,7 +270,7 @@ export default function OverseerBossRoom({
         absoluteDistance[0] <= distanceToView &&
         absoluteDistance[2] <= distanceToView && (
           <>
-            <Floor roomDimensions={roomDimensions} position={position} />
+            <Floor roomDimensions={roomDimensions} position={[position[0] + 0.5, position[1], position[2]]} />
             {walls}
             {gates}
           </>

@@ -2,6 +2,8 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { TorusGeometry, Vector2, Vector3 } from "three";
+import { useGLTF } from "@react-three/drei";
+import { RigidBody, CuboidCollider } from "@react-three/rapier";
 
 // Characters
 import Player from "../Characters/Player";
@@ -17,7 +19,7 @@ import GameOver from "./GameOver";
 import LevelLayout from "../Environment/LevelLayout";
 import Minimap from "./Minimap";
 import DamageOverlay from "./DamageOverlay";
-import { generateLayout } from "./Logic/GenerateLayout";
+import { generateLayout } from "../Environment/GenerateLayout";
 import { CameraController } from "./Logic/CameraController";
 
 import useGameLogic from "./Logic/GameLogic";
@@ -30,15 +32,20 @@ import Overseer from "../Characters/Enemies/Bosses/Overseer";
 
 import gameplayMusic from "../Assets/Audio/gameplayMusic.mp3";
 import SplashScreen from "./SplashScreen";
+import RoomCLearOverlay from "./RoomClearOverlay";
+import PowerUpOverlay from "./PowerUpOverlay";
+import VictoryOverlay from "./VictoryOverlay";
 
 export default function Scene() {
   const playerRef = useRef();
   const [selectedWeapon, setSelectedWeapon] = useState("pistol");
-  const [layout] = useState(() => generateLayout());
+  const level = useRef(1);
+  const [layout, setLayout] = useState(() => generateLayout(level.current));
   const audioRef = useRef(null);
-  // const shootAudioRef = useRef(null);
   const [hasClickedSplashScreen, setHasClickedSplashScreen] = useState(false);
   const shakeRef = useRef(0);
+  const [showRoomClear, setShowRoomClear] = useState(false);
+  const [hasBeatLevel, setHasBeatLevel] = useState(false);
 
   const triggerCameraShake = () => {
     shakeRef.current = 0;
@@ -56,6 +63,8 @@ export default function Scene() {
     setEnemies,
     playerHealth,
     dashBar,
+    dashCooldown,
+    maxDashBar,
     setDashBar,
     showDamageOverlay,
     handleBulletCollision,
@@ -63,6 +72,7 @@ export default function Scene() {
     bosses,
     setBosses,
     isInvincible,
+    hasBeatBoss,
   } = useGameLogic(playerRef, selectedWeapon, triggerCameraShake);
 
   useEffect(() => {}, [hasClickedSplashScreen]);
@@ -88,7 +98,15 @@ export default function Scene() {
       gameplayAudio.play();
     }
   }, [hasClickedSplashScreen]);
-  
+
+  useEffect(() => {
+    if (showRoomClear) {
+      setTimeout(() => {
+        setShowRoomClear(false);
+      }, 1000);
+    }
+  }, [showRoomClear]);
+
   return (
     <div className="w-screen h-screen relative bg-gray-900">
       <Canvas
@@ -99,7 +117,7 @@ export default function Scene() {
         <ambientLight intensity={1} />
         <directionalLight
           position={[20, 20, -20]}
-          intensity={1}
+          intensity={2}
           castShadow
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
@@ -125,6 +143,8 @@ export default function Scene() {
               dashBar={dashBar}
               setDashBar={setDashBar}
               isInvincible={isInvincible}
+              dashCooldown={dashCooldown.current}
+              maxDashBar={maxDashBar.current}
             />
             {enemies &&
               enemies.map((enemy) => {
@@ -210,6 +230,10 @@ export default function Scene() {
               playerRef={playerRef}
               setEnemies={setEnemies}
               setBosses={setBosses}
+              setShowRoomClear={setShowRoomClear}
+              setLayout={setLayout}
+              level={level}
+              setHasBeatLevel={setHasBeatLevel}
             />
           </Physics>
         </Suspense>
@@ -223,6 +247,16 @@ export default function Scene() {
       {!hasClickedSplashScreen && (
         <SplashScreen setHasClickedSplashScreen={setHasClickedSplashScreen} />
       )}
+      {showRoomClear && <RoomCLearOverlay />}
+      {hasBeatLevel && (
+        <PowerUpOverlay
+          displayPowerUpOverlay={setHasBeatLevel}
+          setDashBar={setDashBar}
+          dashCooldown={dashCooldown}
+          maxDashBar={maxDashBar}
+        />
+      )}
+      {hasBeatBoss.current && <VictoryOverlay />}
     </div>
   );
 }

@@ -16,12 +16,34 @@ const getRandomPosition = (roomDimensions, position) => {
   return [x, y, z];
 };
 
+// Helper function to calculate Euclidean distance between two positions.
+const distanceBetween = (posA, posB) => {
+  const dx = posA[0] - posB[0];
+  const dy = posA[1] - posB[1];
+  const dz = posA[2] - posB[2];
+  return Math.sqrt(dx * dx + dy * dy + dz * dz);
+};
+
 export const summonEnemies = (roomDimensions, position, setAmountEnemy) => {
   const enemyList = [];
   const amountEnemy = Math.max(Math.random() * 12, 7);
-  // const amountEnemy = 3;
+  const minDistance = 2;
+  const maxAttempts = 20;
 
   for (let i = 0; i < amountEnemy; i++) {
+    let candidatePos;
+    let attempts = 0;
+
+    do {
+      candidatePos = getRandomPosition(roomDimensions, position);
+      attempts++;
+      if (attempts >= maxAttempts) break;
+    } while (
+      enemyList.some(
+        (enemy) => distanceBetween(enemy.position, candidatePos) < minDistance
+      )
+    );
+    
     const randomValue = Math.random();
     let type;
     if (randomValue <= 0.3) {
@@ -33,11 +55,12 @@ export const summonEnemies = (roomDimensions, position, setAmountEnemy) => {
     } else {
       type = "torus";
     }
+
     enemyList.push({
       id: i,
       type,
       health: 30,
-      position: getRandomPosition(roomDimensions, position),
+      position: candidatePos,
       showIndicator: false,
     });
   }

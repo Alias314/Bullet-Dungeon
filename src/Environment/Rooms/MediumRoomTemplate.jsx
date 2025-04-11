@@ -11,6 +11,7 @@ export default function MediumRoomTemplate({
   amountEnemy,
   setAmountEnemy,
   setEnemies,
+  setShowRoomClear
 }) {
   const roomDimensions = [30, 1, 25];
   const [roomWidth, , roomDepth] = roomDimensions;
@@ -27,6 +28,7 @@ export default function MediumRoomTemplate({
       ]
     : null;
   const distanceToView = 24;
+  const maxWavesRef = useRef(Math.floor(Math.random() * 3) + 1);
 
   // Custom obstacle layout (30 columns x 25 rows)
   const obstacleLayout = [
@@ -63,6 +65,8 @@ export default function MediumRoomTemplate({
       amountEnemy,
       setEnemies,
       setAmountEnemy,
+      setShowRoomClear,
+      maxWavesRef
     });
 
   return (
@@ -72,9 +76,9 @@ export default function MediumRoomTemplate({
         absoluteDistance[0] <= distanceToView &&
         absoluteDistance[2] <= distanceToView && (
           <>
-            <Floor roomDimensions={roomDimensions} position={position} />
+            <Floor roomDimensions={roomDimensions} position={[position[0], position[1], position[2] + 0.5]} />
             <WallsAndGates
-              position={position}
+              position={[position[0], position[1], position[2] + 0.5]}
               roomDimensions={roomDimensions}
               openings={openings}
               amountEnemy={amountEnemy}

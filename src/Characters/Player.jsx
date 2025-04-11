@@ -6,8 +6,6 @@ import {
   RigidBody,
 } from "@react-three/rapier";
 import { Raycaster, Vector3, Plane, Quaternion } from "three";
-import * as THREE from "three";
-import useSound from "use-sound";
 
 export default function Player({
   playerRef,
@@ -16,6 +14,8 @@ export default function Player({
   dashBar,
   setDashBar,
   isInvincible,
+  dashCooldown,
+  maxDashBar
 }) {
   const meshRef = useRef();
   const raycaster = useRef(new Raycaster());
@@ -29,7 +29,7 @@ export default function Player({
   });
   const [isDashing, setIsDashing] = useState(false);
   const [dashDirection, setDashDirection] = useState(new Vector3());
-  const speedMultiplier = 10;
+  const speedMultiplier = 8;
   const dashForce = 20;
   const dashDuration = 0.2;
   const dashAudioRef = useRef();
@@ -75,7 +75,7 @@ export default function Player({
     const handleKeyDown = (e) => {
       if (e.repeat) return;
 
-      if (e.code === "Space" && dashBar > 0) {
+      if (e.code === "Space" && dashBar > 0 && !isDashing) {
         if (dashAudioRef.current) {
           const soundClone = dashAudioRef.current.cloneNode();
           soundClone.play();
@@ -115,10 +115,10 @@ export default function Player({
   }, [keyPressed, isDashing]);
 
   useEffect(() => {
-    if (dashBar < 2) {
+    if (dashBar < maxDashBar) {
       const interval = setInterval(() => {
         setDashBar((prev) => prev + 1);
-      }, 1000);
+      }, dashCooldown);
 
       return () => clearInterval(interval);
     }
@@ -128,7 +128,7 @@ export default function Player({
     <RigidBody
       ref={playerRef}
       name="Player"
-      position={[0, 1.1, 112]}
+      position={[0, 1, 0]}
       colliders={false}
       type="dynamic"
       gravityScale={0}

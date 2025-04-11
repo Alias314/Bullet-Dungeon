@@ -1,11 +1,9 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { RigidBody } from "@react-three/rapier";
 import Floor from "../Floor";
-import Gate from "../Gate";
-import { summonEnemies, delay } from "../../Utils/helper";
-import WallsAndGates from "../Logic/CreateWallsAndGates"; // adjust the path as needed
-import useRoomWaveSpawner from "../Logic/useRoomWaveSpawner"; // adjust path as needed
-
+import WallsAndGates from "../Logic/CreateWallsAndGates";
+import useRoomWaveSpawner from "../Logic/useRoomWaveSpawner";
+import RoomCLearOverlay from "../../Interface/RoomClearOverlay"; // make sure the path is correct
 
 // small room is 25x25
 export default function SquareRoomTemplate({
@@ -15,14 +13,13 @@ export default function SquareRoomTemplate({
   amountEnemy,
   setAmountEnemy,
   setEnemies,
+  setShowRoomClear,
 }) {
   const roomDimensions = [25, 1, 25];
   const [roomWidth, , roomDepth] = roomDimensions;
   const offset = 0.5;
   const playerPos =
-    playerRef && playerRef.current
-      ? playerRef.current.translation()
-      : null;
+    playerRef && playerRef.current ? playerRef.current.translation() : null;
   const absoluteDistance = playerPos
     ? [
         Math.abs(position[0] - playerPos.x),
@@ -31,22 +28,20 @@ export default function SquareRoomTemplate({
       ]
     : null;
   const distanceToView = 24;
-
-  // Define your obstacle layout (this can be further refactored if desired)
-  const obstacleLayout = Array(25)
-    .fill(0)
-    .map(() => Array(25).fill(0));
+  const maxWavesRef = useRef(Math.floor(Math.random() * 3) + 1);
 
   useRoomWaveSpawner({
-      playerPos,
-      position,
-      roomDimensions,
-      roomWidth,
-      roomDepth,
-      amountEnemy,
-      setEnemies,
-      setAmountEnemy,
-    });
+    playerPos,
+    position,
+    roomDimensions,
+    roomWidth,
+    roomDepth,
+    amountEnemy,
+    setEnemies,
+    setAmountEnemy,
+    setShowRoomClear,
+    maxWavesRef,
+  });
 
   return (
     <>
@@ -55,13 +50,12 @@ export default function SquareRoomTemplate({
         absoluteDistance[0] <= distanceToView &&
         absoluteDistance[2] <= distanceToView && (
           <>
-            <Floor roomDimensions={roomDimensions} position={position} />
+            <Floor roomDimensions={roomDimensions} position={[position[0] + 0.5, position[1], position[2] + 0.5]} />
             <WallsAndGates
-              position={position}
+              position={[position[0] + 0.5, position[1], position[2] + 0.5]}
               roomDimensions={roomDimensions}
               openings={openings}
               amountEnemy={amountEnemy}
-              obstacleLayout={obstacleLayout}
             />
           </>
         )}

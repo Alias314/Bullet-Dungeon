@@ -1,20 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { summonEnemies } from "../../Utils/helper";
-import { delay } from "../../Utils/helper";
+import { summonEnemies, delay } from "../../Utils/helper";
 
-/**
- * useRoomWaveSpawner
- *
- * This hook spawns enemy waves when the player is near the room.
- * It accepts:
- * - playerPos: The player's position (from playerRef.translation())
- * - position: The room's center position
- * - roomDimensions: An array [roomWidth, _, roomDepth]
- * - roomWidth, roomDepth: Precomputed room width and depth
- * - amountEnemy: The current enemy count in the room
- * - setEnemies: Setter for the enemy array
- * - setAmountEnemy: Setter for the enemy count (usually called within summonEnemies)
- */
 export default function useRoomWaveSpawner({
   playerPos,
   position,
@@ -24,11 +10,13 @@ export default function useRoomWaveSpawner({
   amountEnemy,
   setEnemies,
   setAmountEnemy,
+  setShowRoomClear,
+  maxWavesRef
 }) {
   // wave state starts at 0; once the first wave spawns, set to 1.
   const [wave, setWave] = useState(0);
-  // Maximum waves for this room (randomly between 1 and 3)
-  const maxWavesRef = useRef(Math.floor(Math.random() * 4) + 1);
+  // Flag to indicate that a wave is currently being spawned
+  const [isSpawning, setIsSpawning] = useState(false);
 
   // Helper: compute absolute distances from room center
   function computeAbsDistance() {
@@ -40,35 +28,38 @@ export default function useRoomWaveSpawner({
   }
 
   // Spawn the first wave when the player is close to the room center.
-  useEffect(() => {
-    if (!playerPos) return;
-    const { x, z } = computeAbsDistance();
-    // Use a tighter condition: player must be within (roomWidth/2 - 3) and (roomDepth/2 - 3)
-    if (x <= roomWidth / 2 - 3 && z <= roomDepth / 2 - 3 && wave === 0) {
-      const newEnemies = summonEnemies(roomDimensions, position, setAmountEnemy).map(
-        enemy => ({ ...enemy, showIndicator: true })
-      );
-      setEnemies(newEnemies);
-      setWave(1);
-      delay(1000).then(() => {
-        setEnemies(prevEnemies =>
-          prevEnemies.map(enemy => ({ ...enemy, showIndicator: false }))
-        );
-      });
-    }
-  }, [playerPos, wave, position, roomDimensions, setEnemies, setAmountEnemy, roomWidth, roomDepth]);
+  // useEffect(() => {
+  //   if (!playerPos) return;
+  //   const { x, z } = computeAbsDistance();
+  //   // Check that player is in range and no wave is in progress
+  //   if (x <= roomWidth / 2 - 3 && z <= roomDepth / 2 - 3 && wave === 0 && !isSpawning) {
+  //     setIsSpawning(true);
+  //     const newEnemies = summonEnemies(roomDimensions, position, setAmountEnemy).map(
+  //       enemy => ({ ...enemy, showIndicator: true })
+  //     );
+  //     setEnemies(newEnemies);
+  //     setWave(0);
+  //     delay(1000).then(() => {
+  //       setEnemies(prevEnemies =>
+  //         prevEnemies.map(enemy => ({ ...enemy, showIndicator: false }))
+  //       );
+  //       setIsSpawning(false);
+  //     });
+  //   }
+  // }, [playerPos, wave, position, roomDimensions, setEnemies, setAmountEnemy, roomWidth, roomDepth, isSpawning]);
 
-  // When the current wave is cleared and if more waves remain, spawn the next wave.
+  // Spawn subsequent waves when the current wave is cleared.
   useEffect(() => {
     if (!playerPos) return;
     const { x, z } = computeAbsDistance();
     if (
       x <= roomWidth / 2 - 3 &&
       z <= roomDepth / 2 - 3 &&
-      wave > 0 &&
       wave < maxWavesRef.current &&
-      (!amountEnemy || amountEnemy === 0)
+      amountEnemy === 0 &&
+      !isSpawning // only spawn if no wave is already being processed
     ) {
+      setIsSpawning(true);
       const newEnemies = summonEnemies(roomDimensions, position, setAmountEnemy).map(
         enemy => ({ ...enemy, showIndicator: true })
       );
@@ -78,7 +69,17 @@ export default function useRoomWaveSpawner({
         setEnemies(prevEnemies =>
           prevEnemies.map(enemy => ({ ...enemy, showIndicator: false }))
         );
+        setIsSpawning(false);
       });
     }
-  }, [amountEnemy, playerPos, wave, position, roomDimensions, setEnemies, setAmountEnemy, roomWidth, roomDepth]);
+    // console.log("Wave:", wave, "Max:", maxWavesRef.current);
+  }, [amountEnemy, playerPos, wave, position, roomDimensions, setEnemies, setAmountEnemy, roomWidth, roomDepth, isSpawning]);
+
+  // When the final wave is cleared, trigger the room clear overlay.
+  useEffect(() => {
+    // Only trigger if we're not in the middle of a spawn
+    if (!isSpawning && wave === maxWavesRef.current && amountEnemy === 0) {
+      setShowRoomClear(true);
+    }
+  }, [amountEnemy, wave, isSpawning, setShowRoomClear]);
 }

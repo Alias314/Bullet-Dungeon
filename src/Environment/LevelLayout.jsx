@@ -5,7 +5,9 @@ import SmallRoomTemplate from "./Rooms/SmallRoomTemplate";
 import SquareRoomTemplate from "./Rooms/SquareRoomTemplate";
 import MediumRoomTemplate from "./Rooms/MediumRoomTemplate";
 import OverseerBossRoom from "./Rooms/OverseerBossRoom";
+import PortalRoom from "./Rooms/PortalRoom";
 import { Hallways } from "./Hallway"; // adjust path as needed
+import RoomModel from "./Rooms/RoomModel";
 
 export default function LevelLayout({
   layout,
@@ -14,6 +16,10 @@ export default function LevelLayout({
   playerRef,
   setEnemies,
   setBosses,
+  setShowRoomClear,
+  setLayout,
+  level,
+  setHasBeatLevel
 }) {
   const cellSize = 37;
 
@@ -60,6 +66,16 @@ export default function LevelLayout({
                   openings={openings}
                   amountEnemy={amountEnemy}
                 />
+                // <RoomModel
+                //   key={`room-${i}-${j}`}
+                //   position={position}
+                //   playerRef={playerRef}
+                //   openings={openings}
+                //   amountEnemy={amountEnemy}
+                //   setAmountEnemy={setAmountEnemy}
+                //   setEnemies={setEnemies}
+                //   setShowRoomClear={setShowRoomClear}
+                // />
               );
             case 1:
               return (
@@ -71,6 +87,7 @@ export default function LevelLayout({
                   amountEnemy={amountEnemy}
                   setAmountEnemy={setAmountEnemy}
                   setEnemies={setEnemies}
+                  setShowRoomClear={setShowRoomClear}
                 />
               );
             case 2:
@@ -83,6 +100,7 @@ export default function LevelLayout({
                   amountEnemy={amountEnemy}
                   setAmountEnemy={setAmountEnemy}
                   setEnemies={setEnemies}
+                  setShowRoomClear={setShowRoomClear}
                 />
               );
             case 3:
@@ -95,6 +113,7 @@ export default function LevelLayout({
                   amountEnemy={amountEnemy}
                   setAmountEnemy={setAmountEnemy}
                   setEnemies={setEnemies}
+                  setShowRoomClear={setShowRoomClear}
                 />
               );
             case 4:
@@ -114,6 +133,19 @@ export default function LevelLayout({
                   openings={openings}
                   setBosses={setBosses}
                   amountEnemy={amountEnemy}
+                />
+              );
+            case 6:
+              return (
+                <PortalRoom
+                  key={`room-${i}-${j}`}
+                  position={position}
+                  playerRef={playerRef}
+                  openings={openings}
+                  amountEnemy={amountEnemy}
+                  setLayout={setLayout}
+                  level={level}
+                  setHasBeatLevel={setHasBeatLevel}
                 />
               );
             default:

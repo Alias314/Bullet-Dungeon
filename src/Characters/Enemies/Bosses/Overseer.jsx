@@ -1,5 +1,9 @@
 import { useFrame } from "@react-three/fiber";
-import { CuboidCollider, interactionGroups, RigidBody } from "@react-three/rapier";
+import {
+  CuboidCollider,
+  interactionGroups,
+  RigidBody,
+} from "@react-three/rapier";
 import { useEffect, useRef, useState } from "react";
 import {
   follow,
@@ -16,7 +20,7 @@ import {
   radialMachineGun,
   radialBarrageShoot,
 } from "../../Logic/EnemyShootingBehavior";
-import { delay } from "../../../Utils/helper";
+import { delay } from "../../../Utils/Helper";
 import { useGLTF } from "@react-three/drei";
 
 export default function Overseer({ id, playerRef, position, setEnemyBullets }) {
@@ -78,13 +82,27 @@ export default function Overseer({ id, playerRef, position, setEnemyBullets }) {
 
   const barrageAttack = async (enemyPos) => {
     await delay(1000);
-    await radialBarrageShoot(enemyPos, setEnemyBullets, 10, 10, 28, shootAudioRef);
+    await radialBarrageShoot(
+      enemyPos,
+      setEnemyBullets,
+      10,
+      10,
+      28,
+      shootAudioRef
+    );
     await delay(300);
     radialShoot(enemyPos, setEnemyBullets, 10, 32, shootAudioRef);
   };
 
   const followAttack = async (playerPos, enemyPos) => {
-    await shotgunShoot(playerPos, enemyPos, 10, 5, setEnemyBullets, shootAudioRef);
+    await shotgunShoot(
+      playerPos,
+      enemyPos,
+      10,
+      5,
+      setEnemyBullets,
+      shootAudioRef
+    );
     await delay(1000);
     enemyPos = enemyRef.current.translation();
     await radialShoot(enemyPos, setEnemyBullets, 10, 18, shootAudioRef);
@@ -125,6 +143,7 @@ export default function Overseer({ id, playerRef, position, setEnemyBullets }) {
         type="dynamic"
         gravityScale={0}
         collisionGroups={interactionGroups(1, [0, 1, 2, 4])}
+        linearDamping={1}
         lockRotations
       >
         <primitive
@@ -133,7 +152,7 @@ export default function Overseer({ id, playerRef, position, setEnemyBullets }) {
           position={[0, 0, 0]}
           scale={0.35}
         />
-        <CuboidCollider args={[1, 1, 1]} />
+        <CuboidCollider args={[1.5, 1, 1.5]} />
       </RigidBody>
     </>
   );

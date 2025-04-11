@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Vector2, Vector3 } from "three";
 import useSound from "use-sound";
-import shootSound from '/assets/audio/Retro_Gun_SingleShot_04.wav';
+import shootSound from "/assets/audio/Retro_Gun_SingleShot_04.wav";
 
 export default function useGameLogic(
   playerRef,
@@ -14,6 +14,8 @@ export default function useGameLogic(
   const [playerDirection, setPlayerDirection] = useState(null);
   const [mouse, setMouse] = useState(new Vector2());
   const [dashBar, setDashBar] = useState(2);
+  const dashCooldown = useRef(1000);
+  const maxDashBar = useRef(2);
   const [showDamageOverlay, setShowDamageOverlay] = useState(false);
   const isShoot = useRef(false);
 
@@ -31,11 +33,14 @@ export default function useGameLogic(
   const [enemyBullets, setEnemyBullets] = useState([]);
   const [bosses, setBosses] = useState(null);
   const shootingIntervalRef = useRef(null);
+  const hasBeatBoss = useRef(false);
 
   // sound effects
   const shootAudioRef = useRef();
   useEffect(() => {
-    shootAudioRef.current = new Audio('assets/audio/Retro_Gun_SingleShot_04.wav');
+    shootAudioRef.current = new Audio(
+      "assets/audio/Retro_Gun_SingleShot_04.wav"
+    );
   }, []);
 
   // invincibility frame
@@ -229,7 +234,13 @@ export default function useGameLogic(
       setBosses((prev) => {
         if (!prev) return null;
         const newHealth = prev.health - 10;
-        return newHealth <= 0 ? null : { ...prev, health: newHealth };
+
+        if (newHealth <= 0) {
+          hasBeatBoss.current = true;
+          return null;
+        }
+
+        return { ...prev, health: newHealth };
       });
     }
     handleRemoveBullet(bulletId);
@@ -260,6 +271,8 @@ export default function useGameLogic(
     setEnemies,
     playerHealth,
     dashBar,
+    dashCooldown,
+    maxDashBar,
     setDashBar,
     showDamageOverlay,
     handleBulletCollision,
@@ -268,5 +281,6 @@ export default function useGameLogic(
     setBosses,
     isInvincible,
     isShoot,
+    hasBeatBoss,
   };
 }

@@ -5,13 +5,17 @@ import HallwayMesh from "./HallwayMesh"; // adjust path as needed
 function getRoomDimensions(roomValue) {
   switch (roomValue) {
     case 0: // StartingRoom
-      return { width: 25, depth: 20 };
+      return { width: 18, depth: 18 };
     case 1: // SmallRoomTemplate
       return { width: 25, depth: 20 };
     case 2: // MediumRoomTemplate
       return { width: 30, depth: 25 };
     case 3: // SquareRoomTemplate
       return { width: 25, depth: 25 };
+    case 5:
+      return {width: 27, depth: 27};
+    case 6:
+      return {width: 18, depth: 18};
     default:
       return { width: 25, depth: 20 };
   }
@@ -72,7 +76,7 @@ export function Hallways({ layout, cellSize, playerRef }) {
               <HallwayMesh
                 key={`hallway-h-${i}-${j}`}
                 position={[hallCenterX, -0.01, hallCenterZ]}
-                geometryArgs={[hallwayLength + 5, 1, 4]}
+                geometryArgs={[hallwayLength + 10, 1, 4]}
                 materialColor="white"
                 playerPos={playerPos}
               />
@@ -98,11 +102,10 @@ export function Hallways({ layout, cellSize, playerRef }) {
             hallways.push(
               <HallwayMesh
                 key={`hallway-v-${i}-${j}`}
-                position={[hallCenterX - 0.5, -0.01, hallCenterZ]}
-                geometryArgs={[4, 1, hallwayLength + 5]}
+                position={[hallCenterX, -0.01, hallCenterZ]}
+                geometryArgs={[4, 1, hallwayLength + 10]}
                 materialColor="white"
                 playerPos={playerPos}
-
               />
             );
           }
