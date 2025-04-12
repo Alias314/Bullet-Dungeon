@@ -29,7 +29,7 @@ export default function Player({
   });
   const [isDashing, setIsDashing] = useState(false);
   const [dashDirection, setDashDirection] = useState(new Vector3());
-  const speedMultiplier = 8;
+  const speedMultiplier = 30;
   const dashForce = 20;
   const dashDuration = 0.2;
   const dashAudioRef = useRef();

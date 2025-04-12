@@ -39,8 +39,6 @@ import VictoryOverlay from "./VictoryOverlay";
 export default function Scene() {
   const playerRef = useRef();
   const [selectedWeapon, setSelectedWeapon] = useState("pistol");
-  const level = useRef(1);
-  const [layout, setLayout] = useState(() => generateLayout(level.current));
   const audioRef = useRef(null);
   const [hasClickedSplashScreen, setHasClickedSplashScreen] = useState(false);
   const shakeRef = useRef(0);
@@ -73,6 +71,10 @@ export default function Scene() {
     setBosses,
     isInvincible,
     hasBeatBoss,
+    level,
+    layout,
+    setLayout,
+    handlePlayAgain
   } = useGameLogic(playerRef, selectedWeapon, triggerCameraShake);
 
   useEffect(() => {}, [hasClickedSplashScreen]);
@@ -256,7 +258,7 @@ export default function Scene() {
           maxDashBar={maxDashBar}
         />
       )}
-      {hasBeatBoss.current && <VictoryOverlay />}
+      {hasBeatBoss.current && <VictoryOverlay handlePlayAgain={handlePlayAgain} />}
     </div>
   );
 }

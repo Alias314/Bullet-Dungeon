@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-// yea this suppose to be in a UI elements component or something but imma just place it here for now
 export function HealthBar({ health }) {
   return (
     <div className="absolute top-2 left-2 bg-red-500 p-2 text-white text-2xl font-semibold">
@@ -9,20 +8,18 @@ export function HealthBar({ health }) {
   );
 }
 
-// this too
-export function ManaBar() {
-  return (
-    <div className="absolute top-15 left-2 bg-blue-500 p-2 text-white text-2xl font-semibold">
-      Mana: {mana}
-    </div>
-  );
-}
-
-// and this too
 export function DashBar({ dashBar }) {
   return (
     <div className="absolute top-15 left-2 bg-blue-500 p-2 text-white text-2xl font-semibold">
       Dashes: {dashBar}
+    </div>
+  );
+}
+
+export function CurrentWeapon({ currentWeapon }) {
+  return (
+    <div className="absolute bottom-2 left-2 bg-blue-500 p-2 text-white text-2xl font-semibold">
+      {currentWeapon}
     </div>
   );
 }

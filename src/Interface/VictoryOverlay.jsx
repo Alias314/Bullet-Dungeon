@@ -1,10 +1,19 @@
-import { useEffect } from "react";
-
-export default function VictoryOverlay() {
+export default function VictoryOverlay({ handlePlayAgain }) {
   return (
-    <div className="absolute inset-0 bg-black flex flex-col items-center justify-center text-white z-50 opacity-50">
-      <h2 className="text-5xl font-bold mb-4 animate-bounce">Damn your so pro 😎</h2>
-      <p className="text-2xl animate-bounce">Play again button? nah just refresh</p>
+    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center">
+      <div className="absolute inset-0 bg-black opacity-50" />
+
+      <div className="relative text-white flex flex-col items-center">
+        <h2 className="text-5xl font-bold mb-4 animate-bounce">
+          Damn you're so pro 😎
+        </h2>
+        <button
+          className="p-4 w-64 text-3xl text-white bg-amber-700 rounded-3xl hover:bg-amber-600 transition duration-200"
+          onClick={handlePlayAgain}
+        >
+          Play Again
+        </button>
+      </div>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Vector2, Vector3 } from "three";
 import useSound from "use-sound";
 import shootSound from "/assets/audio/Retro_Gun_SingleShot_04.wav";
+import { generateLayout } from "../../Environment/GenerateLayout";
 
 export default function useGameLogic(
   playerRef,
@@ -9,13 +10,16 @@ export default function useGameLogic(
   triggerCameraShake
 ) {
   // player
-  const [playerHealth, setPlayerHealth] = useState(1000000);
+  const initialHealth = 10;
+  const initialDashCooldown = 1000;
+  const initialMaxDashBar = 2;
+  const [playerHealth, setPlayerHealth] = useState(initialHealth);
   const [playerBullets, setPlayerBullets] = useState([]);
   const [playerDirection, setPlayerDirection] = useState(null);
   const [mouse, setMouse] = useState(new Vector2());
   const [dashBar, setDashBar] = useState(2);
-  const dashCooldown = useRef(1000);
-  const maxDashBar = useRef(2);
+  const dashCooldown = useRef(initialDashCooldown);
+  const maxDashBar = useRef(initialMaxDashBar);
   const [showDamageOverlay, setShowDamageOverlay] = useState(false);
   const isShoot = useRef(false);
 
@@ -34,6 +38,10 @@ export default function useGameLogic(
   const [bosses, setBosses] = useState(null);
   const shootingIntervalRef = useRef(null);
   const hasBeatBoss = useRef(false);
+
+  // level
+  const level = useRef(1);
+  const [layout, setLayout] = useState(() => generateLayout(level.current));
 
   // sound effects
   const shootAudioRef = useRef();
@@ -259,6 +267,26 @@ export default function useGameLogic(
     }
   };
 
+  // const showVictoryOverlay = useRef(false);
+  const handlePlayAgain = () => {
+    // const initialHealth = 10;
+    // const initialDashCooldown = 1000;
+    // const initialMaxDashBar = 2;
+    // const [playerHealth, setPlayerHealth] = useState(initialHealth);
+    // const dashCooldown = useRef(initialDashCooldown);
+    // const maxDashBar = useRef(initialMaxDashBar);
+
+    setPlayerHealth(initialHealth);
+    dashCooldown.current = initialDashCooldown;
+    maxDashBar.current = initialMaxDashBar;
+    level.current = 1;
+    setLayout(generateLayout(level.current));
+    hasBeatBoss.current = false;
+    playerRef.current.setTranslation(new Vector3(0, 1, 0), true);
+
+    // showVictoryOverlay.current = false;
+  };
+
   return {
     mouse,
     playerBullets,
@@ -282,5 +310,9 @@ export default function useGameLogic(
     isInvincible,
     isShoot,
     hasBeatBoss,
+    level,
+    layout,
+    setLayout,
+    handlePlayAgain,
   };
 }
