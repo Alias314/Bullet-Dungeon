@@ -26,28 +26,7 @@ export default function useRoomWaveSpawner({
       z: Math.abs(position[2] - playerPos.z),
     };
   }
-
-  // Spawn the first wave when the player is close to the room center.
-  // useEffect(() => {
-  //   if (!playerPos) return;
-  //   const { x, z } = computeAbsDistance();
-  //   // Check that player is in range and no wave is in progress
-  //   if (x <= roomWidth / 2 - 3 && z <= roomDepth / 2 - 3 && wave === 0 && !isSpawning) {
-  //     setIsSpawning(true);
-  //     const newEnemies = summonEnemies(roomDimensions, position, setAmountEnemy).map(
-  //       enemy => ({ ...enemy, showIndicator: true })
-  //     );
-  //     setEnemies(newEnemies);
-  //     setWave(0);
-  //     delay(1000).then(() => {
-  //       setEnemies(prevEnemies =>
-  //         prevEnemies.map(enemy => ({ ...enemy, showIndicator: false }))
-  //       );
-  //       setIsSpawning(false);
-  //     });
-  //   }
-  // }, [playerPos, wave, position, roomDimensions, setEnemies, setAmountEnemy, roomWidth, roomDepth, isSpawning]);
-
+  
   // Spawn subsequent waves when the current wave is cleared.
   useEffect(() => {
     if (!playerPos) return;

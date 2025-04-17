@@ -6,7 +6,6 @@ import { generateLayout } from "../../Environment/GenerateLayout";
 
 export default function useGameLogic(
   playerRef,
-  selectedWeapon,
   triggerCameraShake
 ) {
   // player
@@ -27,9 +26,10 @@ export default function useGameLogic(
   const weaponConfig = {
     pistol: { interval: 400, auto: true },
     shotgun: { interval: 1200, auto: false },
-    minigun: { interval: 100, auto: true },
+    machineGun: { interval: 100, auto: true },
     railgun: { interval: 2000, auto: false },
   };
+  const [currentWeapon, setCurrentWeapon] = useState('pistol');
 
   // enemy
   const [enemies, setEnemies] = useState([]);
@@ -42,6 +42,8 @@ export default function useGameLogic(
   // level
   const level = useRef(1);
   const [layout, setLayout] = useState(() => generateLayout(level.current));
+  const isGameRunning = useRef(true);
+  const gameResetKey = useRef(0);
 
   // sound effects
   const shootAudioRef = useRef();
@@ -75,133 +77,140 @@ export default function useGameLogic(
 
   // player shooting
   useEffect(() => {
-    let shootingInterval = null;
+    if (isGameRunning.current) {
+      let shootingInterval = null;
 
-    // calculate mouse position
-    const handlePointerMove = (e) => {
-      setMouse(
-        new Vector2(
-          (e.clientX / window.innerWidth) * 2 - 1,
-          -(e.clientY / window.innerHeight) * 2 + 1
-        )
-      );
-    };
-
-    // spawn bullets based on selected weapon
-    const fireBullet = () => {
-      if (!playerRef.current || !playerDirectionRef.current) return;
-
-      if (triggerCameraShake) {
-        triggerCameraShake();
-      }
-
-      if (shootAudioRef.current) {
-        const soundClone = shootAudioRef.current.cloneNode();
-        soundClone.play();
-      }
-
-      const bulletSpeed = 40;
-      const playerPos = playerRef.current.translation();
-      const amountPellet = 5;
-      const spreadAngle = 1;
-
-      if (selectedWeapon === "pistol") {
-        const bulletSpawnPosition = [playerPos.x, 1, playerPos.z];
-        const velocity = {
-          x: playerDirectionRef.current.x * bulletSpeed,
-          y: 0,
-          z: playerDirectionRef.current.z * bulletSpeed,
-        };
-        setPlayerBullets((prev) => [
-          ...prev,
-          { id: Math.random(), position: bulletSpawnPosition, velocity },
-        ]);
-      } else if (selectedWeapon === "shotgun") {
-        const pellets = [];
-        for (let i = 0; i < amountPellet; i++) {
-          const angleOffset = (Math.random() - 0.5) * spreadAngle;
-          const direction = new Vector3(
-            playerDirectionRef.current.x,
-            0,
-            playerDirectionRef.current.z
+      // calculate mouse position
+      const handlePointerMove = (e) => {
+        setMouse(
+          new Vector2(
+            (e.clientX / window.innerWidth) * 2 - 1,
+            -(e.clientY / window.innerHeight) * 2 + 1
           )
-            .applyAxisAngle(new Vector3(0, 1, 0), angleOffset)
-            .normalize();
-          const velocity = {
-            x: direction.x * bulletSpeed,
-            y: 0,
-            z: direction.z * bulletSpeed,
-          };
-          pellets.push({
-            id: Math.random(),
-            position: [playerPos.x, 1, playerPos.z],
-            velocity,
-          });
-        }
-        setPlayerBullets((prev) => [...prev, ...pellets]);
-      } else if (selectedWeapon === "minigun") {
-        const bulletSpawnPosition = [playerPos.x, 1, playerPos.z];
-        const velocity = {
-          x: playerDirectionRef.current.x * bulletSpeed,
-          y: 0,
-          z: playerDirectionRef.current.z * bulletSpeed,
-        };
-        setPlayerBullets((prev) => [
-          ...prev,
-          { id: Math.random(), position: bulletSpawnPosition, velocity },
-        ]);
-      }
-
-      isShoot.current = true;
-    };
-
-    // hold mouse button to shoot
-    const handlePointerDown = () => {
-      if (
-        playerRef.current &&
-        playerDirectionRef.current &&
-        !shootingIntervalRef.current
-      ) {
-        let weaponShootingInterval;
-        if (selectedWeapon === "pistol") {
-          weaponShootingInterval = 400;
-        } else if (selectedWeapon === "shotgun") {
-          weaponShootingInterval = 1200;
-        } else if (selectedWeapon === "minigun") {
-          weaponShootingInterval = 100;
-        } else if (selectedWeapon === "railgun") {
-          weaponShootingInterval = 2000;
-        }
-
-        fireBullet();
-        shootingIntervalRef.current = setInterval(
-          fireBullet,
-          weaponShootingInterval
         );
-      }
-    };
+      };
 
-    const handlePointerUp = () => {
-      if (shootingIntervalRef.current) {
-        clearInterval(shootingIntervalRef.current);
-        shootingIntervalRef.current = null;
-      }
-    };
+      // spawn bullets based on selected weapon
+      const fireBullet = () => {
+        if (!playerRef.current || !playerDirectionRef.current) return;
 
-    window.addEventListener("pointermove", handlePointerMove);
-    window.addEventListener("pointerdown", handlePointerDown);
-    window.addEventListener("pointerup", handlePointerUp);
+        if (triggerCameraShake) {
+          triggerCameraShake();
+        }
 
-    return () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerdown", handlePointerDown);
-      window.removeEventListener("pointerup", handlePointerUp);
+        if (shootAudioRef.current) {
+          const soundClone = shootAudioRef.current.cloneNode();
+          soundClone.play();
+        }
 
-      if (shootingIntervalRef.current) {
-        clearInterval(shootingIntervalRef.current);
-      }
-    };
-  }, [selectedWeapon, playerRef]);
+        const bulletSpeed = 40;
+        const playerPos = playerRef.current.translation();
+        const amountPellet = 5;
+        const spreadAngle = 1;
+
+        if (currentWeapon === "pistol") {
+          const bulletSpawnPosition = [playerPos.x, 1, playerPos.z];
+          const velocity = {
+            x: playerDirectionRef.current.x * bulletSpeed,
+            y: 0,
+            z: playerDirectionRef.current.z * bulletSpeed,
+          };
+          setPlayerBullets((prev) => [
+            ...prev,
+            { id: Math.random(), position: bulletSpawnPosition, velocity },
+          ]);
+        } else if (currentWeapon === "shotgun") {
+          const pellets = [];
+          for (let i = 0; i < amountPellet; i++) {
+            const angleOffset = (Math.random() - 0.5) * spreadAngle;
+            const direction = new Vector3(
+              playerDirectionRef.current.x,
+              0,
+              playerDirectionRef.current.z
+            )
+              .applyAxisAngle(new Vector3(0, 1, 0), angleOffset)
+              .normalize();
+            const velocity = {
+              x: direction.x * bulletSpeed,
+              y: 0,
+              z: direction.z * bulletSpeed,
+            };
+            pellets.push({
+              id: Math.random(),
+              position: [playerPos.x, 1, playerPos.z],
+              velocity,
+            });
+          }
+          setPlayerBullets((prev) => [...prev, ...pellets]);
+        } else if (currentWeapon === "machineGun") {
+          const bulletSpawnPosition = [playerPos.x, 1, playerPos.z];
+          const velocity = {
+            x: playerDirectionRef.current.x * bulletSpeed,
+            y: 0,
+            z: playerDirectionRef.current.z * bulletSpeed,
+          };
+          setPlayerBullets((prev) => [
+            ...prev,
+            { id: Math.random(), position: bulletSpawnPosition, velocity },
+          ]);
+        }
+
+        isShoot.current = true;
+      };
+
+      // hold mouse button to shoot
+      const handlePointerDown = () => {
+        if (
+          playerRef.current &&
+          playerDirectionRef.current &&
+          !shootingIntervalRef.current &&
+          isGameRunning.current
+        ) {
+          let weaponShootingInterval;
+          if (currentWeapon === "pistol") {
+            weaponShootingInterval = 400;
+          } else if (currentWeapon === "shotgun") {
+            weaponShootingInterval = 1200;
+          } else if (currentWeapon === "machineGun") {
+            weaponShootingInterval = 100;
+          } else if (currentWeapon === "railgun") {
+            weaponShootingInterval = 2000;
+          }
+
+          fireBullet();
+          shootingIntervalRef.current = setInterval(
+            fireBullet,
+            weaponShootingInterval
+          );
+        }
+      };
+
+      const handlePointerUp = () => {
+        if (shootingIntervalRef.current) {
+          clearInterval(shootingIntervalRef.current);
+          shootingIntervalRef.current = null;
+        }
+      };
+
+      window.addEventListener("pointermove", handlePointerMove);
+      window.addEventListener("pointerdown", handlePointerDown);
+      window.addEventListener("pointerup", handlePointerUp);
+
+      return () => {
+        window.removeEventListener("pointermove", handlePointerMove);
+        window.removeEventListener("pointerdown", handlePointerDown);
+        window.removeEventListener("pointerup", handlePointerUp);
+
+        if (shootingIntervalRef.current) {
+          clearInterval(shootingIntervalRef.current);
+        }
+      };
+    }
+  }, [currentWeapon, playerRef]);
+
+  useEffect(() => {
+    console.log(isShoot.current);
+  }, [isShoot]);
 
   // remove bullets
   const handleRemoveBullet = (bulletId) => {
@@ -232,7 +241,7 @@ export default function useGameLogic(
       const enemyId = parseInt(other.rigidBodyObject.name.split("-")[1]);
       handleRemoveEnemy(enemyId);
     } else if (other.rigidBodyObject.name === "Player") {
-      if (!isInvincibleRef.current) {
+      if (!isInvincibleRef.current && playerHealth >= 1) {
         setPlayerHealth((prev) => prev - 1);
         setShowDamageOverlay(true);
         setIsInvincible(true);
@@ -267,15 +276,14 @@ export default function useGameLogic(
     }
   };
 
-  // const showVictoryOverlay = useRef(false);
-  const handlePlayAgain = () => {
-    // const initialHealth = 10;
-    // const initialDashCooldown = 1000;
-    // const initialMaxDashBar = 2;
-    // const [playerHealth, setPlayerHealth] = useState(initialHealth);
-    // const dashCooldown = useRef(initialDashCooldown);
-    // const maxDashBar = useRef(initialMaxDashBar);
+  useEffect(() => {
+    if (playerHealth === 0) {
+      isGameRunning.current = false;
+      console.log('bro is dead');
+    }
+  }, [playerHealth]);
 
+  const handlePlayAgain = () => {
     setPlayerHealth(initialHealth);
     dashCooldown.current = initialDashCooldown;
     maxDashBar.current = initialMaxDashBar;
@@ -283,13 +291,19 @@ export default function useGameLogic(
     setLayout(generateLayout(level.current));
     hasBeatBoss.current = false;
     playerRef.current.setTranslation(new Vector3(0, 1, 0), true);
-
-    // showVictoryOverlay.current = false;
+    setEnemies([]);
+    setAmountEnemy(0);
+    setEnemyBullets([]);
+    setBosses(null);
+    setCurrentWeapon('pistol');
+    isGameRunning.current = true;
+    gameResetKey.current++;
   };
 
   return {
     mouse,
     playerBullets,
+    setPlayerBullets,
     enemyBullets,
     setEnemyBullets,
     setPlayerDirection,
@@ -314,5 +328,9 @@ export default function useGameLogic(
     layout,
     setLayout,
     handlePlayAgain,
+    isGameRunning,
+    gameResetKey,
+    currentWeapon,
+    setCurrentWeapon
   };
 }

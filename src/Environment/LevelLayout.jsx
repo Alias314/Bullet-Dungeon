@@ -19,7 +19,10 @@ export default function LevelLayout({
   setShowRoomClear,
   setLayout,
   level,
-  setHasBeatLevel
+  setHasBeatLevel,
+  gameResetKey,
+  currentWeapon,
+  setCurrentWeapon
 }) {
   const cellSize = 37;
 
@@ -60,7 +63,7 @@ export default function LevelLayout({
             case 0:
               return (
                 <StartingRoom
-                  key={`room-${i}-${j}`}
+                  key={`room-${i}-${j}-${gameResetKey.current}`}
                   position={position}
                   playerRef={playerRef}
                   openings={openings}
@@ -80,7 +83,7 @@ export default function LevelLayout({
             case 1:
               return (
                 <SmallRoomTemplate
-                  key={`room-${i}-${j}`}
+                  key={`room-${i}-${j}-${gameResetKey.current}`}
                   position={position}
                   playerRef={playerRef}
                   openings={openings}
@@ -93,7 +96,7 @@ export default function LevelLayout({
             case 2:
               return (
                 <MediumRoomTemplate
-                  key={`room-${i}-${j}`}
+                  key={`room-${i}-${j}-${gameResetKey.current}`}
                   position={position}
                   playerRef={playerRef}
                   openings={openings}
@@ -106,7 +109,7 @@ export default function LevelLayout({
             case 3:
               return (
                 <SquareRoomTemplate
-                  key={`room-${i}-${j}`}
+                  key={`room-${i}-${j}-${gameResetKey.current}`}
                   position={position}
                   playerRef={playerRef}
                   openings={openings}
@@ -119,15 +122,22 @@ export default function LevelLayout({
             case 4:
               return (
                 <ChestRoom
-                  key={`room-${i}-${j}`}
+                  key={`room-${i}-${j}-${gameResetKey.current}`}
                   position={position}
+                  playerRef={playerRef}
                   openings={openings}
+                  amountEnemy={amountEnemy}
+                  setAmountEnemy={setAmountEnemy}
+                  setEnemies={setEnemies}
+                  setShowRoomClear={setShowRoomClear}
+                  currentWeapon={currentWeapon}
+                  setCurrentWeapon={setCurrentWeapon}
                 />
               );
             case 5:
               return (
                 <OverseerBossRoom
-                  key={`room-${i}-${j}`}
+                  key={`room-${i}-${j}-${gameResetKey.current}`}
                   position={position}
                   playerRef={playerRef}
                   openings={openings}
@@ -138,7 +148,7 @@ export default function LevelLayout({
             case 6:
               return (
                 <PortalRoom
-                  key={`room-${i}-${j}`}
+                  key={`room-${i}-${j}-${gameResetKey.current}`}
                   position={position}
                   playerRef={playerRef}
                   openings={openings}

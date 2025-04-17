@@ -29,7 +29,6 @@ export default function RoomModel({
     : null;
   const maxWavesRef = useRef(Math.floor(Math.random() * 3) + 1);
 
-  // Call the custom hook that handles wave/enemy spawning logic.
   useRoomWaveSpawner({
     playerPos,
     position,

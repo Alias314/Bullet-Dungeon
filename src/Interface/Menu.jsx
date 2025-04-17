@@ -13,7 +13,7 @@ const getRandomPosition = () => {
 };
 
 function FloatingModel() {
-  const { scene } = useGLTF("/assets/models/mainMenuModel.glb");
+  const { scene } = useGLTF("/assets/models/knightPlayer.glb");
   // const { scene } = useGLTF("/assets/models/boss.glb");
   const modelRef = useRef();
   let time = 0;
@@ -21,8 +21,8 @@ function FloatingModel() {
   useFrame((_, delta) => {
     time += delta;
     if (modelRef.current) {
-      modelRef.current.position.y = Math.sin(time) * 0.1;
-      modelRef.current.rotation.y = Math.sin(time) * 0.1;
+      modelRef.current.position.y = Math.sin(time) * 0.1 + 0.4;
+      // modelRef.current.rotation.y = Math.sin(time) * 0.1;
       modelRef.current.rotation.x = Math.cos(time) * 0.05;
 
       // modelRef.current.position.y = Math.sin(time) * 0.1 + 0.6;

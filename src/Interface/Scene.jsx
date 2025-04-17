@@ -21,7 +21,7 @@ import Minimap from "./Minimap";
 import DamageOverlay from "./DamageOverlay";
 import { generateLayout } from "../Environment/GenerateLayout";
 import { CameraController } from "./Logic/CameraController";
-
+import GameOverOverlay from "./GameOverOverlay";
 import useGameLogic from "./Logic/GameLogic";
 import { CustomRoom } from "../Environment/RoomLayout";
 
@@ -38,8 +38,6 @@ import VictoryOverlay from "./VictoryOverlay";
 
 export default function Scene() {
   const playerRef = useRef();
-  const [selectedWeapon, setSelectedWeapon] = useState("pistol");
-  const audioRef = useRef(null);
   const [hasClickedSplashScreen, setHasClickedSplashScreen] = useState(false);
   const shakeRef = useRef(0);
   const [showRoomClear, setShowRoomClear] = useState(false);
@@ -52,6 +50,7 @@ export default function Scene() {
   const {
     mouse,
     playerBullets,
+    setPlayerBullets,
     enemyBullets,
     setEnemyBullets,
     setPlayerDirection,
@@ -70,27 +69,19 @@ export default function Scene() {
     bosses,
     setBosses,
     isInvincible,
+    isShoot,
     hasBeatBoss,
     level,
     layout,
     setLayout,
-    handlePlayAgain
-  } = useGameLogic(playerRef, selectedWeapon, triggerCameraShake);
+    handlePlayAgain,
+    isGameRunning,
+    gameResetKey,
+    currentWeapon,
+    setCurrentWeapon
+  } = useGameLogic(playerRef, triggerCameraShake);
 
   useEffect(() => {}, [hasClickedSplashScreen]);
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "1") setSelectedWeapon("pistol");
-      else if (e.key === "2") setSelectedWeapon("shotgun");
-      else if (e.key === "3") setSelectedWeapon("minigun");
-      else if (e.key === "4") setSelectedWeapon("railgun");
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
-  if (playerHealth <= 0) return <GameOver />;
 
   useEffect(() => {
     if (hasClickedSplashScreen) {
@@ -109,11 +100,15 @@ export default function Scene() {
     }
   }, [showRoomClear]);
 
+  useEffect(() => {
+    console.log(isShoot.current);
+  }, [isShoot]);
+  
   return (
     <div className="w-screen h-screen relative bg-gray-900">
       <Canvas
         className="w-full h-full"
-        camera={{ position: [0, 14, 6] }}
+        camera={{ position: [0, 8, 6] }}
         shadows
       >
         <ambientLight intensity={1} />
@@ -147,6 +142,9 @@ export default function Scene() {
               isInvincible={isInvincible}
               dashCooldown={dashCooldown.current}
               maxDashBar={maxDashBar.current}
+              isGameRunning={isGameRunning}
+              currentWeapon={currentWeapon}
+              isShoot={isShoot}
             />
             {enemies &&
               enemies.map((enemy) => {
@@ -236,6 +234,9 @@ export default function Scene() {
               setLayout={setLayout}
               level={level}
               setHasBeatLevel={setHasBeatLevel}
+              gameResetKey={gameResetKey}
+              currentWeapon={currentWeapon}
+              setCurrentWeapon={setCurrentWeapon}
             />
           </Physics>
         </Suspense>
@@ -256,9 +257,16 @@ export default function Scene() {
           setDashBar={setDashBar}
           dashCooldown={dashCooldown}
           maxDashBar={maxDashBar}
+          setPlayerBullets={setPlayerBullets}
+          playerRef={playerRef}
         />
       )}
-      {hasBeatBoss.current && <VictoryOverlay handlePlayAgain={handlePlayAgain} />}
+      {hasBeatBoss.current && (
+        <VictoryOverlay handlePlayAgain={handlePlayAgain} />
+      )}
+      {playerHealth <= 0 && (
+        <GameOverOverlay handlePlayAgain={handlePlayAgain} />
+      )}
     </div>
   );
 }

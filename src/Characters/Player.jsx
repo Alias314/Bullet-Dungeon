@@ -6,6 +6,8 @@ import {
   RigidBody,
 } from "@react-three/rapier";
 import { Raycaster, Vector3, Plane, Quaternion } from "three";
+import { useGLTF } from "@react-three/drei";
+import Pistol from "../Environment/Items/Pistol";
 
 export default function Player({
   playerRef,
@@ -15,7 +17,10 @@ export default function Player({
   setDashBar,
   isInvincible,
   dashCooldown,
-  maxDashBar
+  maxDashBar,
+  isGameRunning,
+  currentWeapon,
+  isShoot,
 }) {
   const meshRef = useRef();
   const raycaster = useRef(new Raycaster());
@@ -29,16 +34,17 @@ export default function Player({
   });
   const [isDashing, setIsDashing] = useState(false);
   const [dashDirection, setDashDirection] = useState(new Vector3());
-  const speedMultiplier = 30;
+  const speedMultiplier = 8;
   const dashForce = 20;
   const dashDuration = 0.2;
   const dashAudioRef = useRef();
   useEffect(() => {
-    dashAudioRef.current = new Audio('assets/audio/Retro_Swooosh_16.wav');
+    dashAudioRef.current = new Audio("assets/audio/Retro_Swooosh_16.wav");
   }, []);
+  const localTime = useRef(0);
 
-  useFrame(() => {
-    if (playerRef.current) {
+  useFrame((_, delta) => {
+    if (playerRef.current && isGameRunning.current) {
       let input = new Vector3(
         (keyPressed["d"] ? 1 : 0) + (keyPressed["a"] ? -1 : 0),
         0,
@@ -68,6 +74,14 @@ export default function Player({
 
         setPlayerDirection(direction);
       }
+    } else if (!isGameRunning.current) {
+      playerRef.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+    }
+
+    if (knightHeadRef.current) {
+      localTime.current += delta * 8;
+
+      knightHeadRef.current.position.y = Math.sin(localTime.current) * 0.03 + 0.7;
     }
   });
 
@@ -124,6 +138,10 @@ export default function Player({
     }
   }, [dashBar]);
 
+  const { scene: knightBody } = useGLTF("/assets/models/knightBody.glb");
+  const { scene: knightHead } = useGLTF("/assets/models/knightHead.glb");
+  const knightHeadRef = useRef(null);
+
   return (
     <RigidBody
       ref={playerRef}
@@ -139,30 +157,17 @@ export default function Player({
       }
       lockRotations
     >
-      <mesh ref={meshRef} castShadow receiveShadow>
-        <boxGeometry />
-        <meshStandardMaterial
-          color="orange"
-          transparent={true}
-          opacity={isInvincible ? 0.5 : 1}
+      <primitive object={knightBody} position={[0, 0, 0]} scale={0.5} />
+      <primitive ref={knightHeadRef} object={knightHead} position={[0, 0.7, 0]} scale={0.5} />
+
+      {currentWeapon === "pistol" && (
+        <Pistol
+          position={[0.25, 0.55, -0.35]}
+          isDroppedWeapon={false}
+          isShoot={isShoot}
         />
-      </mesh>
-      <mesh position={[0.25, 0.2, 0.51]}>
-        <circleGeometry args={[0.15, 12]} />
-        <meshStandardMaterial color="white" />
-      </mesh>
-      <mesh position={[0.22, 0.15, 0.52]}>
-        <circleGeometry args={[0.08, 12]} />
-        <meshStandardMaterial color="black" />
-      </mesh>
-      <mesh position={[-0.25, 0.2, 0.51]}>
-        <circleGeometry args={[0.15, 12]} />
-        <meshStandardMaterial color="white" />
-      </mesh>
-      <mesh position={[-0.22, 0.15, 0.52]}>
-        <circleGeometry args={[0.08, 12]} />
-        <meshStandardMaterial color="black" />
-      </mesh>
+      )}
+
       <CuboidCollider args={[0.5, 0.5, 0.5]} />
     </RigidBody>
   );

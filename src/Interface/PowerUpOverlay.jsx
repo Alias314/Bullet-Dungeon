@@ -6,7 +6,12 @@ export default function PowerUpOverlay({
   setDashBar,
   dashCooldown,
   maxDashBar,
+  setPlayerBullets,
+  playerRef,
 }) {
+  const playerPos =
+    playerRef && playerRef.current ? playerRef.current.translation() : null;
+
   const ninja = () => {
     setDashBar(4);
     dashCooldown.current = 500;

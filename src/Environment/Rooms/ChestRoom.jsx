@@ -1,17 +1,21 @@
+import React, { useState } from "react";
 import Floor from "../Floor";
-import Wall from "../Wall";
-import Gate from "../Gate";
-// import { HallwayHorizontal, HallwayVertical } from "../Hallway";
-import { useRef, useEffect } from "react";
+import WallsAndGates from "../Logic/CreateWallsAndGates";
 import TreasureChest from "../Obstacles/TreasureChest";
 
 export default function ChestRoom({
   position,
   playerRef,
-  openings = { top: true, bottom: true, left: true, right: true },
+  openings,
+  amountEnemy,
+  setAmountEnemy,
+  setEnemies,
+  setShowRoomClear,
+  currentWeapon,
+  setCurrentWeapon,
 }) {
-  const roomDimensions = [16, 1, 14];
-  const offset = 0.5;
+  const roomDimensions = [20, 1, 20];
+  const [roomWidth, , roomDepth] = roomDimensions;
   const playerPos =
     playerRef && playerRef.current ? playerRef.current.translation() : null;
   const absoluteDistance = playerPos
@@ -22,98 +26,41 @@ export default function ChestRoom({
       ]
     : null;
   const distanceToView = 24;
-  const walls = [];
+  const weapons = ["shotgun", "machineGun"];
 
-  // Custom layout
-  // 0 is nothing,
-  // 1 is wall,
-  // 2 is box (non-destructable),
-  // 3 is box (destructable),
-  // 4 is treasure chest,
-  // 5 is spike trap or something.
-  const layout = [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  ];
-
-  // surround the exterior with walls based on room dimensions
-  // i mean you could do this in the layout but this easier
-  for (let i = 0; i < roomDimensions[2]; i++) {
-    for (let j = 0; j < roomDimensions[0]; j++) {
-      if (
-        i === 0 ||
-        i === roomDimensions[2] - 1 ||
-        j === 0 ||
-        j === roomDimensions[0] - 1
-      ) {
-        layout[i][j] = 1;
-      }
-    }
-  }
-
-  // this is openings for hallway. depends on openings props
-  // for now i just set true to all
-  if (openings.top) {
-    const start = Math.floor((roomDimensions[0] - 4) / 2);
-    for (let j = start; j < start + 4; j++) {
-      layout[0][j] = 0;
-    }
-  }
-  if (openings.bottom) {
-    const start = Math.floor((roomDimensions[0] - 4) / 2);
-    for (let j = start; j < start + 4; j++) {
-      layout[roomDimensions[2] - 1][j] = 0;
-    }
-  }
-  if (openings.left) {
-    const start = Math.floor((roomDimensions[2] - 4) / 2);
-    for (let i = start; i < start + 4; i++) {
-      layout[i][0] = 0;
-    }
-  }
-  if (openings.right) {
-    const start = Math.floor((roomDimensions[2] - 4) / 2);
-    for (let i = start; i < start + 4; i++) {
-      layout[i][roomDimensions[0] - 1] = 0;
-    }
-  }
-
-  // this for adding stuff based on layout
-  // just set an if statement for other obstacles
-  for (let i = 0; i < roomDimensions[2]; i++) {
-    for (let j = 0; j < roomDimensions[0]; j++) {
-      if (layout[i][j] === 1) {
-        walls.push(
-          <Wall
-            key={`${j}-${i}`}
-            position={[
-              position[0] + j - roomDimensions[0] / 2 + offset,
-              2,
-              position[2] + i - roomDimensions[2] / 2 + offset,
-            ]}
-          />
-        );
-      }
-    }
-  }
+  const [treasureState, setTreasureState] = useState({
+    isGunDropped: false,
+    chestGun: weapons[Math.floor(Math.random() * weapons.length)],
+  });
 
   return (
     <>
-      <Floor roomDimensions={roomDimensions} position={position} />
-      <TreasureChest position={[position[0], 1, position[2]]} />
-      {walls}
+      {playerPos &&
+        absoluteDistance &&
+        absoluteDistance[0] <= distanceToView &&
+        absoluteDistance[2] <= distanceToView && (
+          <>
+            <Floor
+              roomDimensions={roomDimensions}
+              position={[position[0], position[1], position[2]]}
+            />
+            <WallsAndGates
+              position={[position[0], position[1], position[2]]}
+              roomDimensions={roomDimensions}
+              openings={openings}
+              amountEnemy={amountEnemy}
+            />
+            <TreasureChest
+              position={[position[0], 1, position[2]]}
+              absoluteDistance={absoluteDistance}
+              playerPos={playerPos}
+              currentWeapon={currentWeapon}
+              setCurrentWeapon={setCurrentWeapon}
+              treasureState={treasureState}
+              setTreasureState={setTreasureState}
+            />
+          </>
+        )}
     </>
   );
 }

@@ -1,5 +1,6 @@
 import React from "react";
 import HallwayMesh from "./HallwayMesh"; // adjust path as needed
+import { depth } from "three/tsl";
 
 // Returns the room dimensions (width and depth) for each room type
 function getRoomDimensions(roomValue) {
@@ -12,6 +13,8 @@ function getRoomDimensions(roomValue) {
       return { width: 30, depth: 25 };
     case 3: // SquareRoomTemplate
       return { width: 25, depth: 25 };
+    case 4:
+      return {width: 20, depth: 20};
     case 5:
       return {width: 27, depth: 27};
     case 6:
