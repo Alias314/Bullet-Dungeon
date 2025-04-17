@@ -166,13 +166,13 @@ export default function Menu() {
       </Canvas>
 
       <h1 className="absolute top-8 left-8 text-2xl text-center font-title text-black font-bold z-10">
-        GunCrawl
+        Gungeon
       </h1>
 
       <div className="absolute flex flex-col top-80 left-30 gap-8">
         <h1 className="text-5xl">A Fast-Paced Dungeon Shooter</h1>
         <p className="w-150 text-xl text-gray-800 leading-relaxed">
-          GunCrawl is a top-down dungeon crawler where you fight your way
+          Gungeon is a top-down dungeon crawler where you fight your way
           through random rooms filled with enemies, traps, and loot. Pick up
           guns, dodge bullets, and descend through multiple levels to face the
           boss. Simple controls, intense action, and endless replayability.
