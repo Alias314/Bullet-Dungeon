@@ -16,7 +16,6 @@ const getRandomPosition = (roomDimensions, position) => {
   return [x, y, z];
 };
 
-// Helper function to calculate Euclidean distance between two positions.
 const distanceBetween = (posA, posB) => {
   const dx = posA[0] - posB[0];
   const dy = posA[1] - posB[1];
@@ -26,7 +25,7 @@ const distanceBetween = (posA, posB) => {
 
 export const summonEnemies = (roomDimensions, position, setAmountEnemy) => {
   const enemyList = [];
-  const amountEnemy = Math.max(Math.random() * 12, 7);
+  const amountEnemy = Math.max(Math.random() * 9, 5);
   const minDistance = 2;
   const maxAttempts = 20;
 

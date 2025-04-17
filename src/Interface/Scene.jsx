@@ -105,10 +105,10 @@ export default function Scene() {
   }, [isShoot]);
   
   return (
-    <div className="w-screen h-screen relative bg-gray-900">
+    <div className="w-screen h-screen relative bg-gray-800">
       <Canvas
         className="w-full h-full"
-        camera={{ position: [0, 8, 6] }}
+        camera={{ position: [0, 8, 8] }}
         shadows
       >
         <ambientLight intensity={1} />
