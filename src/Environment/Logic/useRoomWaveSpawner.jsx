@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { summonEnemies, delay } from "../../Utils/helper";
+import { summonEnemies, delay } from "../../Utils/Helper";
 
 export default function useRoomWaveSpawner({
   playerPos,
