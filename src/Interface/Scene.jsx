@@ -36,12 +36,16 @@ import RoomCLearOverlay from "./RoomClearOverlay";
 import PowerUpOverlay from "./PowerUpOverlay";
 import VictoryOverlay from "./VictoryOverlay";
 
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+
 export default function Scene() {
   const playerRef = useRef();
   const [hasClickedSplashScreen, setHasClickedSplashScreen] = useState(false);
   const shakeRef = useRef(0);
   const [showRoomClear, setShowRoomClear] = useState(false);
   const [hasBeatLevel, setHasBeatLevel] = useState(false);
+  const backgroundTransitionRef = useRef();
 
   const triggerCameraShake = () => {
     shakeRef.current = 0;
@@ -78,7 +82,7 @@ export default function Scene() {
     isGameRunning,
     gameResetKey,
     currentWeapon,
-    setCurrentWeapon
+    setCurrentWeapon,
   } = useGameLogic(playerRef, triggerCameraShake);
 
   useEffect(() => {}, [hasClickedSplashScreen]);
@@ -100,10 +104,27 @@ export default function Scene() {
     }
   }, [showRoomClear]);
 
-  useEffect(() => {
-    console.log(isShoot.current);
-  }, [isShoot]);
-  
+  useGSAP(() => {
+    const context = gsap.context(() => {
+      const timeline = gsap.timeline();
+
+      timeline.fromTo(
+        ".intro-text",
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
+      );
+
+      timeline.to(backgroundTransitionRef.current, {
+        opacity: 0,
+        duration: 1,
+        ease: "power2.in",
+        delay: 0.3,
+      });
+    }, backgroundTransitionRef);
+
+    return () => context.revert();
+  }, []);
+
   return (
     <div className="w-screen h-screen relative bg-gray-800">
       <Canvas
@@ -241,15 +262,16 @@ export default function Scene() {
           </Physics>
         </Suspense>
       </Canvas>
+
       <HealthBar health={playerHealth} />
       <DashBar dashBar={dashBar} />
       <BossHealthBar bosses={bosses} />
       <Minimap layout={layout} playerRef={playerRef} />
-      {showDamageOverlay && <DamageOverlay />}
 
-      {!hasClickedSplashScreen && (
+      {showDamageOverlay && <DamageOverlay />}
+      {/* {!hasClickedSplashScreen && (
         <SplashScreen setHasClickedSplashScreen={setHasClickedSplashScreen} />
-      )}
+      )} */}
       {showRoomClear && <RoomCLearOverlay />}
       {hasBeatLevel && (
         <PowerUpOverlay
@@ -267,6 +289,15 @@ export default function Scene() {
       {playerHealth <= 0 && (
         <GameOverOverlay handlePlayAgain={handlePlayAgain} />
       )}
+
+      <div
+        ref={backgroundTransitionRef}
+        className="w-full h-full inset-0 absolute flex items-center justify-center bg-black pointer-events-none"
+      >
+        <h1 className="intro-text text-7xl text-white font-semibold">
+          Defeat the boss
+        </h1>
+      </div>
     </div>
   );
 }

@@ -42,6 +42,11 @@ export default function Player({
     dashAudioRef.current = new Audio("assets/audio/Retro_Swooosh_16.wav");
   }, []);
   const localTime = useRef(0);
+  const torsoRef = useRef();
+  const walkTime = useRef(0);
+  const BOB_FREQ = 8; // how fast the bob cycles
+  const BOB_HEIGHT = 0.05; // vertical amplitude (meters)
+  const TILT_ANGLE = 0.15;
 
   useFrame((_, delta) => {
     if (playerRef.current && isGameRunning.current) {
@@ -81,7 +86,8 @@ export default function Player({
     if (knightHeadRef.current) {
       localTime.current += delta * 8;
 
-      knightHeadRef.current.position.y = Math.sin(localTime.current) * 0.03 + 0.7;
+      knightHeadRef.current.position.y =
+        Math.sin(localTime.current) * 0.03 + 0.7;
     }
   });
 
@@ -158,7 +164,12 @@ export default function Player({
       lockRotations
     >
       <primitive object={knightBody} position={[0, 0, 0]} scale={0.5} />
-      <primitive ref={knightHeadRef} object={knightHead} position={[0, 0.7, 0]} scale={0.5} />
+      <primitive
+        ref={knightHeadRef}
+        object={knightHead}
+        position={[0, 0.7, 0]}
+        scale={0.5}
+      />
 
       {currentWeapon === "pistol" && (
         <Pistol

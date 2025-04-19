@@ -4,9 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useGLTF } from "@react-three/drei";
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { EffectComposer } from "@react-three/postprocessing";
-import { Bloom } from "@react-three/postprocessing";
-import { DepthOfField, Vignette, Noise } from "@react-three/postprocessing";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 
 const getRandomPosition = () => {
   const offset = 5;
@@ -56,7 +55,6 @@ function Particle({ size }) {
 
     if (meshRef.current.position.y >= 10) {
       meshRef.current.position.set(...getRandomPosition());
-      time = 0;
     }
   });
 
@@ -71,22 +69,35 @@ function Particle({ size }) {
 function FloatingCubes({ size, position, rotation }) {
   const meshRef = useRef(null);
   const localTime = useRef(0);
-  const rotationSpeed = 0.05;
-
+  let rotationSpeed = 0.05;
   const timeOffset = useMemo(() => Math.random() * 10, []);
+  const isHovered = useRef(false);
 
   useFrame((_, delta) => {
     localTime.current += delta;
 
-    const t = localTime.current + timeOffset;
+    let t = localTime.current + timeOffset;
+
+    if (isHovered.current && rotationSpeed <= 2) {
+      rotationSpeed += 0.01;
+    }
+    else if (!isHovered.current && rotationSpeed >= 0.05) {
+      rotationSpeed -= 0.01;
+    }
 
     meshRef.current.position.y = Math.sin(t) * 0.2 + position[1];
-    meshRef.current.rotation.x = t * rotationSpeed + rotation[0];
-    meshRef.current.rotation.z = t * rotationSpeed + rotation[2];
+    meshRef.current.rotation.x += rotationSpeed * 0.01;
+    meshRef.current.rotation.z += rotationSpeed * 0.01;
   });
 
   return (
-    <mesh ref={meshRef} position={position} rotation={rotation}>
+    <mesh
+      onPointerOver={() => (isHovered.current = true)}
+      onPointerOut={() => (isHovered.current = false)}
+      ref={meshRef}
+      position={position}
+      rotation={rotation}
+    >
       <boxGeometry args={size} />
       <meshStandardMaterial color={"white"} />
     </mesh>
@@ -95,20 +106,21 @@ function FloatingCubes({ size, position, rotation }) {
 
 export default function Menu() {
   const navigate = useNavigate();
-  const audioRef = useRef(null);
   const particles = [];
-  const amountParticles = 500;
+  const amountParticles = 250;
+  const backgroundTransitionRef = useRef();
+
 
   for (let i = 0; i < amountParticles; i++) {
     particles.push(<Particle key={i} size={[0.0055, 12]} />);
   }
 
   const handlePlay = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-    navigate("/scene");
+    gsap.to(backgroundTransitionRef.current, {opacity: 1, duration: 0.5, ease: "power2.out"});
+
+    setTimeout(() => {
+      navigate("/scene");
+    }, 1000);
   };
 
   const handleAbout = () => {
@@ -126,6 +138,7 @@ export default function Menu() {
       <Canvas camera={{ position: [2, 1, 3] }}>
         <ambientLight intensity={1.5} />
         <directionalLight position={[0, 10, 10]} intensity={1} castShadow />
+
         <FloatingModel
           size={0.55}
           position={[1.9, 0, -2]}
@@ -172,10 +185,10 @@ export default function Menu() {
       <div className="absolute flex flex-col top-80 left-30 gap-8">
         <h1 className="text-5xl">A Fast-Paced Dungeon Shooter</h1>
         <p className="w-150 text-xl text-gray-800 leading-relaxed">
-          Gungeon is a top-down dungeon crawler where you fight your way
-          through random rooms filled with enemies, traps, and loot. Pick up
-          guns, dodge bullets, and descend through multiple levels to face the
-          boss. Simple controls, intense action, and endless replayability.
+          Gungeon is a top-down dungeon crawler where you fight your way through
+          random rooms filled with enemies, traps, and loot. Pick up guns, dodge
+          bullets, and descend through multiple levels to face the boss. Simple
+          controls, intense action, and endless replayability.
         </p>
         <div className="flex gap-2">
           <button
@@ -197,6 +210,7 @@ export default function Menu() {
         id="about"
         className="min-h-screen bg-white px-8 py-20 rounded-t-4xl"
       >
+        <h1 className="text-4xl text-center mb-25">About</h1>
         <div className="mx-auto max-w-5xl space-y-32">
           <motion.div
             className="grid md:grid-cols-2 gap-10 items-center"
@@ -286,6 +300,10 @@ export default function Menu() {
           </a>
         </div>
       </footer>
+
+      <div ref={backgroundTransitionRef} className="w-full h-full fixed inset-0 bg-black opacity-0 pointer-events-none">
+
+      </div>
     </div>
   );
 }

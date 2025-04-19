@@ -4,10 +4,7 @@ import useSound from "use-sound";
 import shootSound from "/assets/audio/Retro_Gun_SingleShot_04.wav";
 import { generateLayout } from "../../Environment/GenerateLayout";
 
-export default function useGameLogic(
-  playerRef,
-  triggerCameraShake
-) {
+export default function useGameLogic(playerRef, triggerCameraShake) {
   // player
   const initialHealth = 10;
   const initialDashCooldown = 1000;
@@ -24,12 +21,14 @@ export default function useGameLogic(
 
   // Weapon cooldown configuration
   const weaponConfig = {
-    pistol: { interval: 400, auto: true },
+    pistol: { interval: 200, auto: true },
     shotgun: { interval: 1200, auto: false },
     machineGun: { interval: 100, auto: true },
     railgun: { interval: 2000, auto: false },
   };
-  const [currentWeapon, setCurrentWeapon] = useState('pistol');
+  const [currentWeapon, setCurrentWeapon] = useState("pistol");
+  const currentWeaponFireRate = weaponConfig[currentWeapon];
+  const canShoot = useRef(true);
 
   // enemy
   const [enemies, setEnemies] = useState([]);
@@ -78,8 +77,6 @@ export default function useGameLogic(
   // player shooting
   useEffect(() => {
     if (isGameRunning.current) {
-      let shootingInterval = null;
-
       // calculate mouse position
       const handlePointerMove = (e) => {
         setMouse(
@@ -92,7 +89,13 @@ export default function useGameLogic(
 
       // spawn bullets based on selected weapon
       const fireBullet = () => {
-        if (!playerRef.current || !playerDirectionRef.current) return;
+        if (
+          !canShoot.current ||
+          !playerRef.current ||
+          !playerDirectionRef.current
+        ) {
+          return;
+        }
 
         if (triggerCameraShake) {
           triggerCameraShake();
@@ -102,6 +105,12 @@ export default function useGameLogic(
           const soundClone = shootAudioRef.current.cloneNode();
           soundClone.play();
         }
+
+        canShoot.current = false; // start cooldown
+        setTimeout(
+          () => (canShoot.current = true), // end cooldown
+          weaponConfig[currentWeapon].interval
+        );
 
         const bulletSpeed = 40;
         const playerPos = playerRef.current.translation();
@@ -160,22 +169,8 @@ export default function useGameLogic(
 
       // hold mouse button to shoot
       const handlePointerDown = () => {
-        if (
-          playerRef.current &&
-          playerDirectionRef.current &&
-          !shootingIntervalRef.current &&
-          isGameRunning.current
-        ) {
-          let weaponShootingInterval;
-          if (currentWeapon === "pistol") {
-            weaponShootingInterval = 400;
-          } else if (currentWeapon === "shotgun") {
-            weaponShootingInterval = 1200;
-          } else if (currentWeapon === "machineGun") {
-            weaponShootingInterval = 100;
-          } else if (currentWeapon === "railgun") {
-            weaponShootingInterval = 2000;
-          }
+        if (playerRef.current && isGameRunning.current) {
+          let weaponShootingInterval = currentWeaponFireRate.interval;
 
           fireBullet();
           shootingIntervalRef.current = setInterval(
@@ -209,8 +204,14 @@ export default function useGameLogic(
   }, [currentWeapon, playerRef]);
 
   useEffect(() => {
-    console.log(isShoot.current);
-  }, [isShoot]);
+    if (!canShoot) {
+      const timer = setTimeout(() => {
+        setCanShoot(true);
+      }, weaponConfig[currentWeapon].interval);
+
+      return () => clearTimeout(timer);
+    }
+  }, [canShoot, currentWeapon]);
 
   // remove bullets
   const handleRemoveBullet = (bulletId) => {
@@ -279,7 +280,7 @@ export default function useGameLogic(
   useEffect(() => {
     if (playerHealth === 0) {
       isGameRunning.current = false;
-      console.log('bro is dead');
+      console.log("bro is dead");
     }
   }, [playerHealth]);
 
@@ -295,7 +296,7 @@ export default function useGameLogic(
     setAmountEnemy(0);
     setEnemyBullets([]);
     setBosses(null);
-    setCurrentWeapon('pistol');
+    setCurrentWeapon("pistol");
     isGameRunning.current = true;
     gameResetKey.current++;
   };
@@ -331,6 +332,6 @@ export default function useGameLogic(
     isGameRunning,
     gameResetKey,
     currentWeapon,
-    setCurrentWeapon
+    setCurrentWeapon,
   };
 }
