@@ -1,7 +1,6 @@
 import React from "react";
 import Floor from "../Floor";
 import WallsAndGates from "../Logic/CreateWallsAndGates"; // adjust path as needed
-import { delay } from "../../Utils/helper";
 import useRoomWaveSpawner from "../Logic/useRoomWaveSpawner"; // adjust path as needed
 import { useRef } from "react";
 

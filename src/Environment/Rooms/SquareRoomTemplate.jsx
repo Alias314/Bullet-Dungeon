@@ -1,9 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
-import { RigidBody } from "@react-three/rapier";
 import Floor from "../Floor";
 import WallsAndGates from "../Logic/CreateWallsAndGates";
 import useRoomWaveSpawner from "../Logic/useRoomWaveSpawner";
-import RoomCLearOverlay from "../../Interface/RoomClearOverlay"; // make sure the path is correct
 
 // small room is 25x25
 export default function SquareRoomTemplate({

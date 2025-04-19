@@ -1,6 +1,5 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef } from "react";
 import Floor from "../Floor";
-import WallsAndGates from "../Logic/CreateWallsAndGates";
 import WallSegment from "../WallSegment";
 import Gate from "../Gate";
 
