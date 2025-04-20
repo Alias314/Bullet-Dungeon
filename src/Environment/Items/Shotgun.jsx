@@ -5,13 +5,6 @@ import { useEffect } from "react";
 export default function Shotgun({ position, playerPos, currentGun, setCurrentGun }) {
   const localTime = useRef(0);
   const meshRef = useRef(null);
-  const absoluteDistance = playerPos
-    ? [
-        Math.abs(position[0] - playerPos.x),
-        0,
-        Math.abs(position[2] - playerPos.z),
-      ]
-    : null;
 
   useFrame((_, delta) => {
     if (meshRef.current) {

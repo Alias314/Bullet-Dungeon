@@ -8,6 +8,7 @@ import {
 import { Raycaster, Vector3, Plane, Quaternion } from "three";
 import { useGLTF } from "@react-three/drei";
 import Pistol from "../Environment/Items/Pistol";
+import MachineGun from "../Environment/Items/MachineGun";
 
 export default function Player({
   playerRef,
@@ -15,7 +16,6 @@ export default function Player({
   setPlayerDirection,
   dashBar,
   setDashBar,
-  isInvincible,
   dashCooldown,
   maxDashBar,
   isGameRunning,
@@ -42,11 +42,6 @@ export default function Player({
     dashAudioRef.current = new Audio("assets/audio/Retro_Swooosh_16.wav");
   }, []);
   const localTime = useRef(0);
-  const torsoRef = useRef();
-  const walkTime = useRef(0);
-  const BOB_FREQ = 8; // how fast the bob cycles
-  const BOB_HEIGHT = 0.05; // vertical amplitude (meters)
-  const TILT_ANGLE = 0.15;
 
   useFrame((_, delta) => {
     if (playerRef.current && isGameRunning.current) {
@@ -148,6 +143,10 @@ export default function Player({
   const { scene: knightHead } = useGLTF("/assets/models/knightHead.glb");
   const knightHeadRef = useRef(null);
 
+  useEffect(() => {
+    console.log(currentWeapon);
+  }, [currentWeapon]);
+
   return (
     <RigidBody
       ref={playerRef}
@@ -173,8 +172,15 @@ export default function Player({
 
       {currentWeapon === "pistol" && (
         <Pistol
-          position={[0.25, 0.55, -0.35]}
-          isDroppedWeapon={false}
+          key={1}
+          currentWeapon={currentWeapon}
+          isShoot={isShoot}
+        />
+      )}
+      {currentWeapon === "machineGun" && (
+        <MachineGun
+          key={Math.random()}
+          currentWeapon={currentWeapon}
           isShoot={isShoot}
         />
       )}

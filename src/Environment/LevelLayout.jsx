@@ -22,7 +22,8 @@ export default function LevelLayout({
   setHasBeatLevel,
   gameResetKey,
   currentWeapon,
-  setCurrentWeapon
+  setCurrentWeapon,
+  isShoot
 }) {
   const cellSize = 37;
 
@@ -132,6 +133,7 @@ export default function LevelLayout({
                   setShowRoomClear={setShowRoomClear}
                   currentWeapon={currentWeapon}
                   setCurrentWeapon={setCurrentWeapon}
+                  isShoot={isShoot}
                 />
               );
             case 5:

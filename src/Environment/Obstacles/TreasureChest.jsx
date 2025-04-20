@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { useLoader } from "@react-three/fiber";
 import MachineGun from "../Items/MachineGun";
 import Pistol from "../Items/Pistol";
-import Shotgun from "../Items/Shotgun"
+import Shotgun from "../Items/Shotgun";
 
 export default function TreasureChest({
   position,
@@ -14,8 +14,8 @@ export default function TreasureChest({
   setCurrentWeapon,
   treasureState,
   setTreasureState,
+  isShoot
 }) {
-  // Load chest texture.
   const texture = useLoader(
     THREE.TextureLoader,
     "/assets/textures/chest_front.png"
@@ -24,8 +24,6 @@ export default function TreasureChest({
   texture.minFilter = THREE.NearestFilter;
   texture.generateMipmaps = false;
 
-  // Now we use the lifted state:
-  // treasureState: { isGunDropped: boolean, chestGun: string }
   const proximityThreshold = 3;
 
   useEffect(() => {
@@ -37,13 +35,10 @@ export default function TreasureChest({
         absoluteDistance[2] <= proximityThreshold
       ) {
         if (treasureState.isGunDropped) {
-          // Swap the player's weapon with the chest's weapon.
           const temp = currentWeapon;
           setCurrentWeapon(treasureState.chestGun);
           setTreasureState((prev) => ({ ...prev, chestGun: temp }));
-          console.log(currentWeapon);
         } else {
-          // Drop the gun (if it hasn't been dropped yet).
           setTreasureState((prev) => ({ ...prev, isGunDropped: true }));
         }
       }
@@ -77,13 +72,27 @@ export default function TreasureChest({
       {treasureState.isGunDropped && (
         <>
           {treasureState.chestGun === "machineGun" && (
-            <MachineGun position={position} playerPos={playerPos} />
+            <MachineGun
+              key={Math.random()}
+              position={position}
+              currentWeapon={currentWeapon}
+              isShoot={isShoot}
+            />
           )}
           {treasureState.chestGun === "pistol" && (
-            <Pistol position={position} isDroppedWeapon={true} isShoot={false} />
+            <Pistol
+              key={1}
+              position={position}
+              currentWeapon={currentWeapon}
+              isShoot={isShoot}
+            />
           )}
           {treasureState.chestGun === "shotgun" && (
-            <Shotgun position={position} playerPos={playerPos} />
+            <Shotgun
+              key={Math.random()}
+              position={position}
+              playerPos={playerPos}
+            />
           )}
         </>
       )}

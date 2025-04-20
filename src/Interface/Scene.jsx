@@ -104,26 +104,26 @@ export default function Scene() {
     }
   }, [showRoomClear]);
 
-  useGSAP(() => {
-    const context = gsap.context(() => {
-      const timeline = gsap.timeline();
+  // useGSAP(() => {
+  //   const context = gsap.context(() => {
+  //     const timeline = gsap.timeline();
 
-      timeline.fromTo(
-        ".intro-text",
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
-      );
+  //     timeline.fromTo(
+  //       ".intro-text",
+  //       { opacity: 0, y: 20 },
+  //       { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
+  //     );
 
-      timeline.to(backgroundTransitionRef.current, {
-        opacity: 0,
-        duration: 1,
-        ease: "power2.in",
-        delay: 0.3,
-      });
-    }, backgroundTransitionRef);
+  //     timeline.to(backgroundTransitionRef.current, {
+  //       opacity: 0,
+  //       duration: 1,
+  //       ease: "power2.in",
+  //       delay: 0.3,
+  //     });
+  //   }, backgroundTransitionRef);
 
-    return () => context.revert();
-  }, []);
+  //   return () => context.revert();
+  // }, []);
 
   return (
     <div className="w-screen h-screen relative bg-gray-800">
@@ -258,6 +258,7 @@ export default function Scene() {
               gameResetKey={gameResetKey}
               currentWeapon={currentWeapon}
               setCurrentWeapon={setCurrentWeapon}
+              isShoot={isShoot}
             />
           </Physics>
         </Suspense>
@@ -292,7 +293,7 @@ export default function Scene() {
 
       <div
         ref={backgroundTransitionRef}
-        className="w-full h-full inset-0 absolute flex items-center justify-center bg-black pointer-events-none"
+        className="w-full h-full inset-0 absolute flex items-center justify-center bg-black pointer-events-none opacity-0"
       >
         <h1 className="intro-text text-7xl text-white font-semibold">
           Defeat the boss

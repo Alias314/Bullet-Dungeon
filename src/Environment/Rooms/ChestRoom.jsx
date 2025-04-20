@@ -13,6 +13,7 @@ export default function ChestRoom({
   setShowRoomClear,
   currentWeapon,
   setCurrentWeapon,
+  isShoot
 }) {
   const roomDimensions = [20, 1, 20];
   const [roomWidth, , roomDepth] = roomDimensions;
@@ -26,7 +27,8 @@ export default function ChestRoom({
       ]
     : null;
   const distanceToView = 24;
-  const weapons = ["shotgun", "machineGun"];
+  // const weapons = ["shotgun", "machineGun"];
+  const weapons = ["machineGun"];
 
   const [treasureState, setTreasureState] = useState({
     isGunDropped: false,
@@ -58,6 +60,7 @@ export default function ChestRoom({
               setCurrentWeapon={setCurrentWeapon}
               treasureState={treasureState}
               setTreasureState={setTreasureState}
+              isShoot={isShoot}
             />
           </>
         )}

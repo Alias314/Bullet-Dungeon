@@ -13,7 +13,6 @@ const App = () => {
                 {/* <Route path="/" element={<GSAP_Practice />} /> */}
                 <Route path="/" element={<Menu />} />
                 <Route path="/scene" element={<Scene />} />
-                {/* <Route path="/settings" element={<Settings />} /> */}
             </Routes>
         </Router>
     );

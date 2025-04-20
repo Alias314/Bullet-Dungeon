@@ -23,7 +23,7 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
   const weaponConfig = {
     pistol: { interval: 200, auto: true },
     shotgun: { interval: 1200, auto: false },
-    machineGun: { interval: 100, auto: true },
+    machineGun: { interval: 50, auto: true },
     railgun: { interval: 2000, auto: false },
   };
   const [currentWeapon, setCurrentWeapon] = useState("pistol");
@@ -280,7 +280,6 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
   useEffect(() => {
     if (playerHealth === 0) {
       isGameRunning.current = false;
-      console.log("bro is dead");
     }
   }, [playerHealth]);
 
