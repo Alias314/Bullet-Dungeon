@@ -148,6 +148,7 @@ export default function Scene() {
               playerRef={playerRef}
               mouse={mouse}
               shakeRef={shakeRef}
+              isShoot={isShoot}
             />
             <Player
               playerRef={playerRef}

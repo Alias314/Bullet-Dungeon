@@ -18,8 +18,8 @@ export default function PowerUpOverlay({
   };
 
   const radialBullet = () => {
-    const bulletSpeed = 30;
-    const amountBullets = 9;
+    const bulletSpeed = 25;
+    const amountBullets = 10;
 
     const interval = setInterval(() => {
       const playerPos =
@@ -47,7 +47,7 @@ export default function PowerUpOverlay({
           },
         ]);
       }
-    }, 1000);
+    }, 1200);
 
     closeOverlay();
     return () => clearInterval(interval);

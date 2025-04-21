@@ -1,10 +1,17 @@
 import { Vector3 } from "three";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
+import gsap from "gsap";
+import { useEffect, useRef } from "react";
 
-export function CameraController({ playerRef, mouse, shakeRef }) {
-  // shakeRef.current = 0.1;
+export function CameraController({ playerRef, mouse, isShoot }) {
+  const { camera } = useThree();
+  const cameraRef = useRef();
 
-  useFrame(({ camera }) => {
+  useEffect(() => {
+    cameraRef.current = camera;
+  }, [camera]);
+
+  useFrame(() => {
     if (playerRef.current) {
       const playerPos = playerRef.current.translation();
 
@@ -17,18 +24,27 @@ export function CameraController({ playerRef, mouse, shakeRef }) {
       const panOffset = new Vector3(mouse.x, 0, -mouse.y).multiplyScalar(3);
       const targetPos = baseTarget.add(panOffset);
       camera.position.lerp(targetPos, 0.1);
-
-      if (shakeRef.current > 0.001) {
-        const shakeOffset = new Vector3(
-          (Math.random() - 0.5) * shakeRef.current,
-          (Math.random() - 0.5) * shakeRef.current,
-          (Math.random() - 0.5) * shakeRef.current
-        );
-        camera.position.add(shakeOffset);
-        shakeRef.current *= 0.5;
-      }
     }
   });
+
+  useEffect(() => {
+    if (isShoot.current && cameraRef.current) {
+      const cam = cameraRef.current;
+
+      const rotTarget = { x: cam.rotation.x };
+
+      gsap.to(rotTarget, {
+        x: cam.rotation.x + 0.01,
+        duration: 0.05,
+        yoyo: true,
+        repeat: 1,
+        ease: "power2.out",
+        onUpdate: () => {
+          cam.rotation.x = rotTarget.x;
+        },
+      });
+    }
+  }, [isShoot.current]);
 
   return null;
 }
