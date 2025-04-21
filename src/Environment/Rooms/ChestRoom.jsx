@@ -27,8 +27,8 @@ export default function ChestRoom({
       ]
     : null;
   const distanceToView = 24;
-  // const weapons = ["shotgun", "machineGun"];
-  const weapons = ["machineGun"];
+  const weapons = ["shotgun", "machineGun"];
+  // const weapons = ["shotgun"];
 
   const [treasureState, setTreasureState] = useState({
     isGunDropped: false,

@@ -41,7 +41,6 @@ import gsap from "gsap";
 
 export default function Scene() {
   const playerRef = useRef();
-  const [hasClickedSplashScreen, setHasClickedSplashScreen] = useState(false);
   const shakeRef = useRef(0);
   const [showRoomClear, setShowRoomClear] = useState(false);
   const [hasBeatLevel, setHasBeatLevel] = useState(false);
@@ -85,16 +84,12 @@ export default function Scene() {
     setCurrentWeapon,
   } = useGameLogic(playerRef, triggerCameraShake);
 
-  useEffect(() => {}, [hasClickedSplashScreen]);
-
   useEffect(() => {
-    if (hasClickedSplashScreen) {
-      const gameplayAudio = new Audio("assets/audio/Digestive_Biscuit.mp3");
-      gameplayAudio.volume = 0.04;
-      gameplayAudio.loop = true;
-      gameplayAudio.play();
-    }
-  }, [hasClickedSplashScreen]);
+    const gameplayAudio = new Audio("assets/audio/Digestive_Biscuit.mp3");
+    gameplayAudio.volume = 0.075;
+    gameplayAudio.loop = true;
+    gameplayAudio.play();
+  }, []);
 
   useEffect(() => {
     if (showRoomClear) {
@@ -270,9 +265,6 @@ export default function Scene() {
       <Minimap layout={layout} playerRef={playerRef} />
 
       {showDamageOverlay && <DamageOverlay />}
-      {/* {!hasClickedSplashScreen && (
-        <SplashScreen setHasClickedSplashScreen={setHasClickedSplashScreen} />
-      )} */}
       {showRoomClear && <RoomCLearOverlay />}
       {hasBeatLevel && (
         <PowerUpOverlay

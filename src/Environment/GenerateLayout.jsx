@@ -112,7 +112,7 @@ export function generateLayout(level) {
     layout[portalCandidate.x][portalCandidate.y] = 6;
   }
 
-  // For level 3, use a fixed layout.
+  // For level 3 fixed layout.
   if (level === 3) {
     layout = [
       [-1, -1, -1, -1, -1, -1, -1],
@@ -129,7 +129,7 @@ export function generateLayout(level) {
   //   [-1, -1, -1, -1, -1, -1, -1],
   //   [-1, -1, -1, -1, -1, -1, -1],
   //   [-1, -1, -1, 5, -1, -1, -1],
-  //   [-1, -1, -1, 0, 4, -1, -1],
+  //   [-1, -1, 6, 0, 4, -1, -1],
   //   [-1, -1, -1, -1, -1, -1, -1],
   //   [-1, -1, -1, -1, -1, -1, -1],
   //   [-1, -1, -1, -1, -1, -1, -1],

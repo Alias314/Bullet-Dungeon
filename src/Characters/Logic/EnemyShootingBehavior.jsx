@@ -1,6 +1,5 @@
 import { Vector3 } from "three";
 import { delay } from "../../Utils/Helper";
-import { useRef, useEffect } from "react";
 
 export async function radialShoot(
   enemyPos,

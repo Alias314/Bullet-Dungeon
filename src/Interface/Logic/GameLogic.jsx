@@ -21,10 +21,9 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
 
   // Weapon cooldown configuration
   const weaponConfig = {
-    pistol: { interval: 200, auto: true },
-    shotgun: { interval: 1200, auto: false },
-    machineGun: { interval: 50, auto: true },
-    railgun: { interval: 2000, auto: false },
+    pistol: { interval: 200, damage: 10, auto: true },
+    shotgun: { interval: 800, damage: 20, auto: true },
+    machineGun: { interval: 50, damage: 6, auto: true },
   };
   const [currentWeapon, setCurrentWeapon] = useState("pistol");
   const currentWeaponFireRate = weaponConfig[currentWeapon];
@@ -225,7 +224,7 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
       const newEnemies = prev
         .map((enemy) => {
           if (enemy.id === enemyId) {
-            const newHealth = enemy.health - 10;
+            const newHealth = enemy.health - weaponConfig[currentWeapon].damage;
             return newHealth <= 0 ? null : { ...enemy, health: newHealth };
           }
           return enemy;
@@ -251,10 +250,11 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     } else if (other.rigidBodyObject.name === "Overseer") {
       setBosses((prev) => {
         if (!prev) return null;
-        const newHealth = prev.health - 10;
+        const newHealth = prev.health - weaponConfig[currentWeapon].damage;
 
         if (newHealth <= 0) {
           hasBeatBoss.current = true;
+          isGameRunning.current = false;
           return null;
         }
 

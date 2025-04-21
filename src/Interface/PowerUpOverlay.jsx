@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import PowerUpCard from "./PowerUpCard";
+import { Vector3 } from "three";
 
 export default function PowerUpOverlay({
   displayPowerUpOverlay,
@@ -9,14 +10,47 @@ export default function PowerUpOverlay({
   setPlayerBullets,
   playerRef,
 }) {
-  const playerPos =
-    playerRef && playerRef.current ? playerRef.current.translation() : null;
-
   const ninja = () => {
     setDashBar(4);
     dashCooldown.current = 500;
     maxDashBar.current = 4;
     closeOverlay();
+  };
+
+  const radialBullet = () => {
+    const bulletSpeed = 30;
+    const amountBullets = 9;
+
+    const interval = setInterval(() => {
+      const playerPos =
+        playerRef && playerRef.current ? playerRef.current.translation() : null;
+      for (let i = 0; i < amountBullets; i++) {
+        const angle = (i / amountBullets) * Math.PI * 2;
+        const direction = new Vector3(
+          Math.cos(angle),
+          0,
+          Math.sin(angle)
+        ).normalize();
+
+        const velocity = {
+          x: direction.x * bulletSpeed,
+          y: direction.y * bulletSpeed,
+          z: direction.z * bulletSpeed,
+        };
+
+        setPlayerBullets((prev) => [
+          ...prev,
+          {
+            id: Math.random(),
+            position: [playerPos.x, 1, playerPos.z],
+            velocity,
+          },
+        ]);
+      }
+    }, 1000);
+
+    closeOverlay();
+    return () => clearInterval(interval);
   };
 
   const closeOverlay = () => {
@@ -28,6 +62,11 @@ export default function PowerUpOverlay({
       title: "Ninja",
       description: "Double the amount of dashes and halves the dash cooldown.",
       onSelectFunction: ninja,
+    },
+    radialBullet: {
+      title: "Radial Bullet",
+      description: "Shoot an array of bullets around you at set intervals",
+      onSelectFunction: radialBullet,
     },
   };
 
@@ -42,9 +81,9 @@ export default function PowerUpOverlay({
         />
 
         <PowerUpCard
-          title={powerUps.ninja.title}
-          description={powerUps.ninja.description}
-          onSelectFunction={powerUps.ninja.onSelectFunction}
+          title={powerUps.radialBullet.title}
+          description={powerUps.radialBullet.description}
+          onSelectFunction={powerUps.radialBullet.onSelectFunction}
         />
 
         <PowerUpCard
@@ -53,7 +92,6 @@ export default function PowerUpOverlay({
           onSelectFunction={powerUps.ninja.onSelectFunction}
         />
       </div>
-      <p className="text-2xl mt-8 animate-pulse">Press any key to continue</p>
     </div>
   );
 }

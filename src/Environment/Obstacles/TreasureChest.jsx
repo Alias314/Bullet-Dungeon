@@ -73,7 +73,7 @@ export default function TreasureChest({
         <>
           {treasureState.chestGun === "machineGun" && (
             <MachineGun
-              key={Math.random()}
+              key={2}
               position={position}
               currentWeapon={currentWeapon}
               isShoot={isShoot}
@@ -89,7 +89,7 @@ export default function TreasureChest({
           )}
           {treasureState.chestGun === "shotgun" && (
             <Shotgun
-              key={Math.random()}
+              key={3}
               position={position}
               playerPos={playerPos}
             />

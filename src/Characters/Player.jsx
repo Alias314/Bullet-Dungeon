@@ -9,6 +9,7 @@ import { Raycaster, Vector3, Plane, Quaternion } from "three";
 import { useGLTF } from "@react-three/drei";
 import Pistol from "../Environment/Items/Pistol";
 import MachineGun from "../Environment/Items/MachineGun";
+import Shotgun from "../Environment/Items/Shotgun"
 
 export default function Player({
   playerRef,
@@ -179,7 +180,14 @@ export default function Player({
       )}
       {currentWeapon === "machineGun" && (
         <MachineGun
-          key={Math.random()}
+          key={2}
+          currentWeapon={currentWeapon}
+          isShoot={isShoot}
+        />
+      )}
+      {currentWeapon === "shotgun" && (
+        <Shotgun
+          key={3}
           currentWeapon={currentWeapon}
           isShoot={isShoot}
         />

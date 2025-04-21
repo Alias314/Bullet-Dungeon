@@ -1,33 +1,65 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useEffect } from "react";
+import { useGLTF } from "@react-three/drei";
+import gsap from "gsap";
+import MuzzleFlash from "./MuzzleFlash";
 
-export default function Shotgun({ position, playerPos, currentGun, setCurrentGun }) {
-  const localTime = useRef(0);
+export default function Shotgun({
+  position = [0.65, 0.1, 0],
+  currentWeapon,
+  isShoot = false,
+}) {
   const meshRef = useRef(null);
+  const { scene: knightGun } = useGLTF("/assets/models/shotgun.glb");
 
-  useFrame((_, delta) => {
-    if (meshRef.current) {
-      localTime.current += delta;
-
-      meshRef.current.rotation.y = localTime.current;
+  useEffect(() => {
+    if (isShoot.current && meshRef.current) {
+      gsap.fromTo(
+        meshRef.current.position,
+        { z: 0 },
+        { z: -0.4, duration: 0.1, yoyo: true, repeat: 1, ease: "power1.inOut" }
+      );
+      gsap.fromTo(
+        meshRef.current.rotation,
+        { x: 0 },
+        { x: -0.25, duration: 0.1, yoyo: true, repeat: 1, ease: "power1.inOut" }
+      );
+      isShoot.current = false;
     }
-  });
+  }, [isShoot.current]);
+
+  useEffect(() => {
+    if (currentWeapon !== "shotgun" && meshRef.current) {
+      gsap.to(meshRef.current.rotation, {
+        y: "+=" + 2 * Math.PI,
+        duration: 15,
+        repeat: -1,
+        ease: "none",
+      });
+      gsap.fromTo(
+        meshRef.current.position,
+        { y: 0 },
+        { y: 0.5, duration: 1, yoyo: true, repeat: -1, ease: "power1.inOut" }
+      );
+    } else {
+      gsap.killTweensOf(meshRef.current.rotation);
+      gsap.killTweensOf(meshRef.current.position);
+      meshRef.current.rotation.y = 0;
+      meshRef.current.position.y = 0;
+    }
+  }, [currentWeapon]);
 
   return (
     <group
-      ref={meshRef}
-      position={[position[0], position[1] + 1, position[2] + 1.5]}
+      position={
+        currentWeapon !== "shotgun"
+          ? [position[0], position[1] + 1.2, position[2]]
+          : [0.65, 0.1, 0.2]
+      }
     >
-      <mesh position={[0, 0, 0]} castShadow>
-        <boxGeometry args={[1.5, 0.5, 0.5]} />
-        <meshStandardMaterial color="red" />
-      </mesh>
-
-      <mesh position={[-0.5, -0.5, 0]} rotation={[0, 0, 1]} castShadow>
-        <boxGeometry args={[0.8, 0.5, 0.25]} />
-        <meshStandardMaterial color="red" />
-      </mesh>
+      <primitive ref={meshRef} object={knightGun} scale={0.7} />
+      {/* <MuzzleFlash position={position} isShoot={isShoot} /> */}
     </group>
   );
 }
