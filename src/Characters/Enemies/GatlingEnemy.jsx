@@ -85,7 +85,6 @@ export default function GatlingEnemy({
     };
   }, []);
 
-  // Shooting logic: Only when in "shoot" state and not in indicator mode.
   useEffect(() => {
     let shootingInterval;
     if (enemyState === "shoot" && !showIndicator) {

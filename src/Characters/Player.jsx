@@ -144,10 +144,6 @@ export default function Player({
   const { scene: knightHead } = useGLTF("/assets/models/knightHead.glb");
   const knightHeadRef = useRef(null);
 
-  useEffect(() => {
-    console.log(currentWeapon);
-  }, [currentWeapon]);
-
   return (
     <RigidBody
       ref={playerRef}

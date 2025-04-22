@@ -25,7 +25,7 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     shotgun: { interval: 800, damage: 20, auto: true },
     machineGun: { interval: 50, damage: 6, auto: true },
   };
-  const [currentWeapon, setCurrentWeapon] = useState("pistol");
+  const [currentWeapon, setCurrentWeapon] = useState("machineGun");
   const currentWeaponFireRate = weaponConfig[currentWeapon];
   const canShoot = useRef(true);
 
@@ -90,8 +90,7 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
       const fireBullet = () => {
         if (
           !canShoot.current ||
-          !playerRef.current ||
-          !playerDirectionRef.current
+          !playerRef.current
         ) {
           return;
         }
@@ -104,12 +103,6 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
           const soundClone = shootAudioRef.current.cloneNode();
           soundClone.play();
         }
-
-        canShoot.current = false; // start cooldown
-        setTimeout(
-          () => (canShoot.current = true), // end cooldown
-          weaponConfig[currentWeapon].interval
-        );
 
         const bulletSpeed = 40;
         const playerPos = playerRef.current.translation();
@@ -164,6 +157,13 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
         }
 
         isShoot.current = true;
+        canShoot.current = false;
+
+        const timer = setTimeout(() => {
+          canShoot.current = true;
+        }, weaponConfig[currentWeapon].interval);
+        
+        return () => clearTimeout(timer);
       };
 
       // hold mouse button to shoot
@@ -201,16 +201,6 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
       };
     }
   }, [currentWeapon, playerRef]);
-
-  useEffect(() => {
-    if (!canShoot) {
-      const timer = setTimeout(() => {
-        setCanShoot(true);
-      }, weaponConfig[currentWeapon].interval);
-
-      return () => clearTimeout(timer);
-    }
-  }, [canShoot, currentWeapon]);
 
   // remove bullets
   const handleRemoveBullet = (bulletId) => {
