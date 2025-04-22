@@ -21,13 +21,14 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
 
   // Weapon cooldown configuration
   const weaponConfig = {
-    pistol: { interval: 200, damage: 10, auto: true },
-    shotgun: { interval: 800, damage: 20, auto: true },
-    machineGun: { interval: 50, damage: 6, auto: true },
+    pistol: { interval: 350, damage: 10, auto: true },
+    shotgun: { interval: 1000, damage: 20, auto: true },
+    machineGun: { interval: 80, damage: 6, auto: true },
   };
-  const [currentWeapon, setCurrentWeapon] = useState("machineGun");
+  const [currentWeapon, setCurrentWeapon] = useState("pistol");
   const currentWeaponFireRate = weaponConfig[currentWeapon];
   const canShoot = useRef(true);
+  const isMouseDownRef = useRef(false);
 
   // enemy
   const [enemies, setEnemies] = useState([]);
@@ -88,10 +89,7 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
 
       // spawn bullets based on selected weapon
       const fireBullet = () => {
-        if (
-          !canShoot.current ||
-          !playerRef.current
-        ) {
+        if (!canShoot.current || !playerRef.current) {
           return;
         }
 
@@ -158,32 +156,21 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
 
         isShoot.current = true;
         canShoot.current = false;
-
-        const timer = setTimeout(() => {
+        setTimeout(() => {
           canShoot.current = true;
+          if (isMouseDownRef.current) fireBullet();
         }, weaponConfig[currentWeapon].interval);
-        
-        return () => clearTimeout(timer);
       };
 
       // hold mouse button to shoot
       const handlePointerDown = () => {
-        if (playerRef.current && isGameRunning.current) {
-          let weaponShootingInterval = currentWeaponFireRate.interval;
-
-          fireBullet();
-          shootingIntervalRef.current = setInterval(
-            fireBullet,
-            weaponShootingInterval
-          );
-        }
+        if (!playerRef.current || !isGameRunning.current) return;
+        isMouseDownRef.current = true;
+        fireBullet();
       };
 
       const handlePointerUp = () => {
-        if (shootingIntervalRef.current) {
-          clearInterval(shootingIntervalRef.current);
-          shootingIntervalRef.current = null;
-        }
+        isMouseDownRef.current = false;
       };
 
       window.addEventListener("pointermove", handlePointerMove);
