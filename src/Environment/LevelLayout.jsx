@@ -64,7 +64,7 @@ export default function LevelLayout({
             case 0:
               return (
                 <StartingRoom
-                  key={`room-${i}-${j}-${gameResetKey.current}`}
+                  key={`room-${i}-${j}-${level.current}`}
                   position={position}
                   playerRef={playerRef}
                   openings={openings}
@@ -84,7 +84,7 @@ export default function LevelLayout({
             case 1:
               return (
                 <SmallRoomTemplate
-                  key={`room-${i}-${j}-${gameResetKey.current}`}
+                  key={`room-${i}-${j}-${level.current}`}
                   position={position}
                   playerRef={playerRef}
                   openings={openings}
@@ -97,7 +97,7 @@ export default function LevelLayout({
             case 2:
               return (
                 <MediumRoomTemplate
-                  key={`room-${i}-${j}-${gameResetKey.current}`}
+                  key={`room-${i}-${j}-${level.current}`}
                   position={position}
                   playerRef={playerRef}
                   openings={openings}
@@ -110,7 +110,7 @@ export default function LevelLayout({
             case 3:
               return (
                 <SquareRoomTemplate
-                  key={`room-${i}-${j}-${gameResetKey.current}`}
+                  key={`room-${i}-${j}-${level.current}`}
                   position={position}
                   playerRef={playerRef}
                   openings={openings}
@@ -123,7 +123,7 @@ export default function LevelLayout({
             case 4:
               return (
                 <ChestRoom
-                  key={`room-${i}-${j}-${gameResetKey.current}`}
+                  key={`room-${i}-${j}-${level.current}`}
                   position={position}
                   playerRef={playerRef}
                   openings={openings}
@@ -139,7 +139,7 @@ export default function LevelLayout({
             case 5:
               return (
                 <OverseerBossRoom
-                  key={`room-${i}-${j}-${gameResetKey.current}`}
+                  key={`room-${i}-${j}-${level.current}`}
                   position={position}
                   playerRef={playerRef}
                   openings={openings}
@@ -150,7 +150,7 @@ export default function LevelLayout({
             case 6:
               return (
                 <PortalRoom
-                  key={`room-${i}-${j}-${gameResetKey.current}`}
+                  key={`room-${i}-${j}-${level.current}`}
                   position={position}
                   playerRef={playerRef}
                   openings={openings}

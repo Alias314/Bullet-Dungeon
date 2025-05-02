@@ -9,7 +9,8 @@ import { Raycaster, Vector3, Plane, Quaternion } from "three";
 import { useGLTF } from "@react-three/drei";
 import Pistol from "../Environment/Items/Pistol";
 import MachineGun from "../Environment/Items/MachineGun";
-import Shotgun from "../Environment/Items/Shotgun"
+import Shotgun from "../Environment/Items/Shotgun";
+import MovementParticle from "./AfterImage";
 
 export default function Player({
   playerRef,
@@ -43,8 +44,13 @@ export default function Player({
     dashAudioRef.current = new Audio("assets/audio/Retro_Swooosh_16.wav");
   }, []);
   const localTime = useRef(0);
+  const [afterImage, setAfterImage] = useState([]);
+  const lastQuatRef = useRef(new Quaternion());
+  const counter = useRef(0);
 
   useFrame((_, delta) => {
+    localTime.current += delta * 8;
+
     if (playerRef.current && isGameRunning.current) {
       let input = new Vector3(
         (keyPressed["d"] ? 1 : 0) + (keyPressed["a"] ? -1 : 0),
@@ -54,6 +60,23 @@ export default function Player({
 
       if (isDashing) {
         input = dashDirection.clone().multiplyScalar(dashForce);
+        counter.current++;
+
+        if (counter.current % 4 === 0) {
+          const p = playerRef.current.translation();
+          const position = new Vector3(p.x, p.y + 0.3, p.z);
+  
+          setAfterImage((list) =>
+            [
+              ...list,
+              {
+                id: `${Date.now()}-${Math.random()}`,
+                position: position,
+                rotation: lastQuatRef.current.clone(),
+              },
+            ].slice(-10)
+          );
+        }
       } else if (input.length() > 0) {
         input.normalize().multiplyScalar(speedMultiplier);
       }
@@ -72,6 +95,7 @@ export default function Player({
         const quaternion = new Quaternion();
         quaternion.setFromAxisAngle(new Vector3(0, 1, 0), angle);
         playerRef.current.setRotation(quaternion);
+        lastQuatRef.current.copy(quaternion);
 
         setPlayerDirection(direction);
       }
@@ -80,8 +104,6 @@ export default function Player({
     }
 
     if (knightHeadRef.current) {
-      localTime.current += delta * 8;
-
       knightHeadRef.current.position.y =
         Math.sin(localTime.current) * 0.03 + 0.7;
     }
@@ -110,6 +132,9 @@ export default function Player({
           setTimeout(() => {
             setIsDashing(false);
           }, dashDuration * 1000);
+          setTimeout(() => {
+            setAfterImage([]);
+          }, 1000);
         }
       } else {
         setKeyPressed((prev) => ({ ...prev, [e.key.toLowerCase()]: true }));
@@ -145,51 +170,44 @@ export default function Player({
   const knightHeadRef = useRef(null);
 
   return (
-    <RigidBody
-      ref={playerRef}
-      name="Player"
-      position={[0, 1, 0]}
-      colliders={false}
-      type="dynamic"
-      gravityScale={0}
-      collisionGroups={
-        isDashing
-          ? interactionGroups(10, [4])
-          : interactionGroups(0, [1, 3, 4, 5])
-      }
-      lockRotations
-    >
-      <primitive object={knightBody} position={[0, 0, 0]} scale={0.5} />
-      <primitive
-        ref={knightHeadRef}
-        object={knightHead}
-        position={[0, 0.7, 0]}
-        scale={0.5}
-      />
+    <>
+      <RigidBody
+        ref={playerRef}
+        name="Player"
+        position={[0, 1, 0]}
+        colliders={false}
+        type="dynamic"
+        gravityScale={0}
+        collisionGroups={
+          isDashing
+            ? interactionGroups(10, [4])
+            : interactionGroups(0, [1, 3, 4, 5])
+        }
+        lockRotations
+      >
+        <primitive object={knightBody} position={[0, 0, 0]} scale={0.5} />
+        <primitive
+          ref={knightHeadRef}
+          object={knightHead}
+          position={[0, 0.7, 0]}
+          scale={0.5}
+        />
 
-      {currentWeapon === "pistol" && (
-        <Pistol
-          key={1}
-          currentWeapon={currentWeapon}
-          isShoot={isShoot}
-        />
-      )}
-      {currentWeapon === "machineGun" && (
-        <MachineGun
-          key={2}
-          currentWeapon={currentWeapon}
-          isShoot={isShoot}
-        />
-      )}
-      {currentWeapon === "shotgun" && (
-        <Shotgun
-          key={3}
-          currentWeapon={currentWeapon}
-          isShoot={isShoot}
-        />
-      )}
+        {currentWeapon === "pistol" && (
+          <Pistol key={1} currentWeapon={currentWeapon} isShoot={isShoot} />
+        )}
+        {currentWeapon === "machineGun" && (
+          <MachineGun key={2} currentWeapon={currentWeapon} isShoot={isShoot} />
+        )}
+        {currentWeapon === "shotgun" && (
+          <Shotgun key={3} currentWeapon={currentWeapon} isShoot={isShoot} />
+        )}
 
-      <CuboidCollider args={[0.5, 0.5, 0.5]} />
-    </RigidBody>
+        <CuboidCollider args={[0.5, 0.5, 0.5]} />
+      </RigidBody>
+      {afterImage.map((prev) => (
+        <MovementParticle key={prev.id} position={prev.position} rotation={prev.rotation} />
+      ))}
+    </>
   );
 }

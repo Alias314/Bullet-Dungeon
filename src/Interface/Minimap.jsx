@@ -8,7 +8,6 @@ export default function Minimap({ layout, playerRef }) {
   let highlightedCol = -1;
 
   if (playerPos) {
-    // Instead of destructuring as an array, access the object properties.
     const x = playerPos.x;
     const z = playerPos.z;
     highlightedCol = Math.round(x / cellSize + 3);

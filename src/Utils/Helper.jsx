@@ -8,7 +8,7 @@ const getRandomPosition = (roomDimensions, position) => {
     Math.random() * (roomDimensions[0] - 2 * margin) -
     (roomDimensions[0] - 2 * margin) / 2 +
     position[0];
-  const y = 1.1;
+  const y = 1.2;
   const z =
     Math.random() * (roomDimensions[2] - 2 * margin) -
     (roomDimensions[2] - 2 * margin) / 2 +
@@ -25,7 +25,8 @@ const distanceBetween = (posA, posB) => {
 
 export const summonEnemies = (roomDimensions, position, setAmountEnemy) => {
   const enemyList = [];
-  const amountEnemy = Math.max(Math.random() * 9, 5);
+  const amountEnemy = Math.max(Math.random() * 12, 6);
+  // const amountEnemy = 1;
   const minDistance = 2;
   const maxAttempts = 20;
 
@@ -55,6 +56,7 @@ export const summonEnemies = (roomDimensions, position, setAmountEnemy) => {
       type = "torus";
     }
 
+    // type = "melee";
     enemyList.push({
       id: i,
       type,

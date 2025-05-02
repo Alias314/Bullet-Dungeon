@@ -82,11 +82,11 @@ export default function MeleeEnemy({
           ) : (
             <mesh ref={meshRef}>
               <mesh>
-                <torusGeometry args={[1, 0.5, 4, 8]} />
+                <torusGeometry args={[1, 0.4, 4, 8]} />
                 <meshStandardMaterial color="#7a62f5" />
               </mesh>
               <mesh>
-                <torusGeometry args={[1, 0.5, 4, 8]} />
+                <torusGeometry args={[1, 0.4, 4, 8]} />
                 <meshStandardMaterial color="white" wireframe />
               </mesh>
             </mesh>

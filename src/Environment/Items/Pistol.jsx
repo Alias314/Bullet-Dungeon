@@ -60,7 +60,6 @@ export default function Pistol({
       rotation={[0, 0.1, 0]}
     >
       <primitive ref={meshRef} object={knightGun} scale={0.7} />
-      {/* <MuzzleFlash position={position} isShoot={isShoot} /> */}
     </group>
   );
 }

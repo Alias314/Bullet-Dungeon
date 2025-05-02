@@ -86,9 +86,9 @@ export default function Scene() {
 
   useEffect(() => {
     const gameplayAudio = new Audio("assets/audio/Digestive_Biscuit.mp3");
-    gameplayAudio.volume = 0.075;
+    gameplayAudio.volume = 0;
     gameplayAudio.loop = true;
-    gameplayAudio.play();
+    // gameplayAudio.play();
   }, []);
 
   useEffect(() => {

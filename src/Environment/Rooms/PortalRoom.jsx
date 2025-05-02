@@ -27,7 +27,6 @@ export default function PortalRoom({
       ]
     : null;
   const distanceToView = 24;
-  const isUsedPortal = useRef(false);
 
   return (
     <>
@@ -49,13 +48,10 @@ export default function PortalRoom({
               colliders="cuboid"
               collisionGroups={interactionGroups(3, [0, 4])}
               onCollisionEnter={() => {
-                if (isUsedPortal.current === false) {
-                    playerRef.current.setTranslation(new Vector3(0, 1, 0));
-                    level.current++;
-                    setLayout(generateLayout(level.current));
-                    isUsedPortal.current = true;
-                    setHasBeatLevel(true);
-                }
+                playerRef.current.setTranslation(new Vector3(0, 1, 0));
+                level.current++;
+                setLayout(generateLayout(level.current));
+                setHasBeatLevel(true);
               }}
             >
               <mesh position={[position[0], position[1] + 1, position[2]]}>
