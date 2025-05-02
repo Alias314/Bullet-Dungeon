@@ -51,7 +51,6 @@ export default function MeleeEnemy({
     }
   });
 
-  const { scene: enemySword } = useGLTF("/assets/models/enemySword.glb");
   const { scene: enemySwordBody } = useGLTF(
     "/assets/models/enemySwordBody.glb"
   );
@@ -59,7 +58,6 @@ export default function MeleeEnemy({
     "/assets/models/enemySwordHead.glb"
   );
   const { scene: sword } = useGLTF("/assets/models/sword.glb");
-  const modelEnemySword = useMemo(() => clone(enemySword), [enemySword]);
   const modelEnemySwordBody = useMemo(
     () => clone(enemySwordBody),
     [enemySwordBody]

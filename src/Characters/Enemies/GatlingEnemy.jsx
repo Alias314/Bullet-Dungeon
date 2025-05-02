@@ -4,6 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { follow } from "../Logic/EnemyMovementBehavior";
 import { Vector3 } from "three";
 import * as THREE from "three";
+import gsap from "gsap";
+import { useGLTF } from "@react-three/drei";
+import { useMemo } from "react";
+import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
+import { CuboidCollider } from "@react-three/rapier";
 
 export default function GatlingEnemy({
   id,
@@ -51,23 +56,30 @@ export default function GatlingEnemy({
         meshRef.current.rotation.y = localTime.current;
         meshRef.current.rotation.x = localTime.current;
       }
+
+      if (visualRef.current) {
+        const direction = new Vector3(
+          playerPos.x - enemyPos.x,
+          0,
+          playerPos.z - enemyPos.z
+        ).normalize();
+        const angle = Math.atan2(direction.x, direction.z);
+        visualRef.current.rotation.y = angle;
+      }
     }
   });
 
-  // Enemy state cycle: randomly delay the start so not all enemies sync up.
   useEffect(() => {
     let intervalId;
     let shootTimeoutId;
-    const initialDelay = Math.random() * 5000; // Random delay up to 5s
+    const initialDelay = Math.random() * 1000;
 
     const startCycle = () => {
-      // Set to "follow" for 2 seconds
       setEnemyState("follow");
-      setSpeed(1.7);
+      setSpeed(2.5);
       shootTimeoutId = setTimeout(() => {
-        // Then switch to "shoot" for the remainder of the cycle
         setEnemyState("shoot");
-        setSpeed(0.75);
+        setSpeed(2);
       }, 2000);
     };
 
@@ -98,7 +110,7 @@ export default function GatlingEnemy({
           const playerPos = playerRef.current.translation();
           const enemyPos = enemyRef.current.translation();
           const bulletSpeed = 10;
-          let bulletSpread = Math.random() * 10;
+          let bulletSpread = Math.random() * 3;
           bulletSpread = bulletSpread - bulletSpread / 2;
           const direction = new Vector3(
             playerPos.x - enemyPos.x + bulletSpread,
@@ -126,13 +138,49 @@ export default function GatlingEnemy({
     };
   }, [enemyState, playerRef, setEnemyBullets, showIndicator]);
 
+  const visualRef = useRef(null);
+  const { scene: enemySwordBody } = useGLTF(
+    "/assets/models/enemySwordBody.glb"
+  );
+  const { scene: enemySwordHead } = useGLTF(
+    "/assets/models/enemyMachineGunHead.glb"
+  );
+  const { scene: sword } = useGLTF("/assets/models/uzi.glb");
+  const modelEnemySwordBody = useMemo(
+    () => clone(enemySwordBody),
+    [enemySwordBody]
+  );
+  const modelEnemySwordHead = useMemo(
+    () => clone(enemySwordHead),
+    [enemySwordHead]
+  );
+  const modelSword = useMemo(() => clone(sword), [sword]);
+  const enemySwordHeadRef = useRef(null);
+  const swordRef = useRef(null);
+
+  useEffect(() => {
+    if (enemySwordHeadRef.current) {
+      gsap.fromTo(
+        enemySwordHeadRef.current.position,
+        { y: enemySwordHeadRef.current.position.y },
+        {
+          y: enemySwordHeadRef.current.position.y + 0.1,
+          duration: 0.35,
+          yoyo: true,
+          repeat: -1,
+          ease: "power1.inOut",
+        }
+      );
+    }
+  }, [enemySwordHeadRef.current]);
+
   return (
     <RigidBody
       key={showIndicator ? "indicator" : "active"}
       ref={enemyRef}
       name={`Enemy-${id}`}
       position={position}
-      colliders={showIndicator ? false : "cuboid"}
+      colliders={false}
       type="dynamic"
       gravityScale={0}
       collisionGroups={
@@ -142,19 +190,38 @@ export default function GatlingEnemy({
       }
       lockRotations
     >
-      <mesh castShadow>
+      <mesh ref={visualRef} castShadow>
         {showIndicator ? (
           <>
             <sphereGeometry args={[1, 16, 16]} />
             <meshStandardMaterial color="red" transparent opacity={0.4} />
           </>
         ) : (
-          <mesh ref={meshRef}>
-            <icosahedronGeometry args={[0.8]} />
-            <meshStandardMaterial color="purple" />
-          </mesh>
+          <>
+            <primitive
+              object={modelEnemySwordBody}
+              scale={0.5}
+              position={[0, 0, 0]}
+              dispose={null}
+            />
+            <primitive
+              ref={enemySwordHeadRef}
+              object={modelEnemySwordHead}
+              scale={0.5}
+              position={[0, 0.65, 0]}
+              dispose={null}
+            />
+            <primitive
+              ref={swordRef}
+              object={modelSword}
+              scale={0.7}
+              position={[0.575, 0, 0.3]}
+              dispose={null}
+            />
+          </>
         )}
       </mesh>
+      <CuboidCollider args={[0.5, 0.5, 0.5]} />
     </RigidBody>
   );
 }

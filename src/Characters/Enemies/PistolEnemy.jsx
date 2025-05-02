@@ -3,7 +3,11 @@ import { interactionGroups, RigidBody } from "@react-three/rapier";
 import { useEffect, useRef, useState } from "react";
 import { follow, stalk, runAway, wander } from "../Logic/EnemyMovementBehavior";
 import { Vector3 } from "three";
-// import { delay } from "../../Utils/helper";
+import { useGLTF } from "@react-three/drei";
+import gsap from "gsap";
+import { useMemo } from "react";
+import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
+import { CuboidCollider } from "@react-three/rapier";
 
 export default function PistolEnemy({
   id,
@@ -14,7 +18,7 @@ export default function PistolEnemy({
 }) {
   const [time, setTime] = useState(0);
   const enemyRef = useRef();
-  const speed = 1.8;
+  const speed = 2.2;
   const distanceToWander = 100;
   const [positionToWander, setPositionToWander] = useState(null);
   const meshRef = useRef();
@@ -41,7 +45,7 @@ export default function PistolEnemy({
         0,
         Math.abs(playerPos.z - enemyPos.z),
       ];
-      const distanceToStalk = 7;
+      const distanceToStalk = 5;
       let targetVelocityObj;
 
       if (
@@ -75,6 +79,16 @@ export default function PistolEnemy({
         { x: newVelocity.x, y: newVelocity.y, z: newVelocity.z },
         true
       );
+
+      if (visualRef.current) {
+        const direction = new Vector3(
+          playerPos.x - enemyPos.x,
+          0,
+          playerPos.z - enemyPos.z
+        ).normalize();
+        const angle = Math.atan2(direction.x, direction.z);
+        visualRef.current.rotation.y = angle;
+      }
     }
 
     if (meshRef.current) {
@@ -109,7 +123,7 @@ export default function PistolEnemy({
   useEffect(() => {
     if (showIndicator) return;
 
-    const initialDelay = Math.random() * 2000;
+    const initialDelay = Math.random() * 500;
     let shootingInterval;
     const timeout = setTimeout(() => {
       shootingInterval = setInterval(() => {
@@ -123,22 +137,22 @@ export default function PistolEnemy({
         if (playerRef.current && enemyRef.current) {
           const playerPos = playerRef.current.translation();
           const enemyPos = enemyRef.current.translation();
-          const bulletSpeed = 10;
+          const bulletSpeed = 15;
           const direction = new Vector3(
             playerPos.x - enemyPos.x,
-            playerPos.y - enemyPos.y,
+            0,
             playerPos.z - enemyPos.z
           ).normalize();
           const velocity = {
             x: direction.x * bulletSpeed,
-            y: direction.y * bulletSpeed,
+            y: 0,
             z: direction.z * bulletSpeed,
           };
 
           setEnemyBullets((prev) => [
             ...prev,
             {
-              id: Math.random(),
+              id: crypto.randomUUID(),
               position: [enemyPos.x, enemyPos.y, enemyPos.z],
               velocity,
             },
@@ -153,13 +167,49 @@ export default function PistolEnemy({
     };
   }, [playerRef, enemyRef, setEnemyBullets, showIndicator]);
 
+  const visualRef = useRef(null);
+  const { scene: enemySwordBody } = useGLTF(
+    "/assets/models/enemySwordBody.glb"
+  );
+  const { scene: enemySwordHead } = useGLTF(
+    "/assets/models/enemyPistolHead.glb"
+  );
+  const { scene: sword } = useGLTF("/assets/models/knightGun.glb");
+  const modelEnemySwordBody = useMemo(
+    () => clone(enemySwordBody),
+    [enemySwordBody]
+  );
+  const modelEnemySwordHead = useMemo(
+    () => clone(enemySwordHead),
+    [enemySwordHead]
+  );
+  const modelSword = useMemo(() => clone(sword), [sword]);
+  const enemySwordHeadRef = useRef(null);
+  const swordRef = useRef(null);
+
+  useEffect(() => {
+    if (enemySwordHeadRef.current) {
+      gsap.fromTo(
+        enemySwordHeadRef.current.position,
+        { y: enemySwordHeadRef.current.position.y },
+        {
+          y: enemySwordHeadRef.current.position.y + 0.1,
+          duration: 0.35,
+          yoyo: true,
+          repeat: -1,
+          ease: "power1.inOut",
+        }
+      );
+    }
+  }, [enemySwordHeadRef.current]);
+
   return (
     <RigidBody
       key={showIndicator ? "indicator" : "active"}
       ref={enemyRef}
       name={`Enemy-${id}`}
       position={position}
-      colliders={showIndicator ? false : "cuboid"}
+      colliders={false}
       type="dynamic"
       gravityScale={0}
       collisionGroups={
@@ -169,19 +219,38 @@ export default function PistolEnemy({
       }
       lockRotations
     >
-      <mesh castShadow>
+      <mesh ref={visualRef} castShadow>
         {showIndicator ? (
           <>
             <sphereGeometry args={[1, 16, 16]} />
             <meshStandardMaterial color="red" transparent opacity={0.4} />
           </>
         ) : (
-          <mesh ref={meshRef}>
-            <cylinderGeometry args={[0, 1, 1.5, 3]} />
-            <meshStandardMaterial color="#fa5555" />
-          </mesh>
+          <>
+            <primitive
+              object={modelEnemySwordBody}
+              scale={0.5}
+              position={[0, 0, 0]}
+              dispose={null}
+            />
+            <primitive
+              ref={enemySwordHeadRef}
+              object={modelEnemySwordHead}
+              scale={0.5}
+              position={[0, 0.65, 0]}
+              dispose={null}
+            />
+            <primitive
+              ref={swordRef}
+              object={modelSword}
+              scale={0.55}
+              position={[0.575, 0, 0.3]}
+              dispose={null}
+            />
+          </>
         )}
       </mesh>
+      <CuboidCollider args={[0.5, 0.5, 0.5]} />
     </RigidBody>
   );
 }

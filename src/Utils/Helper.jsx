@@ -56,7 +56,7 @@ export const summonEnemies = (roomDimensions, position, setAmountEnemy) => {
       type = "torus";
     }
 
-    // type = "melee";
+    // type = "torus";
     enemyList.push({
       id: i,
       type,
