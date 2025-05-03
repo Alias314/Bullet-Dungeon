@@ -1,6 +1,7 @@
 import { useRef, useEffect } from "react";
 import { interactionGroups, RigidBody } from "@react-three/rapier";
 import * as THREE from "three";
+import { usePoolStore } from "../Interface/Logic/usePoolStore";
 
 export function PlayerBullet({
   id,
@@ -10,12 +11,31 @@ export function PlayerBullet({
   handleBulletCollision,
 }) {
   const bulletRef = useRef();
+  const lifetime = useRef(2);
+  const isActive = usePoolStore((state) => state.playerBullets[id].active);
+  const deactivatePlayerBullet = usePoolStore((state) => state.deactivatePlayerBullet);
 
   useEffect(() => {
     if (bulletRef.current) {
       bulletRef.current.setLinvel(velocity, true);
     }
   }, [velocity]);
+
+  useEffect(() => {
+    if (isActive) {
+      const interval = setInterval(() => {
+        if (lifetime.current > 0) {
+          lifetime.current--;
+        } else {
+          deactivatePlayerBullet(id);
+          console.log(id);
+          lifetime.current = 2;
+        }
+      }, 1000);
+  
+      return () => clearInterval(interval);
+    }
+  }, [isActive, deactivatePlayerBullet, id]);
 
   return (
     <RigidBody

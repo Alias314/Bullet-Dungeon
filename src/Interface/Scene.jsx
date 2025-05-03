@@ -39,6 +39,7 @@ import VictoryOverlay from "./VictoryOverlay";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import Timer from "./Timer";
+import { usePoolStore } from "./Logic/usePoolStore";
 
 export default function Scene() {
   const playerRef = useRef();
@@ -53,8 +54,6 @@ export default function Scene() {
 
   const {
     mouse,
-    playerBullets,
-    setPlayerBullets,
     enemyBullets,
     setEnemyBullets,
     setPlayerDirection,
@@ -84,7 +83,7 @@ export default function Scene() {
     currentWeapon,
     setCurrentWeapon,
     dashShield,
-    setDashShield
+    setDashShield,
   } = useGameLogic(playerRef, triggerCameraShake);
 
   useEffect(() => {
@@ -102,27 +101,28 @@ export default function Scene() {
     }
   }, [showRoomClear]);
 
-  useGSAP(() => {
-    const context = gsap.context(() => {
-      const timeline = gsap.timeline();
+  // useGSAP(() => {
+  //   const context = gsap.context(() => {
+  //     const timeline = gsap.timeline();
 
-      timeline.fromTo(
-        ".intro-text",
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
-      );
+  //     timeline.fromTo(
+  //       ".intro-text",
+  //       { opacity: 0, y: 20 },
+  //       { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
+  //     );
 
-      timeline.to(backgroundTransitionRef.current, {
-        opacity: 0,
-        duration: 1,
-        ease: "power2.in",
-        delay: 0.3,
-      });
-    }, backgroundTransitionRef);
+  //     timeline.to(backgroundTransitionRef.current, {
+  //       opacity: 0,
+  //       duration: 1,
+  //       ease: "power2.in",
+  //       delay: 0.3,
+  //     });
+  //   }, backgroundTransitionRef);
 
-    return () => context.revert();
-  }, []);
+  //   return () => context.revert();
+  // }, []);
 
+  const playerBullets = usePoolStore((state) => state.playerBullets);
   return (
     <div className="w-screen h-screen relative bg-gray-800">
       <Canvas
@@ -224,16 +224,18 @@ export default function Scene() {
                 setEnemyBullets={setEnemyBullets}
               />
             )}
-            {playerBullets.map((bullet) => (
-              <B.PlayerBullet
-                key={bullet.id}
-                id={bullet.id}
-                size={[0.3, 6, 6]}
-                position={bullet.position}
-                velocity={bullet.velocity}
-                handleBulletCollision={handleBulletCollision}
-              />
-            ))}
+            {playerBullets
+              .filter((b) => b.active)
+              .map((bullet) => (
+                <B.PlayerBullet
+                  key={bullet.id}
+                  id={bullet.id}
+                  size={[0.3, 6, 6]}
+                  position={bullet.position}
+                  velocity={bullet.velocity}
+                  handleBulletCollision={handleBulletCollision}
+                />
+              ))}
             {enemyBullets.map((bullet) => (
               <B.EnemyBullet
                 key={bullet.id}
@@ -277,7 +279,6 @@ export default function Scene() {
           setDashBar={setDashBar}
           dashCooldown={dashCooldown}
           maxDashBar={maxDashBar}
-          setPlayerBullets={setPlayerBullets}
           playerRef={playerRef}
           setDashShield={setDashShield}
         />
@@ -288,7 +289,7 @@ export default function Scene() {
       {playerHealth <= 0 && (
         <GameOverOverlay handlePlayAgain={handlePlayAgain} />
       )}
-
+      {/* 
       <div
         ref={backgroundTransitionRef}
         className="w-full h-full inset-0 absolute flex items-center justify-center bg-black pointer-events-none opacity-100"
@@ -296,8 +297,8 @@ export default function Scene() {
         <h1 className="intro-text text-7xl text-white font-semibold">
           Defeat the boss
         </h1>
-      </div>
-      {/* <Timer /> */}
+      </div> */}
+      <Timer />
     </div>
   );
 }

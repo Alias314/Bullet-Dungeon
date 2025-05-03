@@ -12,6 +12,8 @@ import MachineGun from "../Environment/Items/MachineGun";
 import Shotgun from "../Environment/Items/Shotgun";
 import MovementParticle from "./AfterImage";
 import Shield from "./Shield";
+import { usePlayerStore } from "../Interface/Logic/usePlayerStore";
+import FireAura from "./FireAura";
 
 export default function Player({
   playerRef,
@@ -38,7 +40,7 @@ export default function Player({
   });
   const [isDashing, setIsDashing] = useState(false);
   const [dashDirection, setDashDirection] = useState(new Vector3());
-  const speedMultiplier = 8;
+  const speedMultiplier = usePlayerStore((state) => state.stats.speed);
   const dashForce = 20;
   const dashDuration = 0.2;
   const dashAudioRef = useRef();
@@ -208,6 +210,7 @@ export default function Player({
         <CuboidCollider args={[0.5, 0.5, 0.5]} />
       </RigidBody>
       {dashShield && isDashing && <Shield playerRef={playerRef} />}
+      {/* <FireAura playerRef={playerRef} /> */}
       {afterImage.map((prev) => (
         <MovementParticle
           key={prev.id}

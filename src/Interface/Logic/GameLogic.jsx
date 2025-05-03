@@ -3,35 +3,18 @@ import { Vector2, Vector3 } from "three";
 import useSound from "use-sound";
 import shootSound from "/assets/audio/Retro_Gun_SingleShot_04.wav";
 import { generateLayout } from "../../Environment/GenerateLayout";
+import { usePlayerStore } from "./usePlayerStore";
+import { usePoolStore } from "./usePoolStore";
 
 export default function useGameLogic(playerRef, triggerCameraShake) {
   // player
   const initialHealth = 10;
-  const initialHPRegeneration = 0;
-  const initialLifeSteal = 0;
-  const initialDamage = 0;
-  const initialAttackSpeed = 0;
-  const initialArmor = 0;
-  const initialDodge = 0;
-  const initialSpeed = 0;
   const initialDashCooldown = 1000;
   const initialMaxDashBar = 2;
-
-  const playerStats = useState({
-    health: initialHealth,
-    hpRegeneration: 0,
-    lifeSteal: 0,
-    damage: 0,
-    attackSpeed: 0,
-    armor: 0,
-    dodge: 0,
-    speed: 0
-  });
-
   const [dashShield, setDashShield] = useState();
-
   const [playerHealth, setPlayerHealth] = useState(initialHealth);
-  const [playerBullets, setPlayerBullets] = useState([]);
+
+
   const [playerDirection, setPlayerDirection] = useState(null);
   const [mouse, setMouse] = useState(new Vector2());
   const [dashBar, setDashBar] = useState(2);
@@ -40,14 +23,13 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
   const [showDamageOverlay, setShowDamageOverlay] = useState(false);
   const isShoot = useRef(false);
 
-
   // Weapon cooldown configuration
   const weaponConfig = {
     pistol: { interval: 350, damage: 10, auto: true },
     shotgun: { interval: 1000, damage: 20, auto: true },
     machineGun: { interval: 80, damage: 4, auto: true },
   };
-  const [currentWeapon, setCurrentWeapon] = useState("pistol");
+  const [currentWeapon, setCurrentWeapon] = useState("machineGun");
   const currentWeaponFireRate = weaponConfig[currentWeapon];
   const canShoot = useRef(true);
   const isMouseDownRef = useRef(false);
@@ -96,10 +78,18 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     }
   }, [showDamageOverlay]);
 
+  const playerBullets = usePoolStore((state) => state.playerBullets);
+  const getAvailablePlayerBullet = usePoolStore((state) => state.getAvailablePlayerBullet);
+  const activatePlayerBullet = usePoolStore((state) => state.activatePlayerBullet);
+  const initializeBulletPool = usePoolStore((state) => state.initializeBulletPool);
+
+  useEffect(() => {
+    initializeBulletPool(40);
+  }, []);
+
   // player shooting
   useEffect(() => {
     if (isGameRunning.current) {
-      // calculate mouse position
       const handlePointerMove = (e) => {
         setMouse(
           new Vector2(
@@ -130,16 +120,15 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
         const spreadAngle = 1;
 
         if (currentWeapon === "pistol") {
-          const bulletSpawnPosition = [playerPos.x, 1, playerPos.z];
+          const position = [playerPos.x, 1, playerPos.z];
           const velocity = {
             x: playerDirectionRef.current.x * bulletSpeed,
             y: 0,
             z: playerDirectionRef.current.z * bulletSpeed,
           };
-          setPlayerBullets((prev) => [
-            ...prev,
-            { id: Math.random(), position: bulletSpawnPosition, velocity },
-          ]);
+
+          const id = getAvailablePlayerBullet();
+          activatePlayerBullet(id, position, velocity);
         } else if (currentWeapon === "shotgun") {
           const pellets = [];
           for (let i = 0; i < amountPellet; i++) {
@@ -162,18 +151,17 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
               velocity,
             });
           }
-          setPlayerBullets((prev) => [...prev, ...pellets]);
+          // setPlayerBullets((prev) => [...prev, ...pellets]);
         } else if (currentWeapon === "machineGun") {
-          const bulletSpawnPosition = [playerPos.x, 1, playerPos.z];
+          const position = [playerPos.x, 1, playerPos.z];
           const velocity = {
             x: playerDirectionRef.current.x * bulletSpeed,
             y: 0,
             z: playerDirectionRef.current.z * bulletSpeed,
           };
-          setPlayerBullets((prev) => [
-            ...prev,
-            { id: Math.random(), position: bulletSpawnPosition, velocity },
-          ]);
+
+          const id = getAvailablePlayerBullet();
+          activatePlayerBullet(id, position, velocity);
         }
 
         isShoot.current = true;
@@ -211,9 +199,9 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     }
   }, [currentWeapon, playerRef]);
 
-  // remove bullets
+  const deactivatePlayerBullet = usePoolStore((state) => state.deactivatePlayerBullet); 
   const handleRemoveBullet = (bulletId) => {
-    setPlayerBullets((prev) => prev.filter((bullet) => bullet.id !== bulletId));
+    deactivatePlayerBullet(bulletId);
     setEnemyBullets((prev) => prev.filter((bullet) => bullet.id !== bulletId));
   };
 
@@ -301,8 +289,6 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
 
   return {
     mouse,
-    playerBullets,
-    setPlayerBullets,
     enemyBullets,
     setEnemyBullets,
     setPlayerDirection,
@@ -332,6 +318,6 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     currentWeapon,
     setCurrentWeapon,
     setDashShield,
-    dashShield
+    dashShield,
   };
 }

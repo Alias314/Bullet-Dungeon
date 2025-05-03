@@ -7,7 +7,6 @@ export default function PowerUpOverlay({
   setDashBar,
   dashCooldown,
   maxDashBar,
-  setPlayerBullets,
   playerRef,
   setDashShield
 }) {
@@ -16,42 +15,6 @@ export default function PowerUpOverlay({
     dashCooldown.current = 500;
     maxDashBar.current = 4;
     closeOverlay();
-  };
-
-  const radialBullet = () => {
-    const bulletSpeed = 25;
-    const amountBullets = 16;
-
-    const interval = setInterval(() => {
-      const playerPos =
-        playerRef && playerRef.current ? playerRef.current.translation() : null;
-      for (let i = 0; i < amountBullets; i++) {
-        const angle = (i / amountBullets) * Math.PI * 2;
-        const direction = new Vector3(
-          Math.cos(angle),
-          0,
-          Math.sin(angle)
-        ).normalize();
-
-        const velocity = {
-          x: direction.x * bulletSpeed,
-          y: direction.y * bulletSpeed,
-          z: direction.z * bulletSpeed,
-        };
-
-        setPlayerBullets((prev) => [
-          ...prev,
-          {
-            id: Math.random(),
-            position: [playerPos.x, 1, playerPos.z],
-            velocity,
-          },
-        ]);
-      }
-    }, 3000);
-
-    closeOverlay();
-    return () => clearInterval(interval);
   };
 
   const closeOverlay = () => {
@@ -70,41 +33,11 @@ export default function PowerUpOverlay({
       image: "running-ninja.svg",
       onSelectFunction: ninja,
     },
-    radialBullet: {
-      title: "Radial Bullet",
-      description: "Shoot an array of bullets around you every 3 seconds",
-      image: "icicles-aura.svg",
-      onSelectFunction: radialBullet,
-    },
     dashShield: {
       title: "Dash Shield",
       description: "Summons a shield around you when you dash",
       image: "surrounded-shield.svg",
       onSelectFunction: dashShield,
-    },
-    drone: {
-      title: "Drone",
-      description: "Summons a drone that fights for you",
-      image: "delivery-drone.svg",
-      onSelectFunction: radialBullet,
-    },
-    Enrage: {
-      title: "Enrage",
-      description: "Increases damage by 30% for 3 seconds if you get damaged",
-      image: "enrage.svg",
-      onSelectFunction: radialBullet,
-    },
-    Barbarian: {
-      title: "Barbarian",
-      description: "Increases damage by 25% but you cannot dash",
-      image: "barbarian.svg",
-      onSelectFunction: radialBullet,
-    },
-    fireSilhouette: {
-      title: "Fire Silhouette",
-      description: "Deals damage to enemies within a certain radius",
-      image: "fire-silhouette.svg",
-      onSelectFunction: radialBullet,
     },
   };
 
