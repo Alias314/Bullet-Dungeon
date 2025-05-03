@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { RigidBody, interactionGroups } from "@react-three/rapier";
 import * as THREE from "three";
 import { useLoader } from "@react-three/fiber";
 import MachineGun from "../Items/MachineGun";
 import Pistol from "../Items/Pistol";
 import Shotgun from "../Items/Shotgun";
+import { useGLTF } from "@react-three/drei";
 
 export default function TreasureChest({
   position,
@@ -14,7 +15,7 @@ export default function TreasureChest({
   setCurrentWeapon,
   treasureState,
   setTreasureState,
-  isShoot
+  isShoot,
 }) {
   const texture = useLoader(
     THREE.TextureLoader,
@@ -25,6 +26,7 @@ export default function TreasureChest({
   texture.generateMipmaps = false;
 
   const proximityThreshold = 3;
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -40,6 +42,7 @@ export default function TreasureChest({
           setTreasureState((prev) => ({ ...prev, chestGun: temp }));
         } else {
           setTreasureState((prev) => ({ ...prev, isGunDropped: true }));
+          setIsOpen(true);
         }
       }
     };
@@ -54,6 +57,13 @@ export default function TreasureChest({
     setTreasureState,
   ]);
 
+  const { scene: treasureChestClosed } = useGLTF(
+    "/assets/models/treasureChestClosed.glb"
+  );
+  const { scene: treasureChestOpen } = useGLTF(
+    "/assets/models/treasureChestOpen.glb"
+  );
+
   return (
     <>
       <RigidBody
@@ -63,10 +73,11 @@ export default function TreasureChest({
         position={position}
         collisionGroups={interactionGroups(4, [0, 1, 2, 3])}
       >
-        <mesh castShadow>
-          <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial map={texture} />
-        </mesh>
+        {isOpen ? (
+          <primitive object={treasureChestOpen} scale={0.55} position={[0, 0.2, 0]} />
+        ) : (
+          <primitive object={treasureChestClosed} scale={0.55} position={[0, 0.2, 0]} />
+        )}
       </RigidBody>
 
       {treasureState.isGunDropped && (
@@ -88,11 +99,7 @@ export default function TreasureChest({
             />
           )}
           {treasureState.chestGun === "shotgun" && (
-            <Shotgun
-              key={3}
-              position={position}
-              playerPos={playerPos}
-            />
+            <Shotgun key={3} position={position} playerPos={playerPos} />
           )}
         </>
       )}
