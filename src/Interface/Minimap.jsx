@@ -25,22 +25,22 @@ export default function Minimap({ layout, playerRef }) {
                 : room !== -1
                 ? "bg-red-500"
                 : "bg-gray-900";
-                const isHighlighted = i === highlightedRow && j === highlightedCol;
+            const isHighlighted = i === highlightedRow && j === highlightedCol;
 
             return (
               <div key={j} className="relative">
-                {/* The room cell */}
                 <div
-                  className={`w-8 h-8 mr-2 mb-2 flex items-center justify-center ${bgColor} ${isHighlighted ? "border-4 border-green-500" : ""}`}
+                  className={`w-10 h-10 mr-2 mb-2 flex items-center justify-center ${bgColor} ${
+                    isHighlighted ? "border-4 border-green-500" : ""
+                  }`}
                 ></div>
-                {/* Horizontal hallway indicator: if the right neighbor exists */}
                 {j < row.length - 1 && room !== -1 && row[j + 1] !== -1 && (
-                  <div className="absolute left-8 top-4 w-2 h-1 bg-white"></div>
+                  <div className="absolute left-10 top-4 w-2 h-1 bg-white"></div>
                 )}
                 {i < row.length - 1 &&
                   room !== -1 &&
                   layout[i + 1][j] !== -1 && (
-                    <div className="absolute left-3.5 top-8 w-1 h-2 bg-white"></div>
+                    <div className="absolute left-3.5 top-10 w-1 h-2 bg-white"></div>
                   )}
               </div>
             );

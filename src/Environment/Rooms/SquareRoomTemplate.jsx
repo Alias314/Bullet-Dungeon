@@ -26,7 +26,9 @@ export default function SquareRoomTemplate({
       ]
     : null;
   const distanceToView = 24;
-  const maxWavesRef = useRef(Math.floor(Math.random() * 3) + 1);
+  // const maxWavesRef = useRef(Math.floor(Math.random() * 3) + 1);
+  const maxWavesRef = useRef(1);
+
 
   useRoomWaveSpawner({
     playerPos,

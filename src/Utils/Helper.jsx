@@ -25,7 +25,7 @@ const distanceBetween = (posA, posB) => {
 
 export const summonEnemies = (roomDimensions, position, setAmountEnemy) => {
   const enemyList = [];
-  const amountEnemy = Math.max(Math.random() * 12, 6);
+  const amountEnemy = Math.max(Math.random() * 10, 6);
   // const amountEnemy = 1;
   const minDistance = 2;
   const maxAttempts = 20;

@@ -7,8 +7,29 @@ import { generateLayout } from "../../Environment/GenerateLayout";
 export default function useGameLogic(playerRef, triggerCameraShake) {
   // player
   const initialHealth = 10;
+  const initialHPRegeneration = 0;
+  const initialLifeSteal = 0;
+  const initialDamage = 0;
+  const initialAttackSpeed = 0;
+  const initialArmor = 0;
+  const initialDodge = 0;
+  const initialSpeed = 0;
   const initialDashCooldown = 1000;
   const initialMaxDashBar = 2;
+
+  const playerStats = useState({
+    health: initialHealth,
+    hpRegeneration: 0,
+    lifeSteal: 0,
+    damage: 0,
+    attackSpeed: 0,
+    armor: 0,
+    dodge: 0,
+    speed: 0
+  });
+
+  const [dashShield, setDashShield] = useState();
+
   const [playerHealth, setPlayerHealth] = useState(initialHealth);
   const [playerBullets, setPlayerBullets] = useState([]);
   const [playerDirection, setPlayerDirection] = useState(null);
@@ -19,11 +40,12 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
   const [showDamageOverlay, setShowDamageOverlay] = useState(false);
   const isShoot = useRef(false);
 
+
   // Weapon cooldown configuration
   const weaponConfig = {
     pistol: { interval: 350, damage: 10, auto: true },
     shotgun: { interval: 1000, damage: 20, auto: true },
-    machineGun: { interval: 80, damage: 6, auto: true },
+    machineGun: { interval: 80, damage: 4, auto: true },
   };
   const [currentWeapon, setCurrentWeapon] = useState("pistol");
   const currentWeaponFireRate = weaponConfig[currentWeapon];
@@ -309,5 +331,7 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     gameResetKey,
     currentWeapon,
     setCurrentWeapon,
+    setDashShield,
+    dashShield
   };
 }

@@ -27,7 +27,8 @@ export default function MediumRoomTemplate({
       ]
     : null;
   const distanceToView = 24;
-  const maxWavesRef = useRef(Math.floor(Math.random() * 3) + 1);
+  // const maxWavesRef = useRef(Math.floor(Math.random() * 3) + 1);
+  const maxWavesRef = useRef(1);
 
   // Custom obstacle layout (30 columns x 25 rows)
   const obstacleLayout = [

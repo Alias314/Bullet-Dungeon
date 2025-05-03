@@ -38,6 +38,7 @@ import VictoryOverlay from "./VictoryOverlay";
 
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import Timer from "./Timer";
 
 export default function Scene() {
   const playerRef = useRef();
@@ -82,13 +83,15 @@ export default function Scene() {
     gameResetKey,
     currentWeapon,
     setCurrentWeapon,
+    dashShield,
+    setDashShield
   } = useGameLogic(playerRef, triggerCameraShake);
 
   useEffect(() => {
     const gameplayAudio = new Audio("assets/audio/Digestive_Biscuit.mp3");
-    gameplayAudio.volume = 0;
+    gameplayAudio.volume = 0.2;
     gameplayAudio.loop = true;
-    // gameplayAudio.play();
+    gameplayAudio.play();
   }, []);
 
   useEffect(() => {
@@ -162,6 +165,7 @@ export default function Scene() {
               isGameRunning={isGameRunning}
               currentWeapon={currentWeapon}
               isShoot={isShoot}
+              dashShield={dashShield}
             />
             {enemies &&
               enemies.map((enemy) => {
@@ -275,6 +279,7 @@ export default function Scene() {
           maxDashBar={maxDashBar}
           setPlayerBullets={setPlayerBullets}
           playerRef={playerRef}
+          setDashShield={setDashShield}
         />
       )}
       {hasBeatBoss.current && (
@@ -292,6 +297,7 @@ export default function Scene() {
           Defeat the boss
         </h1>
       </div>
+      {/* <Timer /> */}
     </div>
   );
 }

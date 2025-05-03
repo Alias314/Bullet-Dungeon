@@ -13,12 +13,9 @@ export default function useRoomWaveSpawner({
   setShowRoomClear,
   maxWavesRef
 }) {
-  // wave state starts at 0; once the first wave spawns, set to 1.
   const [wave, setWave] = useState(0);
-  // Flag to indicate that a wave is currently being spawned
   const [isSpawning, setIsSpawning] = useState(false);
 
-  // Helper: compute absolute distances from room center
   function computeAbsDistance() {
     if (!playerPos) return { x: Infinity, z: Infinity };
     return {
@@ -27,7 +24,6 @@ export default function useRoomWaveSpawner({
     };
   }
   
-  // Spawn subsequent waves when the current wave is cleared.
   useEffect(() => {
     if (!playerPos) return;
     const { x, z } = computeAbsDistance();
@@ -36,7 +32,7 @@ export default function useRoomWaveSpawner({
       z <= roomDepth / 2 - 3 &&
       wave < maxWavesRef.current &&
       amountEnemy === 0 &&
-      !isSpawning // only spawn if no wave is already being processed
+      !isSpawning
     ) {
       setIsSpawning(true);
       const newEnemies = summonEnemies(roomDimensions, position, setAmountEnemy).map(
@@ -51,12 +47,9 @@ export default function useRoomWaveSpawner({
         setIsSpawning(false);
       });
     }
-    // console.log("Wave:", wave, "Max:", maxWavesRef.current);
   }, [amountEnemy, playerPos, wave, position, roomDimensions, setEnemies, setAmountEnemy, roomWidth, roomDepth, isSpawning]);
 
-  // When the final wave is cleared, trigger the room clear overlay.
   useEffect(() => {
-    // Only trigger if we're not in the middle of a spawn
     if (!isSpawning && wave === maxWavesRef.current && amountEnemy === 0) {
       setShowRoomClear(true);
     }

@@ -27,7 +27,8 @@ export default function RoomModel({
         Math.abs(position[2] - playerPos.z),
       ]
     : null;
-  const maxWavesRef = useRef(Math.floor(Math.random() * 3) + 1);
+    const maxWavesRef = useRef(1);
+  
 
   useRoomWaveSpawner({
     playerPos,

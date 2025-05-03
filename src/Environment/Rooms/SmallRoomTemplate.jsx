@@ -27,7 +27,9 @@ export default function SmallRoomTemplate({
         Math.abs(position[2] - playerPos.z),
       ]
     : null;
-  const maxWavesRef = useRef(Math.floor(Math.random() * 3) + 1);
+  // const maxWavesRef = useRef(Math.floor(Math.random() * 3) + 1);
+  const maxWavesRef = useRef(1);
+
 
   // Call the custom hook that handles wave/enemy spawning logic.
   useRoomWaveSpawner({

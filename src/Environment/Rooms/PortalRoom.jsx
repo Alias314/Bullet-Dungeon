@@ -27,6 +27,7 @@ export default function PortalRoom({
       ]
     : null;
   const distanceToView = 24;
+    const maxWavesRef = useRef(1);
 
   return (
     <>

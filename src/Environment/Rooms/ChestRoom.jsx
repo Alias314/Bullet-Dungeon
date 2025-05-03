@@ -13,7 +13,7 @@ export default function ChestRoom({
   setShowRoomClear,
   currentWeapon,
   setCurrentWeapon,
-  isShoot
+  isShoot,
 }) {
   const roomDimensions = [20, 1, 20];
   const [roomWidth, , roomDepth] = roomDimensions;
@@ -28,11 +28,15 @@ export default function ChestRoom({
     : null;
   const distanceToView = 24;
   const weapons = ["shotgun", "machineGun"];
-  // const weapons = ["shotgun"];
+  let randomWeapon = weapons[Math.floor(Math.random() * weapons.length)];
+
+  while (randomWeapon === currentWeapon) {
+    randomWeapon = weapons[Math.floor(Math.random() * weapons.length)];
+  }
 
   const [treasureState, setTreasureState] = useState({
     isGunDropped: false,
-    chestGun: weapons[Math.floor(Math.random() * weapons.length)],
+    chestGun: randomWeapon,
   });
 
   return (

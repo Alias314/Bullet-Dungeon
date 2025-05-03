@@ -11,6 +11,7 @@ import Pistol from "../Environment/Items/Pistol";
 import MachineGun from "../Environment/Items/MachineGun";
 import Shotgun from "../Environment/Items/Shotgun";
 import MovementParticle from "./AfterImage";
+import Shield from "./Shield";
 
 export default function Player({
   playerRef,
@@ -23,6 +24,7 @@ export default function Player({
   isGameRunning,
   currentWeapon,
   isShoot,
+  dashShield
 }) {
   const meshRef = useRef();
   const raycaster = useRef(new Raycaster());
@@ -65,7 +67,7 @@ export default function Player({
         if (counter.current % 4 === 0) {
           const p = playerRef.current.translation();
           const position = new Vector3(p.x, p.y + 0.3, p.z);
-  
+
           setAfterImage((list) =>
             [
               ...list,
@@ -205,8 +207,13 @@ export default function Player({
 
         <CuboidCollider args={[0.5, 0.5, 0.5]} />
       </RigidBody>
+      {dashShield && isDashing && <Shield playerRef={playerRef} />}
       {afterImage.map((prev) => (
-        <MovementParticle key={prev.id} position={prev.position} rotation={prev.rotation} />
+        <MovementParticle
+          key={prev.id}
+          position={prev.position}
+          rotation={prev.rotation}
+        />
       ))}
     </>
   );

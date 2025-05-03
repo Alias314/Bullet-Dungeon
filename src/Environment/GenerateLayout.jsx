@@ -75,21 +75,17 @@ export function generateLayout(level) {
       farthestRoom = room;
     }
   }
-  // Force the farthest room to become the chest room.
+  
   if (farthestRoom) {
     layout[farthestRoom.x][farthestRoom.y] = 4;
   }
 
-  // Remove any other chest rooms.
   for (let i = 0; i < size; i++) {
     for (let j = 0; j < size; j++) {
-      // Skip the starting room.
       if (i === startingX && j === startingY) continue;
-      // Skip the designated chest room.
       if (farthestRoom && i === farthestRoom.x && j === farthestRoom.y)
         continue;
       if (layout[i][j] === 4) {
-        // Replace with a random room type between 1 and 3.
         layout[i][j] = Math.floor(Math.random() * 3) + 1;
       }
     }
@@ -112,7 +108,6 @@ export function generateLayout(level) {
     layout[portalCandidate.x][portalCandidate.y] = 6;
   }
 
-  // For level 3 fixed layout.
   if (level === 3) {
     layout = [
       [-1, -1, -1, -1, -1, -1, -1],
