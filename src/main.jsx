@@ -2,7 +2,6 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
-import Prel from "./Interface/Logic/PreloadModels.jsx";
 import "./Interface/Logic/PreloadModels.jsx"
 
 createRoot(document.getElementById("root")).render(
