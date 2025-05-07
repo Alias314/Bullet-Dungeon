@@ -309,16 +309,16 @@ export default function Scene() {
         <GameOverOverlay handlePlayAgain={handlePlayAgain} />
       )}
       <RadialBullet bulletSpeed={30} amountBullets={16} />
+      <Timer />
       
       <div
         ref={backgroundTransitionRef}
         className="w-full h-full inset-0 absolute flex items-center justify-center bg-black pointer-events-none opacity-100"
       >
-        <h1 className="intro-text text-7xl text-white font-semibold">
+        <h1 className="intro-text font-DePixelHalbfett text-5xl text-white font-semibold">
           Defeat the boss
         </h1>
       </div>
-      <Timer />
     </div>
   );
 }

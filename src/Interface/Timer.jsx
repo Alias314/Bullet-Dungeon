@@ -7,12 +7,16 @@ export default function Timer() {
   const increaseStat = usePlayerStore((state) => state.increaseStat);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTime((prev) => prev + 1);
-      increaseStat('xp', 12);
-    }, 1000);
+    const timeout = setTimeout(() => {
+      const interval = setInterval(() => {
+        setTime((prev) => prev + 1);
+        increaseStat("xp", 12);
+      }, 1000);
 
-    return () => clearInterval(interval);
+      return () => clearInterval(interval);
+    }, 1300);
+
+    return () => clearTimeout(timeout);
   }, []);
 
   return (
