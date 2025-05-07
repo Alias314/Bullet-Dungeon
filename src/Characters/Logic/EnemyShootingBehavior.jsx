@@ -1,5 +1,7 @@
 import { Vector3 } from "three";
 import { delay } from "../../Utils/Helper";
+import { usePlayerStore } from "../../Interface/Logic/usePlayerStore";
+import { usePoolStore } from "../../Interface/Logic/usePoolStore";
 
 export async function radialShoot(
   enemyPos,

@@ -9,6 +9,8 @@ import { useGLTF } from "@react-three/drei";
 import { useMemo } from "react";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { CuboidCollider } from "@react-three/rapier";
+import { usePoolStore } from "../../Interface/Logic/usePoolStore";
+import { enemySingleShoot } from "../../Interface/Logic/ShootingBehavior";
 
 export default function GatlingEnemy({
   id,
@@ -18,8 +20,8 @@ export default function GatlingEnemy({
   showIndicator,
   handleMeleeEnemyCollision,
 }) {
-  const [speed, setSpeed] = useState(1.7);
-  const [enemyState, setEnemyState] = useState("follow"); // "follow" or "shoot"
+  const [speed, setSpeed] = useState(2);
+  const [enemyState, setEnemyState] = useState("follow");
   const enemyRef = useRef();
   const localTime = useRef(0);
   const meshRef = useRef();
@@ -30,7 +32,6 @@ export default function GatlingEnemy({
     );
   }, []);
 
-  // Movement: When not showing indicator, follow the player.
   useFrame((_, delta) => {
     if (playerRef.current && enemyRef.current && !showIndicator) {
       const playerPos = playerRef.current.translation();
@@ -76,10 +77,8 @@ export default function GatlingEnemy({
 
     const startCycle = () => {
       setEnemyState("follow");
-      setSpeed(2.5);
       shootTimeoutId = setTimeout(() => {
         setEnemyState("shoot");
-        setSpeed(2);
       }, 2000);
     };
 
@@ -97,6 +96,12 @@ export default function GatlingEnemy({
     };
   }, []);
 
+  const getAvailableEnemyBullet = usePoolStore(
+    (state) => state.getAvailableEnemyBullet
+  );
+  const activateEnemyBullet = usePoolStore(
+    (state) => state.activateEnemyBullet
+  );
   useEffect(() => {
     let shootingInterval;
     if (enemyState === "shoot" && !showIndicator) {
@@ -122,14 +127,14 @@ export default function GatlingEnemy({
             y: direction.y * bulletSpeed,
             z: direction.z * bulletSpeed,
           };
-          setEnemyBullets((prev) => [
-            ...prev,
-            {
-              id: Math.random(),
-              position: [enemyPos.x, enemyPos.y, enemyPos.z],
-              velocity,
-            },
-          ]);
+          const position = [enemyPos.x, enemyPos.y, enemyPos.z];
+
+          enemySingleShoot(
+            position,
+            velocity,
+            getAvailableEnemyBullet,
+            activateEnemyBullet
+          );
         }
       }, 200);
     }

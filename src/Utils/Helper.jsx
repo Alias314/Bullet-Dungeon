@@ -25,7 +25,7 @@ const distanceBetween = (posA, posB) => {
 
 export const summonEnemies = (roomDimensions, position, setAmountEnemy) => {
   const enemyList = [];
-  const amountEnemy = Math.max(Math.random() * 10, 6);
+  const amountEnemy = Math.max(Math.random() * 8, 6);
   // const amountEnemy = 1;
   const minDistance = 2;
   const maxAttempts = 20;
@@ -53,10 +53,10 @@ export const summonEnemies = (roomDimensions, position, setAmountEnemy) => {
     } else if (randomValue <= 0.8) {
       type = "gatling";
     } else {
-      type = "torus";
+      type = "mage";
     }
 
-    // type = "torus";
+    // type = "mage";
     enemyList.push({
       id: i,
       type,

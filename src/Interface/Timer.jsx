@@ -19,7 +19,6 @@ export default function Timer() {
     <div className="absolute right-35 top-90 text-4xl text-white">
       {Math.floor(time / 60)}:{time % 60 < 10 && "0"}
       {time % 60}
-      ({damage})
     </div>
   );
 }

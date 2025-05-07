@@ -13,9 +13,9 @@ export default function PortalRoom({
   amountEnemy,
   setLayout,
   level,
-  setHasBeatLevel
+  setHasBeatLevel,
 }) {
-  const roomDimensions = [18, 1, 18];
+  const roomDimensions = [20, 1, 20];
   const [roomWidth, , roomDepth] = roomDimensions;
   const playerPos =
     playerRef && playerRef.current ? playerRef.current.translation() : null;
@@ -27,7 +27,6 @@ export default function PortalRoom({
       ]
     : null;
   const distanceToView = 24;
-    const maxWavesRef = useRef(1);
 
   return (
     <>

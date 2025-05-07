@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import PowerUpCard from "./PowerUpCard";
 import { Vector3 } from "three";
+import { usePowerUpStore } from "./Logic/usePowerUpStore";
 
 export default function PowerUpOverlay({
   displayPowerUpOverlay,
@@ -8,13 +9,12 @@ export default function PowerUpOverlay({
   dashCooldown,
   maxDashBar,
   playerRef,
-  setDashShield
+  setDashShield,
 }) {
+  const setPowerUp = usePowerUpStore((state) => state.setPowerUp);
+
   const ninja = () => {
-    setDashBar(4);
-    dashCooldown.current = 500;
-    maxDashBar.current = 4;
-    closeOverlay();
+    setPowerUp("ninja", true);
   };
 
   const closeOverlay = () => {
@@ -22,8 +22,11 @@ export default function PowerUpOverlay({
   };
 
   const dashShield = () => {
-    setDashShield(true);
-    closeOverlay()
+    setPowerUp("dashShield", true);
+  };
+
+  const radialBullet = () => {
+    setPowerUp("radialBullet", true);
   };
 
   const powerUps = {
@@ -33,7 +36,19 @@ export default function PowerUpOverlay({
       image: "running-ninja.svg",
       onSelectFunction: ninja,
     },
-    dashShield: {
+    radialBullet: {
+      title: "Radial Bullet",
+      description: "Shoot an array of bullets around you every 3 seconds",
+      image: "icicles-aura.svg",
+      onSelectFunction: radialBullet,
+    },
+    dashShield1: {
+      title: "Dash Shield",
+      description: "Summons a shield around you when you dash",
+      image: "surrounded-shield.svg",
+      onSelectFunction: dashShield,
+    },
+    dashShield2: {
       title: "Dash Shield",
       description: "Summons a shield around you when you dash",
       image: "surrounded-shield.svg",
@@ -53,11 +68,11 @@ export default function PowerUpOverlay({
     }
   }
 
-  const [amountReroll, setAmountReroll] = useState(3);
+  const [amountReroll, setAmountReroll] = useState(10);
   const reroll = () => {
     if (amountReroll > 0) {
       setIsUsedKey({});
-      setAmountReroll(prev => prev - 1);
+      setAmountReroll((prev) => prev - 1);
     }
   };
 
@@ -67,15 +82,22 @@ export default function PowerUpOverlay({
       <div className="flex gap-10 text-black">
         {Object.keys(isUsedKey).map((key) => (
           <PowerUpCard
+            key={key}
             title={powerUps[key].title}
             description={powerUps[key].description}
             image={powerUps[key].image}
-            onSelectFunction={powerUps[key].onSelectFunction}
+            onSelectFunction={() => {
+              powerUps[key].onSelectFunction();
+              closeOverlay();
+            }}
           />
         ))}
       </div>
 
-      <button onClick={reroll} className="px-6 py-2 bg-white text-5xl font-semibold rounded-2xl hover:bg-gray-400">
+      <button
+        onClick={reroll}
+        className="px-6 py-2 bg-white text-5xl font-semibold rounded-2xl hover:bg-gray-400"
+      >
         Reroll ({amountReroll})
       </button>
     </div>

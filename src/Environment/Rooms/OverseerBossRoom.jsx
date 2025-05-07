@@ -35,13 +35,13 @@ export default function OverseerBossRoom({
     absoluteDistance[0] <= distanceToSummon &&
     absoluteDistance[2] <= distanceToSummon
   ) {
-    setBosses({ id: 1, type: "Overseer", health: 1500, position: [position[0], 2, position[2]] });
+    setBosses({ id: 1, type: "Overseer", health: 500, position: [position[0], 2, position[2]] });
     hasSummonedRef.current = true;
   }
 
   const topWallZ = position[2] - roomDepth / 2 + offset;
     if (openings.top) {
-      const gapWidth = 4; // gap is 4 units wide
+      const gapWidth = 4;
       const startIndex = Math.floor((roomWidth - gapWidth) / 2);
       const leftSegmentLength = startIndex;
       const rightSegmentLength = roomWidth - (startIndex + gapWidth);

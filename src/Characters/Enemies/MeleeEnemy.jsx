@@ -19,6 +19,25 @@ export default function MeleeEnemy({
   const visualRef = useRef();
   const speed = 4;
   const smoothingFactor = 0.1;
+  const { scene: enemySwordBody } = useGLTF(
+    "/assets/models/enemySwordBody.glb"
+  );
+  const { scene: enemySwordHead } = useGLTF(
+    "/assets/models/enemySwordHead.glb"
+  );
+  const { scene: sword } = useGLTF("/assets/models/sword.glb");
+  const modelEnemySwordBody = useMemo(
+    () => clone(enemySwordBody),
+    [enemySwordBody]
+  );
+  const modelEnemySwordHead = useMemo(
+    () => clone(enemySwordHead),
+    [enemySwordHead]
+  );
+  const modelSword = useMemo(() => clone(sword), [sword]);
+  const interval = useRef(null);
+  const enemySwordHeadRef = useRef(null);
+  const swordRef = useRef(null);
 
   useFrame(() => {
     if (playerRef.current && enemyRef.current && !showIndicator) {
@@ -51,25 +70,6 @@ export default function MeleeEnemy({
     }
   });
 
-  const { scene: enemySwordBody } = useGLTF(
-    "/assets/models/enemySwordBody.glb"
-  );
-  const { scene: enemySwordHead } = useGLTF(
-    "/assets/models/enemySwordHead.glb"
-  );
-  const { scene: sword } = useGLTF("/assets/models/sword.glb");
-  const modelEnemySwordBody = useMemo(
-    () => clone(enemySwordBody),
-    [enemySwordBody]
-  );
-  const modelEnemySwordHead = useMemo(
-    () => clone(enemySwordHead),
-    [enemySwordHead]
-  );
-  const modelSword = useMemo(() => clone(sword), [sword]);
-  const interval = useRef(null);
-  const enemySwordHeadRef = useRef(null);
-  const swordRef = useRef(null);
 
   useEffect(() => {
     if (enemySwordHeadRef.current) {

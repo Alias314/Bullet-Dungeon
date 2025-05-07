@@ -1,117 +1,81 @@
 import React from "react";
-import HallwayMesh from "./HallwayMesh"; // adjust path as needed
-import { depth } from "three/tsl";
+import HallwayMesh from "./HallwayMesh";
 
-// Returns the room dimensions (width and depth) for each room type
-function getRoomDimensions(roomValue) {
-  switch (roomValue) {
-    case 0: // StartingRoom
-      return { width: 18, depth: 18 };
-    case 1: // SmallRoomTemplate
-      return { width: 25, depth: 20 };
-    case 2: // MediumRoomTemplate
-      return { width: 30, depth: 25 };
-    case 3: // SquareRoomTemplate
-      return { width: 25, depth: 25 };
-    case 4:
-      return {width: 20, depth: 20};
-    case 5:
-      return {width: 27, depth: 27};
-    case 6:
-      return {width: 18, depth: 18};
-    default:
-      return { width: 25, depth: 20 };
-  }
-}
+// ------------------------------------------------------------------
+// Room bounding‑box sizes (world units)
+// ------------------------------------------------------------------
+const ROOM_SIZES = {
+  0: { w: 20, d: 20 }, // Starting
+  1: { w: 25, d: 20 }, // Small
+  2: { w: 30, d: 25 }, // Medium
+  3: { w: 25, d: 25 }, // Square
+  4: { w: 20, d: 20 }, // Chest
+  5: { w: 27, d: 27 }, // Overseer
+  6: { w: 20, d: 20 }, // Portal
+};
 
-// This component calculates and renders hallways between adjacent rooms
 export function Hallways({ layout, cellSize, playerRef }) {
   const hallways = [];
   const rows = layout.length;
   const cols = layout[0].length;
   const playerPos =
-    playerRef && playerRef.current ? playerRef.current.translation() : null;
+    playerRef?.current ? playerRef.current.translation() : null;
 
-  // Compute dynamic openings based on adjacent rooms
-  const getOpenings = (i, j) => {
-    const openings = { top: false, bottom: false, left: false, right: false };
-    if (i > 0 && layout[i - 1][j] !== -1) {
-      openings.top = true;
-    }
-    if (i < rows - 1 && layout[i + 1][j] !== -1) {
-      openings.bottom = true;
-    }
-    if (j > 0 && layout[i][j - 1] !== -1) {
-      openings.left = true;
-    }
-    if (j < cols - 1 && layout[i][j + 1] !== -1) {
-      openings.right = true;
-    }
-    return openings;
-  };
+  const roomAt = (i, j) => (layout[i]?.[j] ?? -1) !== -1;
 
-  // Iterate over each cell to check for a right or bottom neighbor
+  // ---------- iterate over every room ---------------------------------
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
-      const roomValue = layout[i][j];
-      if (roomValue === -1) continue; // Skip if no room
+      const rv = layout[i][j];
+      if (rv === -1) continue;                         // empty cell
 
-      // Compute the center position of this room
-      const centerX = (j - 3) * cellSize;
-      const centerZ = (i - 3) * cellSize;
-      const roomDims = getRoomDimensions(roomValue);
+      const { w: wA, d: dA } = ROOM_SIZES[rv];
+      const cxA = (j - 3) * cellSize;                 // room‑A centre
+      const czA = (i - 3) * cellSize;
 
-      // --- Horizontal Hallway: Check right neighbor ---
-      if (j < cols - 1 && layout[i][j + 1] !== -1) {
-        const currentOpenings = getOpenings(i, j);
-        const neighborOpenings = getOpenings(i, j + 1);
+      // ---------- 1. Horizontal corridor to the room on the right -----
+      if (j + 1 < cols && roomAt(i, j + 1)) {
+        const rvB = layout[i][j + 1];
+        const { w: wB } = ROOM_SIZES[rvB];
+        const cxB = cxA + cellSize;                   // room‑B centre (same z)
 
-        // Only add a hallway if both rooms have openings facing each other
-        if (currentOpenings.right && neighborOpenings.left) {
-          const neighborValue = layout[i][j + 1];
-          const neighborDims = getRoomDimensions(neighborValue);
-          const hallwayLength =
-            cellSize - (roomDims.width / 2 + neighborDims.width / 2);
-          if (hallwayLength > 0) {
-            const hallCenterX = centerX + cellSize / 2;
-            const hallCenterZ = centerZ;
-            hallways.push(
-              <HallwayMesh
-                key={`hallway-h-${i}-${j}`}
-                position={[hallCenterX, -0.01, hallCenterZ]}
-                geometryArgs={[hallwayLength + 10, 1, 4]}
-                materialColor="white"
-                playerPos={playerPos}
-              />
-            );
-          }
+        const rightEdgeA   = cxA + wA / 2;
+        const leftEdgeB    = cxB - wB / 2;
+        const hallLen      = leftEdgeB - rightEdgeA;
+        if (hallLen > 0.01) {                         // avoid negative / zero
+          const hallCenter = (rightEdgeA + leftEdgeB) / 2;
+          hallways.push(
+            <HallwayMesh
+              key={`hall-h-${i}-${j}`}
+              position={[hallCenter, -0.01, czA]}
+              geometryArgs={[hallLen, 1, 4]}          // X‑length hallway
+              materialColor="white"
+              playerPos={playerPos}
+            />
+          );
         }
       }
 
-      // --- Vertical Hallway: Check bottom neighbor ---
-      if (i < rows - 1 && layout[i + 1][j] !== -1) {
-        const currentOpenings = getOpenings(i, j);
-        const neighborOpenings = getOpenings(i + 1, j);
+      // ---------- 2. Vertical corridor to the room below --------------
+      if (i + 1 < rows && roomAt(i + 1, j)) {
+        const rvB = layout[i + 1][j];
+        const { d: dB } = ROOM_SIZES[rvB];
+        const czB = czA + cellSize;                   // room‑B centre (same x)
 
-        // Only add a hallway if both rooms have openings facing each other
-        if (currentOpenings.bottom && neighborOpenings.top) {
-          const neighborValue = layout[i + 1][j];
-          const neighborDims = getRoomDimensions(neighborValue);
-          const hallwayLength =
-            cellSize - (roomDims.depth / 2 + neighborDims.depth / 2);
-          if (hallwayLength > 0) {
-            const hallCenterX = centerX;
-            const hallCenterZ = centerZ + cellSize / 2;
-            hallways.push(
-              <HallwayMesh
-                key={`hallway-v-${i}-${j}`}
-                position={[hallCenterX, -0.01, hallCenterZ]}
-                geometryArgs={[4, 1, hallwayLength + 10]}
-                materialColor="white"
-                playerPos={playerPos}
-              />
-            );
-          }
+        const bottomEdgeA  = czA + dA / 2;
+        const topEdgeB     = czB - dB / 2;
+        const hallLen      = topEdgeB - bottomEdgeA;
+        if (hallLen > 0.01) {
+          const hallCenter = (bottomEdgeA + topEdgeB) / 2;
+          hallways.push(
+            <HallwayMesh
+              key={`hall-v-${i}-${j}`}
+              position={[cxA, -0.01, hallCenter]}
+              geometryArgs={[4, 1, hallLen]}          // Z‑length hallway
+              materialColor="white"
+              playerPos={playerPos}
+            />
+          );
         }
       }
     }

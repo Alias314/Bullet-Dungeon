@@ -5,14 +5,17 @@ import {
   CuboidCollider,
   interactionGroups,
 } from "@react-three/rapier";
+import { usePlayerStore } from "../Interface/Logic/usePlayerStore";
 
-export default function Shield({ playerRef }) {
+export default function Shield() {
   const meshRef = useRef();
-  const playerPos = playerRef.current ? playerRef.current.translation() : null;
+  const playerRef = usePlayerStore((state) => state.playerRef);
+  const ready = useRef(false);
 
   useFrame(() => {
     if (playerRef.current && meshRef.current) {
       meshRef.current.setTranslation(playerRef.current.translation());
+      ready.current = true;
     }
   });
 
@@ -20,13 +23,14 @@ export default function Shield({ playerRef }) {
     <RigidBody
       ref={meshRef}
       name="PlayerShield"
-      type="kinematicPosition"
+      type="dynamic"
       colliders={false}
+      position={[0, 0, 0]}
       gravityScale={0}
       collisionGroups={interactionGroups(0, [3])}
     >
       <CuboidCollider args={[2, 2, 2]} />
-      <mesh>
+      <mesh visible={ready.current} position={[0, 0, 0]} >
         <octahedronGeometry args={[2, 3]} />
         <meshStandardMaterial color="orange" transparent opacity={0.2} />
       </mesh>

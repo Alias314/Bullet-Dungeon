@@ -8,14 +8,34 @@ import gsap from "gsap";
 import { useMemo } from "react";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { CuboidCollider } from "@react-three/rapier";
+import { enemySingleShoot } from "../../Interface/Logic/ShootingBehavior";
+import { usePoolStore } from "../../Interface/Logic/usePoolStore";
 
 export default function PistolEnemy({
   id,
   playerRef,
   position,
-  setEnemyBullets,
   showIndicator,
 }) {
+  const visualRef = useRef(null);
+  const { scene: enemySwordBody } = useGLTF(
+    "/assets/models/enemySwordBody.glb"
+  );
+  const { scene: enemySwordHead } = useGLTF(
+    "/assets/models/enemyPistolHead.glb"
+  );
+  const { scene: sword } = useGLTF("/assets/models/knightGun.glb");
+  const modelEnemySwordBody = useMemo(
+    () => clone(enemySwordBody),
+    [enemySwordBody]
+  );
+  const modelEnemySwordHead = useMemo(
+    () => clone(enemySwordHead),
+    [enemySwordHead]
+  );
+  const modelSword = useMemo(() => clone(sword), [sword]);
+  const enemySwordHeadRef = useRef(null);
+  const swordRef = useRef(null);
   const [time, setTime] = useState(0);
   const enemyRef = useRef();
   const speed = 2.2;
@@ -24,6 +44,7 @@ export default function PistolEnemy({
   const meshRef = useRef();
   const localTime = useRef(0);
   const shootAudioRef = useRef();
+
   useEffect(() => {
     shootAudioRef.current = new Audio(
       "assets/audio/Retro_Gun_SingleShot_04.wav"
@@ -120,10 +141,17 @@ export default function PistolEnemy({
     }
   }, [time]);
 
+  const getAvailableEnemyBullet = usePoolStore(
+    (state) => state.getAvailableEnemyBullet
+  );
+  const activateEnemyBullet = usePoolStore(
+    (state) => state.activateEnemyBullet
+  );
+
   useEffect(() => {
     if (showIndicator) return;
 
-    const initialDelay = Math.random() * 500;
+    const initialDelay = Math.random() * 1000;
     let shootingInterval;
     const timeout = setTimeout(() => {
       shootingInterval = setInterval(() => {
@@ -148,44 +176,25 @@ export default function PistolEnemy({
             y: 0,
             z: direction.z * bulletSpeed,
           };
+          const position = [enemyPos.x, enemyPos.y, enemyPos.z];
 
-          setEnemyBullets((prev) => [
-            ...prev,
-            {
-              id: crypto.randomUUID(),
-              position: [enemyPos.x, enemyPos.y, enemyPos.z],
-              velocity,
-            },
-          ]);
+          enemySingleShoot(
+            position,
+            velocity,
+            getAvailableEnemyBullet,
+            activateEnemyBullet
+          );
         }
       }, 2000);
+
+      return () => clearInterval(interval);
     }, initialDelay);
 
     return () => {
       clearTimeout(timeout);
       if (shootingInterval) clearInterval(shootingInterval);
     };
-  }, [playerRef, enemyRef, setEnemyBullets, showIndicator]);
-
-  const visualRef = useRef(null);
-  const { scene: enemySwordBody } = useGLTF(
-    "/assets/models/enemySwordBody.glb"
-  );
-  const { scene: enemySwordHead } = useGLTF(
-    "/assets/models/enemyPistolHead.glb"
-  );
-  const { scene: sword } = useGLTF("/assets/models/knightGun.glb");
-  const modelEnemySwordBody = useMemo(
-    () => clone(enemySwordBody),
-    [enemySwordBody]
-  );
-  const modelEnemySwordHead = useMemo(
-    () => clone(enemySwordHead),
-    [enemySwordHead]
-  );
-  const modelSword = useMemo(() => clone(sword), [sword]);
-  const enemySwordHeadRef = useRef(null);
-  const swordRef = useRef(null);
+  }, [playerRef, enemyRef, showIndicator]);
 
   useEffect(() => {
     if (enemySwordHeadRef.current) {

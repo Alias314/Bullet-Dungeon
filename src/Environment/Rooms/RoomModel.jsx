@@ -42,14 +42,12 @@ export default function RoomModel({
     setShowRoomClear,
     maxWavesRef,
   });
-  const { scene } = useGLTF("/assets/models/room3.glb");
+  const { scene } = useGLTF("/assets/models/testRoom.glb");
 
   return (
     <group>
-      {/* Room model */}
-      <primitive object={scene} position={[0, 1.3, 0]} scale={3} />
+      <primitive object={scene} position={[0, 1.3, 0]} scale={0.5} />
 
-      {/* Left wall */}
       <RigidBody
         type="fixed"
         colliders="cuboid"
@@ -61,7 +59,6 @@ export default function RoomModel({
         </mesh>
       </RigidBody>
 
-      {/* Right wall */}
       <RigidBody
         type="fixed"
         colliders="cuboid"
@@ -73,7 +70,6 @@ export default function RoomModel({
         </mesh>
       </RigidBody>
 
-      {/* Back wall */}
       <RigidBody
         type="fixed"
         colliders="cuboid"
@@ -85,7 +81,6 @@ export default function RoomModel({
         </mesh>
       </RigidBody>
 
-      {/* Front wall */}
       <RigidBody
         type="fixed"
         colliders="cuboid"

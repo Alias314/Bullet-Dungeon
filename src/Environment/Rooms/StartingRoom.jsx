@@ -9,7 +9,7 @@ export default function StartingRoom({
   openings,
   amountEnemy
 }) {
-  const roomDimensions = [18, 1, 18];
+  const roomDimensions = [20, 1, 20];
   const [roomWidth, , roomDepth] = roomDimensions;
   const offset = 0.5;
   const playerPos =

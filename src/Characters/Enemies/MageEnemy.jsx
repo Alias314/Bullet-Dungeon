@@ -10,7 +10,8 @@ import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { CuboidCollider } from "@react-three/rapier";
 import { useState } from "react";
 import { follow, stalk, runAway, wander } from "../Logic/EnemyMovementBehavior";
-
+import { enemyRadialShoot } from "../../Interface/Logic/ShootingBehavior";
+import { usePoolStore } from "../../Interface/Logic/usePoolStore";
 
 export default function MeleeEnemy({
   id,
@@ -22,13 +23,30 @@ export default function MeleeEnemy({
   const enemyRef = useRef();
   const visualRef = useRef();
   const speed = 2;
-  const smoothingFactor = 0.1;
   const localTime = useRef(0);
   const meshRef = useRef();
   const shootAudioRef = useRef();
   const distanceToWander = 100;
   const [positionToWander, setPositionToWander] = useState(null);
   const [time, setTime] = useState(0);
+  const { scene: enemySwordBody } = useGLTF(
+    "/assets/models/enemyWizardBody.glb"
+  );
+  const { scene: enemySwordHead } = useGLTF(
+    "/assets/models/enemyWizardHead.glb"
+  );
+  const { scene: sword } = useGLTF("/assets/models/staff.glb");
+  const modelEnemySwordBody = useMemo(
+    () => clone(enemySwordBody),
+    [enemySwordBody]
+  );
+  const modelEnemySwordHead = useMemo(
+    () => clone(enemySwordHead),
+    [enemySwordHead]
+  );
+  const modelSword = useMemo(() => clone(sword), [sword]);
+  const enemySwordHeadRef = useRef(null);
+  const swordRef = useRef(null);
 
   useEffect(() => {
     shootAudioRef.current = new Audio(
@@ -126,15 +144,28 @@ export default function MeleeEnemy({
     }
   }, [time]);
 
+  const getAvailableEnemyBullet = usePoolStore(
+    (state) => state.getAvailableEnemyBullet
+  );
+  const activateEnemyBullet = usePoolStore(
+    (state) => state.activateEnemyBullet
+  );
   useEffect(() => {
-    const initialDelay = Math.random() * 500;
+    const initialDelay = Math.random() * 1000;
     const intervalRef = { current: null };
     const timeout = setTimeout(() => {
-      if (enemyRef.current?.isValid()) {
+      if (enemyRef.current) {
         intervalRef.current = setInterval(() => {
-          if (enemyRef.current?.isValid()) {
-            const enemyPos = enemyRef.current.translation();
-            radialShoot(enemyPos, setEnemyBullets, 10, 10, shootAudioRef);
+          if (enemyRef.current) {
+            const p = enemyRef.current.translation();
+            const position = [p.x, 1, p.z];
+            enemyRadialShoot(
+              position,
+              10,
+              10,
+              getAvailableEnemyBullet,
+              activateEnemyBullet
+            );
           }
         }, 2000);
       }
@@ -147,25 +178,6 @@ export default function MeleeEnemy({
       }
     };
   }, []);
-
-  const { scene: enemySwordBody } = useGLTF(
-    "/assets/models/enemyWizardBody.glb"
-  );
-  const { scene: enemySwordHead } = useGLTF(
-    "/assets/models/enemyWizardHead.glb"
-  );
-  const { scene: sword } = useGLTF("/assets/models/staff.glb");
-  const modelEnemySwordBody = useMemo(
-    () => clone(enemySwordBody),
-    [enemySwordBody]
-  );
-  const modelEnemySwordHead = useMemo(
-    () => clone(enemySwordHead),
-    [enemySwordHead]
-  );
-  const modelSword = useMemo(() => clone(sword), [sword]);
-  const enemySwordHeadRef = useRef(null);
-  const swordRef = useRef(null);
 
   useEffect(() => {
     if (enemySwordHeadRef.current) {
@@ -217,7 +229,7 @@ export default function MeleeEnemy({
       ref={enemyRef}
       name={`Enemy-${id}`}
       position={position}
-      colliders={showIndicator ? false : "cuboid"}
+      colliders={false}
       type="dynamic"
       gravityScale={0}
       collisionGroups={

@@ -5,7 +5,7 @@ import {
   interactionGroups,
   RigidBody,
 } from "@react-three/rapier";
-import { Raycaster, Vector3, Plane, Quaternion } from "three";
+import { Raycaster, Vector3, Plane, Quaternion, StaticReadUsage } from "three";
 import { useGLTF } from "@react-three/drei";
 import Pistol from "../Environment/Items/Pistol";
 import MachineGun from "../Environment/Items/MachineGun";
@@ -14,19 +14,16 @@ import MovementParticle from "./AfterImage";
 import Shield from "./Shield";
 import { usePlayerStore } from "../Interface/Logic/usePlayerStore";
 import FireAura from "./FireAura";
+import HitParticles from "./HitParticles";
 
 export default function Player({
   playerRef,
   mouse,
   setPlayerDirection,
-  dashBar,
-  setDashBar,
-  dashCooldown,
-  maxDashBar,
   isGameRunning,
   currentWeapon,
   isShoot,
-  dashShield
+  dashShield,
 }) {
   const meshRef = useRef();
   const raycaster = useRef(new Raycaster());
@@ -38,19 +35,21 @@ export default function Player({
     s: false,
     d: false,
   });
-  const [isDashing, setIsDashing] = useState(false);
+  // const [isDashing, setIsDashing] = useState(false);
+  const isDashing = usePlayerStore((state) => state.isDashing);
+  const setIsDashing = usePlayerStore((state) => state.setIsDashing);
   const [dashDirection, setDashDirection] = useState(new Vector3());
-  const speedMultiplier = usePlayerStore((state) => state.stats.speed);
-  const dashForce = 20;
-  const dashDuration = 0.2;
   const dashAudioRef = useRef();
-  useEffect(() => {
-    dashAudioRef.current = new Audio("assets/audio/Retro_Swooosh_16.wav");
-  }, []);
   const localTime = useRef(0);
   const [afterImage, setAfterImage] = useState([]);
   const lastQuatRef = useRef(new Quaternion());
   const counter = useRef(0);
+  const stats = usePlayerStore((state) => state.stats);
+  const increaseStat = usePlayerStore((state) => state.increaseStat);
+  
+  useEffect(() => {
+    dashAudioRef.current = new Audio("assets/audio/Retro_Swooosh_16.wav");
+  }, []);
 
   useFrame((_, delta) => {
     localTime.current += delta * 8;
@@ -63,7 +62,7 @@ export default function Player({
       );
 
       if (isDashing) {
-        input = dashDirection.clone().multiplyScalar(dashForce);
+        input = dashDirection.clone().multiplyScalar(stats.dashForce);
         counter.current++;
 
         if (counter.current % 4 === 0) {
@@ -82,7 +81,7 @@ export default function Player({
           );
         }
       } else if (input.length() > 0) {
-        input.normalize().multiplyScalar(speedMultiplier);
+        input.normalize().multiplyScalar(stats.speed);
       }
 
       playerRef.current.setLinvel({ x: input.x, y: 0, z: input.z }, true);
@@ -117,7 +116,7 @@ export default function Player({
     const handleKeyDown = (e) => {
       if (e.repeat) return;
 
-      if (e.code === "Space" && dashBar > 0 && !isDashing) {
+      if (e.code === "Space" && stats.dashes > 0 && !isDashing) {
         if (dashAudioRef.current) {
           const soundClone = dashAudioRef.current.cloneNode();
           soundClone.play();
@@ -132,10 +131,12 @@ export default function Player({
           input.normalize();
           setDashDirection(input);
           setIsDashing(true);
-          setDashBar((prev) => prev - 1);
+          increaseStat("dashes", -1);
+
           setTimeout(() => {
             setIsDashing(false);
-          }, dashDuration * 1000);
+          }, stats.dashDuration);
+
           setTimeout(() => {
             setAfterImage([]);
           }, 1000);
@@ -160,14 +161,14 @@ export default function Player({
   }, [keyPressed, isDashing]);
 
   useEffect(() => {
-    if (dashBar < maxDashBar) {
+    if (stats.dashes < stats.maxDashes) {
       const interval = setInterval(() => {
-        setDashBar((prev) => prev + 1);
-      }, dashCooldown);
+        increaseStat("dashes", 1);
+      }, stats.dashCooldown);
 
       return () => clearInterval(interval);
     }
-  }, [dashBar]);
+  }, [stats.dashes]);
 
   const { scene: knightBody } = useGLTF("/assets/models/knightBody.glb");
   const { scene: knightHead } = useGLTF("/assets/models/knightHead.glb");
@@ -206,11 +207,9 @@ export default function Player({
         {currentWeapon === "shotgun" && (
           <Shotgun key={3} currentWeapon={currentWeapon} isShoot={isShoot} />
         )}
-
         <CuboidCollider args={[0.5, 0.5, 0.5]} />
       </RigidBody>
-      {dashShield && isDashing && <Shield playerRef={playerRef} />}
-      {/* <FireAura playerRef={playerRef} /> */}
+
       {afterImage.map((prev) => (
         <MovementParticle
           key={prev.id}

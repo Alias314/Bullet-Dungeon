@@ -25,7 +25,7 @@ export default function LevelLayout({
   setCurrentWeapon,
   isShoot
 }) {
-  const cellSize = 37;
+  const cellSize = 34;
 
   // Compute dynamic openings based on adjacent rooms
   const getOpenings = (i, j) => {

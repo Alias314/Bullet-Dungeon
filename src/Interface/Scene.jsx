@@ -10,8 +10,8 @@ import Player from "../Characters/Player";
 import MeleeEnemy from "../Characters/Enemies/MeleeEnemy";
 import PistolEnemy from "../Characters/Enemies/PistolEnemy";
 import GatlingEnemy from "../Characters/Enemies/GatlingEnemy";
-import TorusEnemy from "../Characters/Enemies/TorusEnemy";
-import * as B from "../Characters/Bullet";
+import TorusEnemy from "../Characters/Enemies/MageEnemy";
+import { PlayerBullet, EnemyBullet } from "../Characters/Bullet";
 
 // Interface
 import { BossHealthBar, DashBar, HealthBar, Hotbar } from "./Inventory";
@@ -19,15 +19,11 @@ import GameOver from "./GameOver";
 import LevelLayout from "../Environment/LevelLayout";
 import Minimap from "./Minimap";
 import DamageOverlay from "./DamageOverlay";
-import { generateLayout } from "../Environment/GenerateLayout";
 import { CameraController } from "./Logic/CameraController";
 import GameOverOverlay from "./GameOverOverlay";
 import useGameLogic from "./Logic/GameLogic";
-import { CustomRoom } from "../Environment/RoomLayout";
 
 // testing
-import OverseerBossRoom from "../Environment/Rooms/OverseerBossRoom";
-import ChestRoom from "../Environment/Rooms/ChestRoom";
 import Overseer from "../Characters/Enemies/Bosses/Overseer";
 
 import gameplayMusic from "../Assets/Audio/gameplayMusic.mp3";
@@ -40,6 +36,12 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import Timer from "./Timer";
 import { usePoolStore } from "./Logic/usePoolStore";
+import UserInterface from "./UserInterface";
+import { Ninja, RadialBullet } from "./Logic/powerUps";
+import { usePlayerStore } from "./Logic/usePlayerStore";
+import Shield from "../Characters/Shield";
+import { usePowerUpStore } from "./Logic/usePowerUpStore";
+import HitParticles from "../Characters/HitParticles";
 
 export default function Scene() {
   const playerRef = useRef();
@@ -54,8 +56,6 @@ export default function Scene() {
 
   const {
     mouse,
-    enemyBullets,
-    setEnemyBullets,
     setPlayerDirection,
     amountEnemy,
     setAmountEnemy,
@@ -67,7 +67,8 @@ export default function Scene() {
     maxDashBar,
     setDashBar,
     showDamageOverlay,
-    handleBulletCollision,
+    handlePlayerBulletCollision,
+    handleEnemyBulletCollision,
     handleMeleeEnemyCollision,
     bosses,
     setBosses,
@@ -84,6 +85,8 @@ export default function Scene() {
     setCurrentWeapon,
     dashShield,
     setDashShield,
+    hitParticles,
+    setHitParticles,
   } = useGameLogic(playerRef, triggerCameraShake);
 
   useEffect(() => {
@@ -100,6 +103,11 @@ export default function Scene() {
       }, 1000);
     }
   }, [showRoomClear]);
+
+  const setPlayerRef = usePlayerStore((state) => state.setPlayerRef);
+  useEffect(() => {
+    setPlayerRef(playerRef);
+  }, [playerRef.current]);
 
   // useGSAP(() => {
   //   const context = gsap.context(() => {
@@ -123,6 +131,10 @@ export default function Scene() {
   // }, []);
 
   const playerBullets = usePoolStore((state) => state.playerBullets);
+  const enemyBullets = usePoolStore((state) => state.enemyBullets);
+  const isDashing = usePlayerStore((state) => state.isDashing);
+  const powerUps = usePowerUpStore((state) => state.powerUps);
+
   return (
     <div className="w-screen h-screen relative bg-gray-800">
       <Canvas
@@ -176,7 +188,6 @@ export default function Scene() {
                       id={enemy.id}
                       playerRef={playerRef}
                       position={enemy.position}
-                      setEnemyBullets={setEnemyBullets}
                       showIndicator={enemy.showIndicator}
                     />
                   );
@@ -198,18 +209,16 @@ export default function Scene() {
                       id={enemy.id}
                       playerRef={playerRef}
                       position={enemy.position}
-                      setEnemyBullets={setEnemyBullets}
                       showIndicator={enemy.showIndicator}
                     />
                   );
-                } else if (enemy.type === "torus") {
+                } else if (enemy.type === "mage") {
                   return (
                     <TorusEnemy
                       key={enemy.id}
                       id={enemy.id}
                       playerRef={playerRef}
                       position={enemy.position}
-                      setEnemyBullets={setEnemyBullets}
                       showIndicator={enemy.showIndicator}
                     />
                   );
@@ -221,31 +230,32 @@ export default function Scene() {
                 id={0}
                 playerRef={playerRef}
                 position={bosses.position}
-                setEnemyBullets={setEnemyBullets}
               />
             )}
             {playerBullets
               .filter((b) => b.active)
               .map((bullet) => (
-                <B.PlayerBullet
+                <PlayerBullet
                   key={bullet.id}
                   id={bullet.id}
                   size={[0.3, 6, 6]}
                   position={bullet.position}
                   velocity={bullet.velocity}
-                  handleBulletCollision={handleBulletCollision}
+                  handlePlayerBulletCollision={handlePlayerBulletCollision}
                 />
               ))}
-            {enemyBullets.map((bullet) => (
-              <B.EnemyBullet
-                key={bullet.id}
-                id={bullet.id}
-                size={[0.3, 6, 6]}
-                position={bullet.position}
-                velocity={bullet.velocity}
-                handleBulletCollision={handleBulletCollision}
-              />
-            ))}
+            {enemyBullets
+              .filter((b) => b.active)
+              .map((bullet) => (
+                <EnemyBullet
+                  key={bullet.id}
+                  id={bullet.id}
+                  size={[0.3, 6, 6]}
+                  position={bullet.position}
+                  velocity={bullet.velocity}
+                  handleEnemyBulletCollision={handleEnemyBulletCollision}
+                />
+              ))}
             <LevelLayout
               layout={layout}
               amountEnemy={amountEnemy}
@@ -262,13 +272,22 @@ export default function Scene() {
               setCurrentWeapon={setCurrentWeapon}
               isShoot={isShoot}
             />
+            {isDashing && powerUps["dashShield"] && <Shield />}
+            <Ninja />
           </Physics>
         </Suspense>
+        {hitParticles.map((p) => (
+          <HitParticles
+            key={p.id}
+            position={p.position}
+            color={p.color}
+            removeHitParticles={p.removeHitParticles}
+          />
+        ))}
       </Canvas>
 
-      <HealthBar health={playerHealth} />
-      <DashBar dashBar={dashBar} />
       <BossHealthBar bosses={bosses} />
+      <UserInterface />
       <Minimap layout={layout} playerRef={playerRef} />
 
       {showDamageOverlay && <DamageOverlay />}
@@ -289,6 +308,7 @@ export default function Scene() {
       {playerHealth <= 0 && (
         <GameOverOverlay handlePlayAgain={handlePlayAgain} />
       )}
+      <RadialBullet bulletSpeed={30} amountBullets={16} />
       {/* 
       <div
         ref={backgroundTransitionRef}

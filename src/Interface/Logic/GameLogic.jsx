@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { Vector2, Vector3 } from "three";
-import useSound from "use-sound";
-import shootSound from "/assets/audio/Retro_Gun_SingleShot_04.wav";
 import { generateLayout } from "../../Environment/GenerateLayout";
 import { usePlayerStore } from "./usePlayerStore";
 import { usePoolStore } from "./usePoolStore";
+import { playerSingleShoot, playerSpreadShoot } from "./ShootingBehavior";
+import HitParticles from "../../Characters/HitParticles";
+import { color } from "framer-motion";
+import { usePowerUpStore } from "./usePowerUpStore";
 
 export default function useGameLogic(playerRef, triggerCameraShake) {
   // player
@@ -12,8 +14,14 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
   const initialDashCooldown = 1000;
   const initialMaxDashBar = 2;
   const [dashShield, setDashShield] = useState();
-  const [playerHealth, setPlayerHealth] = useState(initialHealth);
+  const playerHealth = usePlayerStore((state) => state.stats.health);
+  const stats = usePlayerStore((state) => state.stats);
 
+  const setPlayerRef = usePlayerStore((state) => state.setPlayerRef);
+
+  useEffect(() => {
+    setPlayerRef(playerRef);
+  }, [playerRef, setPlayerRef]);
 
   const [playerDirection, setPlayerDirection] = useState(null);
   const [mouse, setMouse] = useState(new Vector2());
@@ -25,12 +33,11 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
 
   // Weapon cooldown configuration
   const weaponConfig = {
-    pistol: { interval: 350, damage: 10, auto: true },
-    shotgun: { interval: 1000, damage: 20, auto: true },
-    machineGun: { interval: 80, damage: 4, auto: true },
+    pistol: { interval: 350, damage: 10 },
+    shotgun: { interval: 1000, damage: 10 },
+    machineGun: { interval: 80, damage: 3 },
   };
   const [currentWeapon, setCurrentWeapon] = useState("machineGun");
-  const currentWeaponFireRate = weaponConfig[currentWeapon];
   const canShoot = useRef(true);
   const isMouseDownRef = useRef(false);
 
@@ -41,6 +48,20 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
   const [bosses, setBosses] = useState(null);
   const shootingIntervalRef = useRef(null);
   const hasBeatBoss = useRef(false);
+
+  // Global State
+  const getAvailablePlayerBullet = usePoolStore(
+    (state) => state.getAvailablePlayerBullet
+  );
+  const activatePlayerBullet = usePoolStore(
+    (state) => state.activatePlayerBullet
+  );
+  const initializeBulletPool = usePoolStore(
+    (state) => state.initializeBulletPool
+  );
+  const deactivatePlayerBullet = usePoolStore(
+    (state) => state.deactivatePlayerBullet
+  );
 
   // level
   const level = useRef(1);
@@ -78,13 +99,8 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     }
   }, [showDamageOverlay]);
 
-  const playerBullets = usePoolStore((state) => state.playerBullets);
-  const getAvailablePlayerBullet = usePoolStore((state) => state.getAvailablePlayerBullet);
-  const activatePlayerBullet = usePoolStore((state) => state.activatePlayerBullet);
-  const initializeBulletPool = usePoolStore((state) => state.initializeBulletPool);
-
   useEffect(() => {
-    initializeBulletPool(40);
+    initializeBulletPool(200, 200);
   }, []);
 
   // player shooting
@@ -116,52 +132,37 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
 
         const bulletSpeed = 40;
         const playerPos = playerRef.current.translation();
-        const amountPellet = 5;
-        const spreadAngle = 1;
+        const position = [playerPos.x, 1, playerPos.z];
+        const velocity = {
+          x: playerDirectionRef.current.x * bulletSpeed,
+          y: 0,
+          z: playerDirectionRef.current.z * bulletSpeed,
+        };
 
         if (currentWeapon === "pistol") {
-          const position = [playerPos.x, 1, playerPos.z];
-          const velocity = {
-            x: playerDirectionRef.current.x * bulletSpeed,
-            y: 0,
-            z: playerDirectionRef.current.z * bulletSpeed,
-          };
-
-          const id = getAvailablePlayerBullet();
-          activatePlayerBullet(id, position, velocity);
+          playerSingleShoot(
+            position,
+            velocity,
+            getAvailablePlayerBullet,
+            activatePlayerBullet
+          );
         } else if (currentWeapon === "shotgun") {
-          const pellets = [];
-          for (let i = 0; i < amountPellet; i++) {
-            const angleOffset = (Math.random() - 0.5) * spreadAngle;
-            const direction = new Vector3(
-              playerDirectionRef.current.x,
-              0,
-              playerDirectionRef.current.z
-            )
-              .applyAxisAngle(new Vector3(0, 1, 0), angleOffset)
-              .normalize();
-            const velocity = {
-              x: direction.x * bulletSpeed,
-              y: 0,
-              z: direction.z * bulletSpeed,
-            };
-            pellets.push({
-              id: Math.random(),
-              position: [playerPos.x, 1, playerPos.z],
-              velocity,
-            });
-          }
-          // setPlayerBullets((prev) => [...prev, ...pellets]);
+          const amountBullets = 5;
+          playerSpreadShoot(
+            amountBullets,
+            position,
+            bulletSpeed,
+            playerDirectionRef,
+            getAvailablePlayerBullet,
+            activatePlayerBullet
+          );
         } else if (currentWeapon === "machineGun") {
-          const position = [playerPos.x, 1, playerPos.z];
-          const velocity = {
-            x: playerDirectionRef.current.x * bulletSpeed,
-            y: 0,
-            z: playerDirectionRef.current.z * bulletSpeed,
-          };
-
-          const id = getAvailablePlayerBullet();
-          activatePlayerBullet(id, position, velocity);
+          playerSingleShoot(
+            position,
+            velocity,
+            getAvailablePlayerBullet,
+            activatePlayerBullet
+          );
         }
 
         isShoot.current = true;
@@ -199,10 +200,15 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     }
   }, [currentWeapon, playerRef]);
 
-  const deactivatePlayerBullet = usePoolStore((state) => state.deactivatePlayerBullet); 
-  const handleRemoveBullet = (bulletId) => {
+  const deactivateEnemyBullet = usePoolStore(
+    (state) => state.deactivateEnemyBullet
+  );
+  const removePlayerBullet = (bulletId) => {
     deactivatePlayerBullet(bulletId);
-    setEnemyBullets((prev) => prev.filter((bullet) => bullet.id !== bulletId));
+  };
+
+  const removeEnemyBullet = (bulletId) => {
+    deactivateEnemyBullet(bulletId);
   };
 
   // remove enemy
@@ -222,18 +228,34 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     });
   };
 
-  // bullet collision
-  const handleBulletCollision = (manifold, target, other, bulletId) => {
+  const removeHitParticles = () => {
+    setHitParticles((prev) => prev.slice(1));
+  };
+
+  const increaseStat = usePlayerStore((state) => state.increaseStat);
+  const [hitParticles, setHitParticles] = useState([]);
+  const handlePlayerBulletCollision = (
+    manifold,
+    target,
+    other,
+    bulletId,
+    bulletRef
+  ) => {
+    const bulletPos = bulletRef.current.translation();
+    const position = [bulletPos.x, bulletPos.y, bulletPos.z];
+    
     if (other.rigidBodyObject.name.startsWith("Enemy-")) {
       const enemyId = parseInt(other.rigidBodyObject.name.split("-")[1]);
       handleRemoveEnemy(enemyId);
-    } else if (other.rigidBodyObject.name === "Player") {
-      if (!isInvincibleRef.current && playerHealth >= 1) {
-        setPlayerHealth((prev) => prev - 1);
-        setShowDamageOverlay(true);
-        setIsInvincible(true);
-        setTimeout(() => setIsInvincible(false), 1000);
-      }
+      setHitParticles((prev) => [
+        ...prev,
+        {
+          id: Date.now() + Math.random(),
+          position: position,
+          color: "red",
+          removeHitParticles: removeHitParticles,
+        },
+      ]);
     } else if (other.rigidBodyObject.name === "Overseer") {
       setBosses((prev) => {
         if (!prev) return null;
@@ -247,19 +269,53 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
 
         return { ...prev, health: newHealth };
       });
+      setHitParticles((prev) => [
+        ...prev,
+        {
+          id: Date.now() + Math.random(),
+          position: position,
+          color: "red",
+          removeHitParticles: removeHitParticles,
+        },
+      ]);
+    } else {
+      setHitParticles((prev) => [
+        ...prev,
+        {
+          id: Date.now() + Math.random(),
+          position: position,
+          color: "orange",
+          removeHitParticles: removeHitParticles,
+        },
+      ]);
     }
-    handleRemoveBullet(bulletId);
+
+    removePlayerBullet(bulletId);
+  };
+
+  const handleEnemyBulletCollision = (manifold, target, other, bulletId) => {
+    if (
+      other.rigidBodyObject.name === "Player" &&
+      !isInvincibleRef.current &&
+      stats.health >= 1
+    ) {
+      increaseStat("health", -1);
+      setShowDamageOverlay(true);
+      setIsInvincible(true);
+      setTimeout(() => setIsInvincible(false), 200);
+    }
+
+    removeEnemyBullet(bulletId);
   };
 
   // melee enemy collision
   const handleMeleeEnemyCollision = (manifold, target, other) => {
     if (other.rigidBodyObject.name === "Player") {
-      // reset invincibility frame after 1 second
       if (!isInvincibleRef.current) {
-        setPlayerHealth((prev) => prev - 1);
+        increaseStat("health", -1);
         setShowDamageOverlay(true);
         setIsInvincible(true);
-        setTimeout(() => setIsInvincible(false), 1000);
+        setTimeout(() => setIsInvincible(false), 200);
       }
     }
   };
@@ -270,10 +326,10 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     }
   }, [playerHealth]);
 
+  const resetStats = usePlayerStore((state) => state.resetStats);
+  const resetPowerUps = usePowerUpStore((state) => state.resetPowerUps);
   const handlePlayAgain = () => {
-    setPlayerHealth(initialHealth);
-    dashCooldown.current = initialDashCooldown;
-    maxDashBar.current = initialMaxDashBar;
+    resetStats();
     level.current = 1;
     setLayout(generateLayout(level.current));
     hasBeatBoss.current = false;
@@ -285,6 +341,7 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     setCurrentWeapon("pistol");
     isGameRunning.current = true;
     gameResetKey.current++;
+    resetPowerUps();
   };
 
   return {
@@ -302,7 +359,8 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     maxDashBar,
     setDashBar,
     showDamageOverlay,
-    handleBulletCollision,
+    handlePlayerBulletCollision,
+    handleEnemyBulletCollision,
     handleMeleeEnemyCollision,
     bosses,
     setBosses,
@@ -319,5 +377,7 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     setCurrentWeapon,
     setDashShield,
     dashShield,
+    hitParticles,
+    setHitParticles,
   };
 }

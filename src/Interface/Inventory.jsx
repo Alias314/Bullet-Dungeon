@@ -1,17 +1,19 @@
 import { useState } from "react";
+import { usePlayerStore } from "./Logic/usePlayerStore";
+
 
 export function HealthBar({ health }) {
   return (
-    <div className="absolute top-2 left-2 bg-red-500 p-2 text-white text-2xl font-semibold">
+    <div className="absolute font-DePixelHalbfett top-2 left-2 bg-red-500 p-2 text-white text-2xl font-semibold select-none">
       Health: {health}
     </div>
   );
 }
 
-export function DashBar({ dashBar }) {
+export function DashBar({ dashes }) {
   return (
-    <div className="absolute top-15 left-2 bg-blue-500 p-2 text-white text-2xl font-semibold">
-      Dashes: {dashBar}
+    <div className="absolute font-DePixelHalbfett top-15 left-2 bg-blue-500 p-2 text-white text-2xl font-semibold select-none">
+      Dashes: {dashes}
     </div>
   );
 }
@@ -79,7 +81,7 @@ export function BossHealthBar({ bosses, maxHealth = 1500 }) {
   );
 
   return (
-    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-[800px] h-6 bg-gray-800 border-2 border-gray-600">
+    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-[800px] h-6 bg-gray-800 border-2 border-gray-600 select-none">
       <div
         className="h-full bg-amber-400"
         style={{ width: `${healthPercent}%` }}

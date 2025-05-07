@@ -5,14 +5,22 @@ export const usePoolStore = create((set, get) => ({
   playerBullets: [],
   enemyBullets: [],
 
-  initializeBulletPool: (amount) => {
-    const bullets = Array.from({ length: amount }, (_, i) => ({
+  initializeBulletPool: (playerBulletAmount, enemyBulletAmount) => {
+    const bullets1 = Array.from({ length: playerBulletAmount }, (_, i) => ({
       id: i,
       active: false,
       position: [0, 0, 0],
       velocity: { x: 0, y: 0, z: 0 },
     }));
-    set({ playerBullets: bullets });
+    const bullets2 = Array.from({ length: enemyBulletAmount }, (_, i) => ({
+      id: i,
+      active: false,
+      position: [0, 0, 0],
+      velocity: { x: 0, y: 0, z: 0 },
+    }));
+
+    set({ playerBullets: bullets1 });
+    set({ enemyBullets: bullets2 });
   },
 
   getAvailablePlayerBullet: () => {
@@ -64,7 +72,7 @@ export const usePoolStore = create((set, get) => ({
       ...bullet[id],
       active: false,
       position: [0, 0, 0],
-      velocity: [0, 0, 0],
+      velocity: { x: 0, y: 0, z: 0 },
     };
     set({ enemyBullets: [...bullet] });
   },
