@@ -49,6 +49,7 @@ export default function Scene() {
   const [showRoomClear, setShowRoomClear] = useState(false);
   const [hasBeatLevel, setHasBeatLevel] = useState(false);
   const backgroundTransitionRef = useRef();
+  const audioRef = useRef();
 
   const triggerCameraShake = () => {
     shakeRef.current = 0;
@@ -85,10 +86,12 @@ export default function Scene() {
   } = useGameLogic(playerRef, triggerCameraShake);
 
   useEffect(() => {
-    const gameplayAudio = new Audio("assets/audio/Digestive_Biscuit.mp3");
-    gameplayAudio.volume = 0;
-    gameplayAudio.loop = true;
-    gameplayAudio.play();
+    if (audioRef.current) {
+      audioRef.current.volume = 0.25;
+      audioRef.current.currentTime = 0;
+      audioRef.current.loop = true;
+      audioRef.current.play();
+    }
   }, []);
 
   useEffect(() => {
@@ -104,26 +107,26 @@ export default function Scene() {
     setPlayerRef(playerRef);
   }, [playerRef.current]);
 
-  // useGSAP(() => {
-  //   const context = gsap.context(() => {
-  //     const timeline = gsap.timeline();
+  useGSAP(() => {
+    const context = gsap.context(() => {
+      const timeline = gsap.timeline();
 
-  //     timeline.fromTo(
-  //       ".intro-text",
-  //       { opacity: 0, y: 20 },
-  //       { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
-  //     );
+      timeline.fromTo(
+        ".intro-text",
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
+      );
 
-  //     timeline.to(backgroundTransitionRef.current, {
-  //       opacity: 0,
-  //       duration: 1,
-  //       ease: "power2.in",
-  //       delay: 0.3,
-  //     });
-  //   }, backgroundTransitionRef);
+      timeline.to(backgroundTransitionRef.current, {
+        opacity: 0,
+        duration: 1,
+        ease: "power2.in",
+        delay: 0.3,
+      });
+    }, backgroundTransitionRef);
 
-  //   return () => context.revert();
-  // }, []);
+    return () => context.revert();
+  }, []);
 
   const stats = usePlayerStore((state) => state.stats);
   const playerBullets = usePoolStore((state) => state.playerBullets);
@@ -301,15 +304,16 @@ export default function Scene() {
       )}
       <RadialBullet bulletSpeed={30} amountBullets={16} />
       <Timer />
+      <audio ref={audioRef} src="assets/audio/BLACK SOULS BOSS BATTLE THEME REMIX (A.K.A. 11TH LILITH).mp3" />
 
-      {/* <div
+      <div
         ref={backgroundTransitionRef}
         className="w-full h-full inset-0 absolute flex items-center justify-center bg-black pointer-events-none opacity-100"
       >
         <h1 className="intro-text font-DePixelHalbfett text-5xl text-white font-semibold">
           Defeat the boss
         </h1>
-      </div> */}
+      </div>
     </div>
   );
 }
