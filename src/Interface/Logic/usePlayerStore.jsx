@@ -3,7 +3,7 @@ import { create } from "zustand";
 const initialStats = {
   level: 0,
   xp: 0,
-  health: 1000,
+  health: 10,
   hpRegeneration: 0,
   lifeSteal: 0,
   damage: 0,
