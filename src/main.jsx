@@ -29,6 +29,7 @@ useGLTF.preload("assets/models/sword.glb");
 useGLTF.preload("assets/models/treasureChestClosed.glb");
 useGLTF.preload("assets/models/treasureChestOpen.glb");
 useGLTF.preload("assets/models/uzi.glb");
+useGLTF.preload("assets/models/woodenBox.glb");
 
 createRoot(document.getElementById("root")).render(
     <StrictMode>

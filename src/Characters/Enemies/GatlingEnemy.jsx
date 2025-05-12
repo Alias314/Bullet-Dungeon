@@ -119,12 +119,12 @@ export default function GatlingEnemy({
           bulletSpread = bulletSpread - bulletSpread / 2;
           const direction = new Vector3(
             playerPos.x - enemyPos.x + bulletSpread,
-            playerPos.y - enemyPos.y,
+            0,
             playerPos.z - enemyPos.z + bulletSpread
           ).normalize();
           const velocity = {
             x: direction.x * bulletSpeed,
-            y: direction.y * bulletSpeed,
+            y: 0,
             z: direction.z * bulletSpeed,
           };
           const position = [enemyPos.x, enemyPos.y, enemyPos.z];

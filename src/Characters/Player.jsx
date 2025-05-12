@@ -23,7 +23,6 @@ export default function Player({
   isGameRunning,
   currentWeapon,
   isShoot,
-  dashShield,
 }) {
   const meshRef = useRef();
   const raycaster = useRef(new Raycaster());
@@ -35,7 +34,6 @@ export default function Player({
     s: false,
     d: false,
   });
-  // const [isDashing, setIsDashing] = useState(false);
   const isDashing = usePlayerStore((state) => state.isDashing);
   const setIsDashing = usePlayerStore((state) => state.setIsDashing);
   const [dashDirection, setDashDirection] = useState(new Vector3());

@@ -3,7 +3,7 @@ import { create } from "zustand";
 const initialStats = {
   level: 0,
   xp: 0,
-  health: 10000,
+  health: 1000,
   hpRegeneration: 0,
   lifeSteal: 0,
   damage: 0,
@@ -21,6 +21,7 @@ const initialStats = {
 export const usePlayerStore = create((set) => ({
   playerRef: null,
   isDashing: false,
+  isInvincible: false,
   stats: {
     ...initialStats,
   },
@@ -44,4 +45,5 @@ export const usePlayerStore = create((set) => ({
   resetStats: () => set({ stats: { ...initialStats } }),
   setPlayerRef: (ref) => set({ playerRef: ref }),
   setIsDashing: (value) => set({isDashing: value}),
+  setIsInvincible: (value) => set({isInvincible: value}),
 }));

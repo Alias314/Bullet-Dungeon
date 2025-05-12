@@ -74,9 +74,17 @@ export default function TreasureChest({
         collisionGroups={interactionGroups(4, [0, 1, 2, 3])}
       >
         {isOpen ? (
-          <primitive object={treasureChestOpen} scale={0.55} position={[0, 0.2, 0]} />
+          <primitive
+            object={treasureChestOpen}
+            scale={0.55}
+            position={[0, 0.2, 0]}
+          />
         ) : (
-          <primitive object={treasureChestClosed} scale={0.55} position={[0, 0.2, 0]} />
+          <primitive
+            object={treasureChestClosed}
+            scale={0.55}
+            position={[0, 0.2, 0]}
+          />
         )}
       </RigidBody>
 

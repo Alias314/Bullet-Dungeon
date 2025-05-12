@@ -61,7 +61,6 @@ export default function Scene() {
     setAmountEnemy,
     enemies,
     setEnemies,
-    playerHealth,
     dashBar,
     dashCooldown,
     maxDashBar,
@@ -72,7 +71,6 @@ export default function Scene() {
     handleMeleeEnemyCollision,
     bosses,
     setBosses,
-    isInvincible,
     isShoot,
     hasBeatBoss,
     level,
@@ -83,10 +81,7 @@ export default function Scene() {
     gameResetKey,
     currentWeapon,
     setCurrentWeapon,
-    dashShield,
-    setDashShield,
     hitParticles,
-    setHitParticles,
   } = useGameLogic(playerRef, triggerCameraShake);
 
   useEffect(() => {
@@ -109,27 +104,28 @@ export default function Scene() {
     setPlayerRef(playerRef);
   }, [playerRef.current]);
 
-  useGSAP(() => {
-    const context = gsap.context(() => {
-      const timeline = gsap.timeline();
+  // useGSAP(() => {
+  //   const context = gsap.context(() => {
+  //     const timeline = gsap.timeline();
 
-      timeline.fromTo(
-        ".intro-text",
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
-      );
+  //     timeline.fromTo(
+  //       ".intro-text",
+  //       { opacity: 0, y: 20 },
+  //       { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
+  //     );
 
-      timeline.to(backgroundTransitionRef.current, {
-        opacity: 0,
-        duration: 1,
-        ease: "power2.in",
-        delay: 0.3,
-      });
-    }, backgroundTransitionRef);
+  //     timeline.to(backgroundTransitionRef.current, {
+  //       opacity: 0,
+  //       duration: 1,
+  //       ease: "power2.in",
+  //       delay: 0.3,
+  //     });
+  //   }, backgroundTransitionRef);
 
-    return () => context.revert();
-  }, []);
+  //   return () => context.revert();
+  // }, []);
 
+  const stats = usePlayerStore((state) => state.stats);
   const playerBullets = usePoolStore((state) => state.playerBullets);
   const enemyBullets = usePoolStore((state) => state.enemyBullets);
   const isDashing = usePlayerStore((state) => state.isDashing);
@@ -171,13 +167,9 @@ export default function Scene() {
               setPlayerDirection={setPlayerDirection}
               dashBar={dashBar}
               setDashBar={setDashBar}
-              isInvincible={isInvincible}
-              dashCooldown={dashCooldown.current}
-              maxDashBar={maxDashBar.current}
               isGameRunning={isGameRunning}
               currentWeapon={currentWeapon}
               isShoot={isShoot}
-              dashShield={dashShield}
             />
             {enemies &&
               enemies.map((enemy) => {
@@ -299,26 +291,25 @@ export default function Scene() {
           dashCooldown={dashCooldown}
           maxDashBar={maxDashBar}
           playerRef={playerRef}
-          setDashShield={setDashShield}
         />
       )}
       {hasBeatBoss.current && (
         <VictoryOverlay handlePlayAgain={handlePlayAgain} />
       )}
-      {playerHealth <= 0 && (
+      {stats.health <= 0 && (
         <GameOverOverlay handlePlayAgain={handlePlayAgain} />
       )}
       <RadialBullet bulletSpeed={30} amountBullets={16} />
       <Timer />
-      
-      <div
+
+      {/* <div
         ref={backgroundTransitionRef}
         className="w-full h-full inset-0 absolute flex items-center justify-center bg-black pointer-events-none opacity-100"
       >
         <h1 className="intro-text font-DePixelHalbfett text-5xl text-white font-semibold">
           Defeat the boss
         </h1>
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import Floor from "../Floor";
 import WallsAndGates from "../Logic/CreateWallsAndGates"; // adjust path as needed
 import useRoomWaveSpawner from "../Logic/useRoomWaveSpawner"; // adjust path as needed
 import { useRef } from "react";
+import CreateObstacles from "../Logic/CreateObstacles";
 
 // small room is 25x20
 export default function SmallRoomTemplate({
@@ -27,11 +28,8 @@ export default function SmallRoomTemplate({
         Math.abs(position[2] - playerPos.z),
       ]
     : null;
-  // const maxWavesRef = useRef(Math.floor(Math.random() * 3) + 1);
   const maxWavesRef = useRef(1);
 
-
-  // Call the custom hook that handles wave/enemy spawning logic.
   useRoomWaveSpawner({
     playerPos,
     position,
@@ -45,31 +43,6 @@ export default function SmallRoomTemplate({
     maxWavesRef,
   });
 
-  // Obstacle layout for walls and gates (unchanged)
-  const obstacleLayout = [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  ];
-
   return (
     <>
       {playerPos &&
@@ -77,13 +50,19 @@ export default function SmallRoomTemplate({
         absoluteDistance[0] <= distanceToView &&
         absoluteDistance[2] <= distanceToView && (
           <>
-            <Floor roomDimensions={roomDimensions} position={[position[0] + 0.5, position[1], position[2]]} />
+            <Floor
+              roomDimensions={roomDimensions}
+              position={[position[0] + 0.5, position[1], position[2]]}
+            />
             <WallsAndGates
               position={[position[0] + 0.5, position[1], position[2]]}
               roomDimensions={roomDimensions}
               openings={openings}
               amountEnemy={amountEnemy}
-              obstacleLayout={obstacleLayout}
+            />
+            <CreateObstacles
+              position={position}
+              roomDimensions={roomDimensions}
             />
           </>
         )}

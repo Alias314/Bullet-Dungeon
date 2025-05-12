@@ -65,7 +65,7 @@ export function RadialBullet({ bulletSpeed, amountBullets }) {
       }
 
       console.log(position);
-    }, 250);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, [powerUps["radialBullet"]]);

@@ -10,10 +10,6 @@ import { usePowerUpStore } from "./usePowerUpStore";
 
 export default function useGameLogic(playerRef, triggerCameraShake) {
   // player
-  const initialHealth = 10;
-  const initialDashCooldown = 1000;
-  const initialMaxDashBar = 2;
-  const [dashShield, setDashShield] = useState();
   const playerHealth = usePlayerStore((state) => state.stats.health);
   const stats = usePlayerStore((state) => state.stats);
 
@@ -26,8 +22,6 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
   const [playerDirection, setPlayerDirection] = useState(null);
   const [mouse, setMouse] = useState(new Vector2());
   const [dashBar, setDashBar] = useState(2);
-  const dashCooldown = useRef(initialDashCooldown);
-  const maxDashBar = useRef(initialMaxDashBar);
   const [showDamageOverlay, setShowDamageOverlay] = useState(false);
   const isShoot = useRef(false);
 
@@ -37,7 +31,7 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     shotgun: { interval: 1000, damage: 10 },
     machineGun: { interval: 80, damage: 3 },
   };
-  const [currentWeapon, setCurrentWeapon] = useState("machineGun");
+  const [currentWeapon, setCurrentWeapon] = useState("pistol");
   const canShoot = useRef(true);
   const isMouseDownRef = useRef(false);
 
@@ -77,12 +71,7 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     );
   }, []);
 
-  // invincibility frame
-  const [isInvincible, setIsInvincible] = useState(false);
-  const isInvincibleRef = useRef(isInvincible);
-  useEffect(() => {
-    isInvincibleRef.current = isInvincible;
-  }, [isInvincible]);
+  // const isInvincible = usePlayerStore((state) => state.isInvincible);
 
   const playerDirectionRef = useRef(playerDirection);
   useEffect(() => {
@@ -243,7 +232,7 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
   ) => {
     const bulletPos = bulletRef.current.translation();
     const position = [bulletPos.x, bulletPos.y, bulletPos.z];
-    
+
     if (other.rigidBodyObject.name.startsWith("Enemy-")) {
       const enemyId = parseInt(other.rigidBodyObject.name.split("-")[1]);
       handleRemoveEnemy(enemyId);
@@ -293,16 +282,20 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     removePlayerBullet(bulletId);
   };
 
+  const setIsInvincible = usePlayerStore((state) => state.setIsInvincible);
+  
   const handleEnemyBulletCollision = (manifold, target, other, bulletId) => {
+    const isInvincible = usePlayerStore.getState().isInvincible;
     if (
       other.rigidBodyObject.name === "Player" &&
-      !isInvincibleRef.current &&
+      !isInvincible &&
       stats.health >= 1
     ) {
       increaseStat("health", -1);
       setShowDamageOverlay(true);
       setIsInvincible(true);
-      setTimeout(() => setIsInvincible(false), 200);
+      setTimeout(() => setIsInvincible(false), 1000);
+      console.log(isInvincible);
     }
 
     removeEnemyBullet(bulletId);
@@ -310,13 +303,16 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
 
   // melee enemy collision
   const handleMeleeEnemyCollision = (manifold, target, other) => {
-    if (other.rigidBodyObject.name === "Player") {
-      if (!isInvincibleRef.current) {
-        increaseStat("health", -1);
-        setShowDamageOverlay(true);
-        setIsInvincible(true);
-        setTimeout(() => setIsInvincible(false), 200);
-      }
+    const isInvincible = usePlayerStore.getState().isInvincible;
+    if (
+      other.rigidBodyObject.name === "Player" &&
+      !isInvincible &&
+      stats.health >= 1
+    ) {
+      increaseStat("health", -1);
+      setShowDamageOverlay(true);
+      setIsInvincible(true);
+      setTimeout(() => setIsInvincible(false), 1000);
     }
   };
 
@@ -353,18 +349,12 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     setAmountEnemy,
     enemies,
     setEnemies,
-    playerHealth,
-    dashBar,
-    dashCooldown,
-    maxDashBar,
-    setDashBar,
     showDamageOverlay,
     handlePlayerBulletCollision,
     handleEnemyBulletCollision,
     handleMeleeEnemyCollision,
     bosses,
     setBosses,
-    isInvincible,
     isShoot,
     hasBeatBoss,
     level,
@@ -375,8 +365,6 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     gameResetKey,
     currentWeapon,
     setCurrentWeapon,
-    setDashShield,
-    dashShield,
     hitParticles,
     setHitParticles,
   };

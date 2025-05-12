@@ -8,7 +8,7 @@ export default function WallsAndGates({
   roomDimensions,
   openings,
   amountEnemy,
-  obstacleLayout = [] // default to an empty array if not provided
+  obstacleLayout = []
 }) {
   const walls = [];
   const gates = [];

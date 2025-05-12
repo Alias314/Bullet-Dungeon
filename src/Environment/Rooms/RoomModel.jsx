@@ -42,7 +42,7 @@ export default function RoomModel({
     setShowRoomClear,
     maxWavesRef,
   });
-  const { scene } = useGLTF("/assets/models/testRoom.glb");
+  const { scene } = useGLTF("/assets/models/roomModel.glb");
 
   return (
     <group>
