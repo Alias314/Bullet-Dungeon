@@ -13,7 +13,7 @@ export default function WallSegment({ position, size }) {
     >
       <mesh castShadow>
         <boxGeometry args={size} />
-        <meshStandardMaterial color="orange" />
+        <meshStandardMaterial color="orange" transparent={true} opacity={0.7} depthWrite={false} />
       </mesh>
 
       <lineSegments>

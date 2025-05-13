@@ -42,6 +42,7 @@ import { usePlayerStore } from "./Logic/usePlayerStore";
 import Shield from "../Characters/Shield";
 import { usePowerUpStore } from "./Logic/usePowerUpStore";
 import HitParticles from "../Characters/HitParticles";
+import { useGameStore } from "./Logic/useGameStore";
 
 export default function Scene() {
   const playerRef = useRef();
@@ -50,6 +51,7 @@ export default function Scene() {
   const [hasBeatLevel, setHasBeatLevel] = useState(false);
   const backgroundTransitionRef = useRef();
   const audioRef = useRef();
+  const isDamaged = useGameStore((state) => state.isDamaged);
 
   const triggerCameraShake = () => {
     shakeRef.current = 0;
@@ -66,7 +68,6 @@ export default function Scene() {
     dashCooldown,
     maxDashBar,
     setDashBar,
-    showDamageOverlay,
     handlePlayerBulletCollision,
     handleEnemyBulletCollision,
     handleMeleeEnemyCollision,
@@ -285,7 +286,7 @@ export default function Scene() {
       <UserInterface />
       <Minimap layout={layout} playerRef={playerRef} />
 
-      {showDamageOverlay && <DamageOverlay />}
+      {isDamaged && <DamageOverlay />}
       {showRoomClear && <RoomCLearOverlay />}
       {hasBeatLevel && (
         <PowerUpOverlay

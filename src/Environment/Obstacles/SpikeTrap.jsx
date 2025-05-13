@@ -1,9 +1,10 @@
 import { useGLTF } from "@react-three/drei";
 import { useEffect, useState } from "react";
 import { usePlayerStore } from "../../Interface/Logic/usePlayerStore";
-import { pre } from "framer-motion/client";
+import { pre, tr } from "framer-motion/client";
 import { useMemo } from "react";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
+import { useGameStore } from "../../Interface/Logic/useGameStore";
 
 export default function SpikeTrap({ isUsed, position }) {
   const playerRef = usePlayerStore((state) => state.playerRef);
@@ -15,6 +16,7 @@ export default function SpikeTrap({ isUsed, position }) {
   const setIsInvincible = usePlayerStore((state) => state.setIsInvincible);
   const trapUsed = useMemo(() => clone(spikeTrapUsed),  [spikeTrapUsed]);
   const trapIdle = useMemo(() => clone(spikeTrapNotUsed),  [spikeTrapNotUsed]);
+  const setIsDamaged = useGameStore((state) => state.setIsDamaged);
   
   const distanceToTrigger = 1;
   
@@ -37,6 +39,7 @@ export default function SpikeTrap({ isUsed, position }) {
       ) {
         increaseStat("health", -1);
         setIsInvincible(true);
+        setIsDamaged(true);
 
         const timeout = setTimeout(() => {
           setIsInvincible(false);

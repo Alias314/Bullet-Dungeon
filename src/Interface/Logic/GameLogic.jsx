@@ -7,6 +7,7 @@ import { playerSingleShoot, playerSpreadShoot } from "./ShootingBehavior";
 import HitParticles from "../../Characters/HitParticles";
 import { color } from "framer-motion";
 import { usePowerUpStore } from "./usePowerUpStore";
+import { useGameStore } from "./useGameStore";
 
 export default function useGameLogic(playerRef, triggerCameraShake) {
   // player
@@ -21,8 +22,8 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
 
   const [playerDirection, setPlayerDirection] = useState(null);
   const [mouse, setMouse] = useState(new Vector2());
-  const [dashBar, setDashBar] = useState(2);
-  const [showDamageOverlay, setShowDamageOverlay] = useState(false);
+  const isDamaged = useGameStore((state) => state.isDamaged);
+  const setIsDamaged = useGameStore((state) => state.setIsDamaged);
   const isShoot = useRef(false);
 
   // Weapon cooldown configuration
@@ -71,8 +72,6 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     );
   }, []);
 
-  // const isInvincible = usePlayerStore((state) => state.isInvincible);
-
   const playerDirectionRef = useRef(playerDirection);
   useEffect(() => {
     playerDirectionRef.current = playerDirection;
@@ -80,13 +79,13 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
 
   // damage overlay
   useEffect(() => {
-    if (showDamageOverlay) {
+    if (isDamaged) {
       const timeout = setTimeout(() => {
-        setShowDamageOverlay(false);
+        setIsDamaged(false);
       }, 1000);
       return () => clearTimeout(timeout);
     }
-  }, [showDamageOverlay]);
+  }, [isDamaged]);
 
   useEffect(() => {
     initializeBulletPool(200, 200);
@@ -283,7 +282,7 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
   };
 
   const setIsInvincible = usePlayerStore((state) => state.setIsInvincible);
-  
+
   const handleEnemyBulletCollision = (manifold, target, other, bulletId) => {
     const isInvincible = usePlayerStore.getState().isInvincible;
     if (
@@ -292,7 +291,7 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
       stats.health >= 1
     ) {
       increaseStat("health", -1);
-      setShowDamageOverlay(true);
+      setIsDamaged(true);
       setIsInvincible(true);
       setTimeout(() => setIsInvincible(false), 1000);
       console.log(isInvincible);
@@ -310,7 +309,7 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
       stats.health >= 1
     ) {
       increaseStat("health", -1);
-      setShowDamageOverlay(true);
+      setIsDamaged(true);
       setIsInvincible(true);
       setTimeout(() => setIsInvincible(false), 1000);
     }
@@ -349,7 +348,6 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
     setAmountEnemy,
     enemies,
     setEnemies,
-    showDamageOverlay,
     handlePlayerBulletCollision,
     handleEnemyBulletCollision,
     handleMeleeEnemyCollision,

@@ -182,9 +182,9 @@ export default function Menu() {
         Gungeon
       </h1>
 
-      <div className="absolute flex flex-col top-80 left-30 gap-8">
-        <h1 className="text-5xl">A Fast-Paced Dungeon Shooter</h1>
-        <p className="w-150 text-xl text-gray-800 leading-relaxed">
+      <div className="absolute flex flex-col top-80 left-30">
+        <h1 className="mb-10 text-5xl">A Fast-Paced Dungeon Shooter</h1>
+        <p className="w-150 mb-8 text-xl text-gray-800 leading-relaxed">
           Gungeon is a top-down dungeon crawler where you fight your way through
           random rooms filled with enemies, traps, and loot. Pick up guns, dodge
           bullets, and descend through multiple levels to face the boss. Simple
@@ -193,20 +193,14 @@ export default function Menu() {
         <div className="flex gap-2">
           <button
             onClick={handlePlay}
-            className="p-3 pl-10 pr-10 text-xl text-white bg-gray-900 rounded-xl border-black border-2 hover:bg-gray-700 hover:border-gray-700 transition duration-200"
+            className="py-3 px-12 text-xl text-white bg-gray-900 rounded-xl border-black border-2 hover:bg-gray-700 hover:border-gray-700 transition duration-200"
           >
             Play
-          </button>
-          <button
-            onClick={handleAbout}
-            className="p-3 pl-10 pr-10 text-xl text-black bg-white rounded-xl border-black border-2 hover:bg-gray-700 hover:text-white hover:border-gray-700 transition duration-200"
-          >
-            About
           </button>
         </div>
       </div>
 
-      <section
+      {/* <section
         id="about"
         className="min-h-screen bg-white px-8 py-20 rounded-t-4xl"
       >
@@ -303,7 +297,7 @@ export default function Menu() {
 
       <div ref={backgroundTransitionRef} className="w-full h-full fixed inset-0 bg-black opacity-0 pointer-events-none">
 
-      </div>
+      </div> */}
     </div>
   );
 }

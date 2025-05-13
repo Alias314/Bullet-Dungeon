@@ -3,7 +3,7 @@ import SpikeTrap from "../Obstacles/SpikeTrap";
 import WoodenBox from "../Obstacles/WoodenBox";
 
 const getRandomPos = (position, roomDimensions) => {
-  const margin = 1;
+  const margin = 2;
   const x = Math.floor(
     Math.random() * (roomDimensions[0] - 2 * margin) -
       (roomDimensions[0] - 2 * margin) / 2 +
