@@ -311,8 +311,8 @@ export default function Scene() {
         ref={backgroundTransitionRef}
         className="w-full h-full inset-0 absolute flex items-center justify-center bg-black pointer-events-none opacity-100"
       >
-        <h1 className="intro-text font-DePixelHalbfett text-5xl text-white font-semibold">
-          Defeat the boss
+        <h1 className="intro-text text-6xl text-white font-semibold">
+          Level 1
         </h1>
       </div>
     </div>

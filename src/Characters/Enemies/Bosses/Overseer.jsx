@@ -13,25 +13,25 @@ import {
   dash,
 } from "../../Logic/EnemyMovementBehavior";
 import { Vector3 } from "three";
-import {
-  radialShoot,
-  pistolShoot,
-  shotgunShoot,
-  radialMachineGun,
-  radialBarrageShoot,
-} from "../../Logic/EnemyShootingBehavior";
 import { delay } from "../../../Utils/Helper";
 import { useGLTF } from "@react-three/drei";
+import {
+  enemyRadialShoot,
+  enemySpreadShoot,
+  radialBarrageShoot,
+} from "../../../Interface/Logic/ShootingBehavior";
+import { usePoolStore } from "../../../Interface/Logic/usePoolStore";
 
 export default function Overseer({ id, playerRef, position, setEnemyBullets }) {
   const enemyRef = useRef();
   const speed = 2;
   const bossStates = ["follow", "barrage"];
-  const [bossState, setBossState] = useState(bossStates[0]);
+  const [bossState, setBossState] = useState(bossStates[1]);
   const { scene } = useGLTF("/assets/models/boss.glb");
   const meshRef = useRef();
   const localTime = useRef(0);
   const shootAudioRef = useRef();
+
   useEffect(() => {
     shootAudioRef.current = new Audio(
       "assets/audio/Retro_Gun_SingleShot_04.wav"
@@ -80,44 +80,56 @@ export default function Overseer({ id, playerRef, position, setEnemyBullets }) {
     }
   });
 
-  const barrageAttack = async (enemyPos) => {
-    await delay(1000);
-    await radialBarrageShoot(
-      enemyPos,
-      setEnemyBullets,
+  const getAvailableEnemyBullet = usePoolStore(
+    (state) => state.getAvailableEnemyBullet
+  );
+  const activateEnemyBullet = usePoolStore(
+    (state) => state.activateEnemyBullet
+  );
+  const barrageAttack = async () => {
+    const enemyPos = enemyRef.current.translation();
+    const position = [enemyPos.x, 1, enemyPos.z];
+
+    radialBarrageShoot(
+      position,
       10,
-      10,
-      28,
-      shootAudioRef
+      9,
+      48,
+      getAvailableEnemyBullet,
+      activateEnemyBullet
     );
-    await delay(300);
-    radialShoot(enemyPos, setEnemyBullets, 10, 32, shootAudioRef);
   };
 
-  const followAttack = async (playerPos, enemyPos) => {
-    await shotgunShoot(
+  const followAttack = async () => {
+    const playerPos = playerRef.current.translation();
+    const enemyPos = enemyRef.current.translation();
+    const position = [enemyPos.x, 1, enemyPos.z];
+
+    enemySpreadShoot(
       playerPos,
       enemyPos,
+      position,
       10,
-      5,
-      setEnemyBullets,
-      shootAudioRef
+      4,
+      getAvailableEnemyBullet,
+      activateEnemyBullet
     );
-    await delay(1000);
-    enemyPos = enemyRef.current.translation();
-    await radialShoot(enemyPos, setEnemyBullets, 10, 18, shootAudioRef);
+    enemyRadialShoot(
+      position,
+      10,
+      8,
+      getAvailableEnemyBullet,
+      activateEnemyBullet
+    );
   };
 
   useEffect(() => {
     if (bossState === "barrage") {
-      const enemyPos = enemyRef.current.translation();
-      barrageAttack(enemyPos);
+      barrageAttack();
     } else if (bossState === "follow") {
       const interval = setInterval(() => {
-        const playerPos = playerRef.current.translation();
-        const enemyPos = enemyRef.current.translation();
-        followAttack(playerPos, enemyPos);
-      }, 2000);
+        followAttack();
+      }, 900);
 
       return () => clearInterval(interval);
     }
@@ -129,7 +141,7 @@ export default function Overseer({ id, playerRef, position, setEnemyBullets }) {
         prevState === "follow" ? "barrage" : "follow"
       );
     };
-    const interval = setInterval(toggleBossState, 10000);
+    const interval = setInterval(toggleBossState, 8000);
     return () => clearInterval(interval);
   }, []);
 

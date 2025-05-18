@@ -44,6 +44,6 @@ export const usePlayerStore = create((set) => ({
 
   resetStats: () => set({ stats: { ...initialStats } }),
   setPlayerRef: (ref) => set({ playerRef: ref }),
-  setIsDashing: (value) => set({isDashing: value}),
-  setIsInvincible: (value) => set({isInvincible: value}),
+  setIsDashing: (value) => set({ isDashing: value }),
+  setIsInvincible: (value) => set({ isInvincible: value }),
 }));

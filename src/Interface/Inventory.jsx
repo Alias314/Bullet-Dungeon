@@ -72,7 +72,7 @@ export function Hotbar({ selectedWeapon }) {
   );
 }
 
-export function BossHealthBar({ bosses, maxHealth = 1500 }) {
+export function BossHealthBar({ bosses, maxHealth = 600 }) {
   if (!bosses) return null;
 
   const healthPercent = Math.max(

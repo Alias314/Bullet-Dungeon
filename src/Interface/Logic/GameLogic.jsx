@@ -13,7 +13,6 @@ export default function useGameLogic(playerRef, triggerCameraShake) {
   // player
   const playerHealth = usePlayerStore((state) => state.stats.health);
   const stats = usePlayerStore((state) => state.stats);
-
   const setPlayerRef = usePlayerStore((state) => state.setPlayerRef);
 
   useEffect(() => {
